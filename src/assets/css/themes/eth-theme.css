@@ -1,0 +1,16 @@
+.eth-theme {
+  --color-primary: rgba(0, 172, 201, 1);
+  --color-primary-accent: rgba(0, 172, 201, 0.9);
+  --color-secondary: rgba(255, 171, 64, 1);
+  --color-secondary-accent: rgba(255, 171, 64, 0.9);
+  --color-primary-button: var(--color-secondary);
+  --color-secondary-button: var(--color-primary);
+  --color-background: #000000;
+  --color-background-offset: #212121;
+  --color-grey: #999;
+  --color-dark-text: #ffffff; /* inverted theme with black bg color needs white text */
+  --color-light-text: var(--color-background-offset);
+  --color-h1: var(--color-secondary);
+  --color-primary-button-text: var(--color-background);
+  --color-secondary-button-text: var(--color-dark-text);
+}

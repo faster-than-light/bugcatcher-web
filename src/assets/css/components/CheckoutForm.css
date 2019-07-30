@@ -1,0 +1,17 @@
+#pay {
+  margin-bottom: 270px;
+}
+#payment input {
+  /* text-transform: uppercase; */
+  background-color: #fff;
+  border: none;
+  padding: 0;
+  color: var(--color-grey);
+}
+.add-card {
+  background: #fff;
+  padding: 18px;
+  margin: 18px 0;
+  border-radius: 9px;
+  border: 1px solid #ccc;
+}

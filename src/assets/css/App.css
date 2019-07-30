@@ -1,0 +1,139 @@
+@import "./components/Buttons.css";
+
+@font-face {
+  font-family: Montserrat;
+  src: url(../fonts/Montserrat/Montserrat-Medium.otf);
+}
+@font-face {
+  font-family: StarTrek;
+  src: url('../fonts/StarTrek/StarTrek.ttf.eot'); /* IE9 Compat Modes */
+  src: url('../fonts/StarTrek/StarTrek.ttf.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('../fonts/StarTrek/StarTrek.ttf.woff') format('woff'), /* Pretty Modern Browsers */
+       url('../fonts/StarTrek/StarTrek.ttf.svg#svgFontName') format('svg'); /* Legacy iOS */
+}
+
+body, html, .app, #root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  color: #000;
+  background-color: var(--color-background);
+  margin: 0;
+  padding: 0;
+  font: 400 15px/1.8 "Montserrat", sans-serif;
+}
+
+a, a.link {
+  cursor: pointer;
+  color: var(--color-primary);
+}
+
+.lead {
+  font-size: 120%;
+  font-weight: 450;
+}
+.left-justify {
+  text-align: left;
+}
+.full-width {
+  width: 100%;
+  display: block;
+}
+.dont-break-out {
+
+  /* These are technically the same, but use both */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+
+}
+code, pre {
+  color: darkred;
+}
+
+/* containers */
+.theme {
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+.contents {
+  padding: 90px 24px 0 24px;
+  max-width: 900px;
+  margin: auto;
+}
+
+/* text colors */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-dark-text);
+}
+.theme,
+.theme h2,
+.theme h3,
+.theme h4,
+.theme h5,
+.theme h6
+{
+  color: var(--color-grey);
+}
+.theme h1
+{
+  color: var(--color-h1);
+}
+
+/* colors */
+.primary-color {
+  color: var(--color-secondary);
+}
+.primary-bg-color {
+  background-color: var(--color-secondary);
+}
+.secondary-color {
+  color: var(--color-primary);
+}
+.secondary-bg-color {
+  background-color: var(--color-primary);
+}
+.light-grey-color {
+  color: var(--color-light-grey);
+}
+.light-grey-bg-color {
+  background-color: var(--color-light-grey);
+}
+.grey-color {
+  color: var(--color-grey);
+}
+.grey-bg-color {
+  color: #333;
+  background-color: #ccc;
+}
+.grey-bg-color:hover {
+  color: #333;
+  background-color: #ddd;
+}
+
+.block { display: inline-block; }
+.hide { display: none; }
+
+
+/* horizontal rule */
+div.stl-hr.accented.primary-bg-color {
+  box-shadow: 0px 1px #000, 0px 2px var(--color-primary);
+}
+div.stl-hr.accented.secondary-bg-color {
+  box-shadow: 0px 1px #000, 0px 2px var(--color-secondary);
+}
+
+@import "./themes/eth-theme.css";
+@import "./themes/java-theme.css";
+@import "./themes/python-theme.css";

@@ -1,0 +1,36 @@
+.subscribe {
+  text-align: center;
+  padding: 3%;
+  margin: 0 auto;
+  max-width: 450px;
+}
+.subscribe > div > div {
+  padding: 6px 0;
+  text-align: left;
+}
+.subscribe input {
+  border: none;
+  color: #fff;
+  padding: 9px 12px;
+  border-radius: 4.5px;
+  font-size: 1rem;
+  background-color: rgba(255, 255, 255, 0.21);
+  width: 49%;
+  margin-right: 1%;
+}
+.subscribe input:last-child {
+  margin-left: 1%;
+  margin-right: 0;
+}
+.subscribe input[type=email] {
+  width: 67%;
+}
+.subscribe button {
+  width: 30%;
+  margin-left: 2%;
+}
+.subscribe .status-message > div {
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 12px;
+}

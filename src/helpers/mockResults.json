@@ -1,0 +1,736 @@
+{
+  "test_run": {
+      "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+      "status_code": 200,
+      "status_msg": "COMPLETE",
+      "start": "2019-05-23 01:21:07.727536+00:00",
+      "end": "2019-05-23 01:22:02.442670+00:00",
+      "estimated_completion_time": "None",
+      "percent_complete": 100,
+      "codes": [
+          {
+              "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+              "project": "sclack-master",
+              "name": "tests/test_quick_switcher.py",
+              "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+              "filetype": "python"
+          }
+      ]
+  },
+  "test_run_result": [
+      {
+          "stlid": "2HpIbVK83HcOpK2BUfpoYAr6zUuN1AVVIErfLsz1",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "avbEIkHACYtU54pThD0zay4mNu8IfbWz6MlsI6As",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b101",
+              "ftl_test_id": "ftl-jompqbdu",
+              "suite_short_description": "assert_used",
+              "suite_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "ftl_short_description": "assert_used",
+              "ftl_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "suite_severity": "low",
+              "ftl_severity": "low",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html']"
+          },
+          "code": {
+              "stlid": "oVC9TFjsGXUZptUEP9cThYdbEQhp5L0nBaKbK3Ia",
+              "project": "sclack-master",
+              "name": "tests/test_api.py",
+              "sha256": "db31f45135cb1aa6b8409a8ed207a292a43a8a0f864235c12c3054655281d5e8",
+              "filetype": "python"
+          },
+          "start_line": 25,
+          "end_line": 25,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "3baBiOsdV3h9kxNgj5WtVTcf5btNqOeZPEyl8HyA",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "avbEIkHACYtU54pThD0zay4mNu8IfbWz6MlsI6As",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b101",
+              "ftl_test_id": "ftl-jompqbdu",
+              "suite_short_description": "assert_used",
+              "suite_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "ftl_short_description": "assert_used",
+              "ftl_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "suite_severity": "low",
+              "ftl_severity": "low",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html']"
+          },
+          "code": {
+              "stlid": "oVC9TFjsGXUZptUEP9cThYdbEQhp5L0nBaKbK3Ia",
+              "project": "sclack-master",
+              "name": "tests/test_api.py",
+              "sha256": "db31f45135cb1aa6b8409a8ed207a292a43a8a0f864235c12c3054655281d5e8",
+              "filetype": "python"
+          },
+          "start_line": 20,
+          "end_line": 20,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "7yeG2ym12E2EEV66qUO3WDeB3ePkSNY28lzSJ6n2",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "AGtUB8ntjAAk59laEoeMe1VCglEjuGsMgdm2VtwB",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b110",
+              "ftl_test_id": "ftl-exm5avaz",
+              "suite_short_description": "try_except_pass",
+              "suite_long_description": "Try, Except, Pass detected.",
+              "ftl_short_description": "try_except_pass",
+              "ftl_long_description": "Try, Except, Pass detected.",
+              "suite_severity": "low",
+              "ftl_severity": "low",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/plugins/b110_try_except_pass.html']"
+          },
+          "code": {
+              "stlid": "aBHp4BUhHEiy3xy2AiL3CI9nQZ9prXOsrrigK24R",
+              "project": "sclack-master",
+              "name": "app.py",
+              "sha256": "bab5a33e8ed3235dad1a0d46457ae44fb13131fdb8aef1b54ffdb4167988c8f3",
+              "filetype": "python"
+          },
+          "start_line": 329,
+          "end_line": 329,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "DfG940yue4TRPsoDu0jp5cDKPd4Zny4sJ6niMCD3",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "avbEIkHACYtU54pThD0zay4mNu8IfbWz6MlsI6As",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b101",
+              "ftl_test_id": "ftl-jompqbdu",
+              "suite_short_description": "assert_used",
+              "suite_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "ftl_short_description": "assert_used",
+              "ftl_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "suite_severity": "low",
+              "ftl_severity": "low",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html']"
+          },
+          "code": {
+              "stlid": "oDYtwkDAI4b8pncrnR4ygYu5oQ71ylxyKkVNT6nV",
+              "project": "sclack-master",
+              "name": "tests/test_markdown.py",
+              "sha256": "f61917a27ae8001538ddebf69a78f3ee6f5f718875c80bc3c2b8026682addab2",
+              "filetype": "python"
+          },
+          "start_line": 27,
+          "end_line": 28,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "NycNRgOCUlkhozRA4UCtZnXkX5Puzo2uKVn6S7IV",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "avbEIkHACYtU54pThD0zay4mNu8IfbWz6MlsI6As",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b101",
+              "ftl_test_id": "ftl-jompqbdu",
+              "suite_short_description": "assert_used",
+              "suite_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "ftl_short_description": "assert_used",
+              "ftl_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "suite_severity": "low",
+              "ftl_severity": "low",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html']"
+          },
+          "code": {
+              "stlid": "oVC9TFjsGXUZptUEP9cThYdbEQhp5L0nBaKbK3Ia",
+              "project": "sclack-master",
+              "name": "tests/test_api.py",
+              "sha256": "db31f45135cb1aa6b8409a8ed207a292a43a8a0f864235c12c3054655281d5e8",
+              "filetype": "python"
+          },
+          "start_line": 43,
+          "end_line": 43,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "Opyvcg3uEKCkeWj3BDBJhJDY0Be2QtVUQ3fg17hP",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "avbEIkHACYtU54pThD0zay4mNu8IfbWz6MlsI6As",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b101",
+              "ftl_test_id": "ftl-jompqbdu",
+              "suite_short_description": "assert_used",
+              "suite_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "ftl_short_description": "assert_used",
+              "ftl_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "suite_severity": "low",
+              "ftl_severity": "low",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html']"
+          },
+          "code": {
+              "stlid": "oDYtwkDAI4b8pncrnR4ygYu5oQ71ylxyKkVNT6nV",
+              "project": "sclack-master",
+              "name": "tests/test_markdown.py",
+              "sha256": "f61917a27ae8001538ddebf69a78f3ee6f5f718875c80bc3c2b8026682addab2",
+              "filetype": "python"
+          },
+          "start_line": 21,
+          "end_line": 21,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "W0pMDKJUN9ACfKRilysPSp1jhVLxIE3ymFmY0ipw",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "IAV9f9tA0q67NsdyVXqBEKqy5eW8zgJK0BZgM2sx",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b404",
+              "ftl_test_id": "ftl-bzee4fuj",
+              "suite_short_description": "blacklist",
+              "suite_long_description": "Consider possible security implications associated with subprocess module.",
+              "ftl_short_description": "blacklist",
+              "ftl_long_description": "Consider possible security implications associated with subprocess module.",
+              "suite_severity": "low",
+              "ftl_severity": "low",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/blacklists/blacklist_imports.html#b404-import-subprocess']"
+          },
+          "code": {
+              "stlid": "NqBNPAKuj5vfFq4k4u5p6Ir6fVszU2UAbqk04p0K",
+              "project": "sclack-master",
+              "name": "sclack/image.py",
+              "sha256": "29131cd8aba10fc213a6a51a01664ba0a507e6fa46952b34cc0fca4bbe19f8e9",
+              "filetype": "python"
+          },
+          "start_line": 1,
+          "end_line": 1,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "dUHZPUQSUf4uzQFbYng5peqIqJPYVd2HKZM2kObd",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "avbEIkHACYtU54pThD0zay4mNu8IfbWz6MlsI6As",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b101",
+              "ftl_test_id": "ftl-jompqbdu",
+              "suite_short_description": "assert_used",
+              "suite_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "ftl_short_description": "assert_used",
+              "ftl_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "suite_severity": "low",
+              "ftl_severity": "low",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html']"
+          },
+          "code": {
+              "stlid": "oDYtwkDAI4b8pncrnR4ygYu5oQ71ylxyKkVNT6nV",
+              "project": "sclack-master",
+              "name": "tests/test_markdown.py",
+              "sha256": "f61917a27ae8001538ddebf69a78f3ee6f5f718875c80bc3c2b8026682addab2",
+              "filetype": "python"
+          },
+          "start_line": 24,
+          "end_line": 24,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "gHJwjZQmCNBfsJjCGwwLuc8Pg4Oj1M4bOZInnFt1",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "avbEIkHACYtU54pThD0zay4mNu8IfbWz6MlsI6As",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b101",
+              "ftl_test_id": "ftl-jompqbdu",
+              "suite_short_description": "assert_used",
+              "suite_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "ftl_short_description": "assert_used",
+              "ftl_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "suite_severity": "low",
+              "ftl_severity": "low",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html']"
+          },
+          "code": {
+              "stlid": "oVC9TFjsGXUZptUEP9cThYdbEQhp5L0nBaKbK3Ia",
+              "project": "sclack-master",
+              "name": "tests/test_api.py",
+              "sha256": "db31f45135cb1aa6b8409a8ed207a292a43a8a0f864235c12c3054655281d5e8",
+              "filetype": "python"
+          },
+          "start_line": 61,
+          "end_line": 61,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "pZA7cfRsAplsOU9wqCVWdCzugcP3lyahzImywoDX",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "avbEIkHACYtU54pThD0zay4mNu8IfbWz6MlsI6As",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b101",
+              "ftl_test_id": "ftl-jompqbdu",
+              "suite_short_description": "assert_used",
+              "suite_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "ftl_short_description": "assert_used",
+              "ftl_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "suite_severity": "low",
+              "ftl_severity": "low",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html']"
+          },
+          "code": {
+              "stlid": "oVC9TFjsGXUZptUEP9cThYdbEQhp5L0nBaKbK3Ia",
+              "project": "sclack-master",
+              "name": "tests/test_api.py",
+              "sha256": "db31f45135cb1aa6b8409a8ed207a292a43a8a0f864235c12c3054655281d5e8",
+              "filetype": "python"
+          },
+          "start_line": 34,
+          "end_line": 34,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "phK9X5j5n3kO3kJiCIMKuL4PEKK6knphoBPyc9h4",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "avbEIkHACYtU54pThD0zay4mNu8IfbWz6MlsI6As",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b101",
+              "ftl_test_id": "ftl-jompqbdu",
+              "suite_short_description": "assert_used",
+              "suite_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "ftl_short_description": "assert_used",
+              "ftl_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "suite_severity": "medium",
+              "ftl_severity": "medium",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html']"
+          },
+          "code": {
+              "stlid": "oVC9TFjsGXUZptUEP9cThYdbEQhp5L0nBaKbK3Ia",
+              "project": "sclack-master",
+              "name": "tests/test_api.py",
+              "sha256": "db31f45135cb1aa6b8409a8ed207a292a43a8a0f864235c12c3054655281d5e8",
+              "filetype": "python"
+          },
+          "start_line": 52,
+          "end_line": 52,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "qbBWByNna447n0K99hQkmDHv66mTd4pKEfURHKh6",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "olDJA6uKIe2DBFXe1mvzxt0dkmPFZwALx47B0nEg",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b322",
+              "ftl_test_id": "ftl-ld4gjl8f",
+              "suite_short_description": "blacklist",
+              "suite_long_description": "The input method in Python 2 will read from standard input, evaluate and run the resulting string as python source code. This is similar, though in many ways worse, then using eval. On Python 2, use raw_input instead, input is safe in Python 3.",
+              "ftl_short_description": "blacklist",
+              "ftl_long_description": "The input method in Python 2 will read from standard input, evaluate and run the resulting string as python source code. This is similar, though in many ways worse, then using eval. On Python 2, use raw_input instead, input is safe in Python 3.",
+              "suite_severity": "high",
+              "ftl_severity": "high",
+              "ftl_severity_ordinal": 0,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/blacklists/blacklist_calls.html#b322-input']"
+          },
+          "code": {
+              "stlid": "aBHp4BUhHEiy3xy2AiL3CI9nQZ9prXOsrrigK24R",
+              "project": "sclack-master",
+              "name": "app.py",
+              "sha256": "bab5a33e8ed3235dad1a0d46457ae44fb13131fdb8aef1b54ffdb4167988c8f3",
+              "filetype": "python"
+          },
+          "start_line": 927,
+          "end_line": 927,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "xtewylAHSJNGY2owdUcx7yXxsKJGC4q6azpxGzSC",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "avbEIkHACYtU54pThD0zay4mNu8IfbWz6MlsI6As",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b101",
+              "ftl_test_id": "ftl-jompqbdu",
+              "suite_short_description": "assert_used",
+              "suite_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "ftl_short_description": "assert_used",
+              "ftl_long_description": "Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+              "suite_severity": "low",
+              "ftl_severity": "low",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/plugins/b101_assert_used.html']"
+          },
+          "code": {
+              "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+              "project": "sclack-master",
+              "name": "tests/test_quick_switcher.py",
+              "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+              "filetype": "python"
+          },
+          "start_line": 4,
+          "end_line": 4,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      },
+      {
+          "stlid": "y8k5gwJL4uaQ0GUDGH3A89OcbVKDtf0EL3MP1jJi",
+          "test_run": {
+              "stlid": "lugX2kssMFV7UMDorPQBheYF66tA789wcAUHJZIc",
+              "status_code": 200,
+              "status_msg": "COMPLETE",
+              "start": "2019-05-23 01:21:07.727536+00:00",
+              "end": "2019-05-23 01:22:02.442670+00:00",
+              "estimated_completion_time": "None",
+              "percent_complete": 100,
+              "codes": [
+                  {
+                      "stlid": "9eqTvSeDHd9mZVkAM5sWXCdUjcWiLX0J5bkSHcCd",
+                      "project": "sclack-master",
+                      "name": "tests/test_quick_switcher.py",
+                      "sha256": "e81ede729709212d1876d4b90f0489a52f96c25b64369bba529b32d7affaf7d3",
+                      "filetype": "python"
+                  }
+              ]
+          },
+          "test_suite_test": {
+              "stlid": "P03krpeeimZqrP4wlEQcud0DAOmFxB0m58GJsY0B",
+              "test_suite": {
+                  "stlid": "19yZ3qRROk8MKtJRs4MOKP77zb9r2oYQIQBiMbaV",
+                  "name": "bandit",
+                  "language": "python"
+              },
+              "suite_test_id": "b603",
+              "ftl_test_id": "ftl-wr09asz6",
+              "suite_short_description": "subprocess_without_shell_equals_true",
+              "suite_long_description": "subprocess call - check for execution of untrusted input.",
+              "ftl_short_description": "subprocess_without_shell_equals_true",
+              "ftl_long_description": "subprocess call - check for execution of untrusted input.",
+              "suite_severity": "low",
+              "ftl_severity": "low",
+              "ftl_severity_ordinal": 2,
+              "more_information_uris": "['https://bandit.readthedocs.io/en/latest/plugins/b603_subprocess_without_shell_equals_true.html']"
+          },
+          "code": {
+              "stlid": "NqBNPAKuj5vfFq4k4u5p6Ir6fVszU2UAbqk04p0K",
+              "project": "sclack-master",
+              "name": "sclack/image.py",
+              "sha256": "29131cd8aba10fc213a6a51a01664ba0a507e6fa46952b34cc0fca4bbe19f8e9",
+              "filetype": "python"
+          },
+          "start_line": 59,
+          "end_line": 59,
+          "start_column": null,
+          "confidence": "high",
+          "commentary": "None"
+      }
+  ]
+}

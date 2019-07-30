@@ -1,0 +1,14 @@
+#faq {
+  text-align: left;
+  clear: both;
+  margin: 42px auto 90px auto;
+  background-color: #fff;
+  border-radius: 9px;
+  padding: 21px;
+}
+#faq .faq-q {
+  font-weight: bold;
+}
+#faq .faq-a {
+  margin: auto 21px;
+}

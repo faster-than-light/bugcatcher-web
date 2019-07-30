@@ -1,0 +1,16 @@
+.python-theme {
+  --color-primary: #3774a7;
+  --color-primary-accent: rgba(55, 116, 167, 0.9);
+  --color-secondary: #ffd849;
+  --color-secondary-accent: #f3c600;
+  --color-primary-button: var(--color-primary);
+  --color-secondary-button: var(--color-secondary);
+  --color-background: #ececec;
+  --color-background-offset: #ffffff;
+  --color-grey: rgb(78, 78, 78);
+  --color-dark-text: #000000;
+  --color-light-text: var(--color-background);
+  --color-h1: var(--color-primary);
+  --color-primary-button-text: var(--color-background);
+  --color-secondary-button-text: var(--color-dark-text);
+}

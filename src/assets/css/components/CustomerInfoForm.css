@@ -1,0 +1,17 @@
+#customer_info_form {
+    text-align: left;
+    margin: auto;
+}
+
+#customer_info_form label {
+    color: #999;
+}
+
+/**
+ * Responsive Styles
+ */
+@media (min-width: 450px) {
+    #customer_info_form {
+        max-width: 450px;
+    }
+}

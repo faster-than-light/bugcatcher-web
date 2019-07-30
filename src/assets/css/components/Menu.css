@@ -1,0 +1,127 @@
+.menu {
+  position: fixed;
+  top: 0;
+  z-index: 999;
+  color: var(--color-dark-text);
+  background-color: var(--color-background-offset);
+  text-align: center;
+  padding: 12px;
+  text-align: right;
+  width: 100%;
+}
+.menu-title {
+  text-align: center;
+  font-size: 2.1rem;
+}
+.menu-menu {
+  padding: 0 15px 0 15px;
+}
+.menu-menu.fixed {
+  background-color: var(--color-background);
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+.menu a {
+  color: var(--color-dark-text);
+  cursor: pointer;
+  text-decoration: none;
+}
+.menu .link {
+  color: var(--color-dark-text);
+}
+.menu a:hover,
+.menu .link:hover {
+  color: #00acc9;
+}
+.menu-menu > .link:first-child {
+  border-left: none;
+}
+.menu-style {
+  text-align: center;
+  color: var(--color-dark-text);
+}
+
+.menu .avatar {
+  width: 36px;
+  height: 36px;
+  margin-right: 9px;
+  vertical-align: middle;
+}
+
+.menu .home-link {
+  float: left;
+  font-size: 1.23rem;
+}
+.menu .home-link img {
+  width: 33px;
+  height: 33px;
+  vertical-align: middle;
+  margin-right: 12px;
+}
+
+.menu .logo-text {
+  font-family: StarTrek;
+  letter-spacing: 0.0321em;
+  font-size: 150%;
+}
+
+.menu .nav-links {
+  padding-left: 21px;
+  float: left;
+}
+.menu .nav-links a,
+.menu .nav-links .btn {
+  display: inline-block;
+  padding: 9px 21px;
+  cursor: pointer;
+}
+
+#signin {
+  display: inline-block;
+}
+
+.avatar {
+  display: none;
+}
+
+
+.mobile-menu .navbar-collapse {
+  text-align: left;
+}
+.mobile-menu .navbar-collapse ul,
+.mobile-menu .navbar-collapse li,
+.mobile-menu .navbar-collapse li a {
+  display: block;
+  width: 100%;
+  padding: 0;
+}
+.mobile-menu .navbar-collapse li a {
+  padding: 6px 0 6px 15px;
+  border-bottom: 1px solid #ccc;
+}
+.mobile-menu .navbar-collapse .navbar-brand {
+  display: block;
+}
+.mobile-menu .navbar-collapse .log-in-out {
+  padding-top: 9px;
+  clear: both;
+  margin-left: 15px;
+}
+
+
+/* mobile / responsive */
+@media (min-width: 321px) {
+  .avatar {
+    display: inline-block;
+  }
+}
+@media (max-width: 768px) {
+  .menu .nav-links {
+    padding-left: 12px;
+  }
+  .menu .nav-links a,
+  .menu .nav-links .btn {
+    padding: 4.5px 12px;
+  }
+}

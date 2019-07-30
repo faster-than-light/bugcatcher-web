@@ -1,0 +1,57 @@
+#results {
+  --color-primary: #3774a7;
+  --color-primary-accent: rgba(55, 116, 167, 0.9);
+  --color-secondary: #ffd849;
+  --color-secondary-accent: #f3c600;
+
+  padding: 60px 30px;
+  margin: auto;
+  width: 93%;
+}
+.results-container  {
+	background: var(--color-background-offset);
+  color: var(--color-dark-text);
+  border-radius: 9px;
+  margin: 0.3em auto;
+  padding: 1.8em 0.3em;
+}
+.results-container .right-border {
+  border-right: 1px solid var(--color-background);
+}
+.results-container .badge {
+  color: var(--color-background-offset);
+  background-color: var(--color-grey);
+  border-radius: 4.5px;
+  padding: 4.5px 9px;
+  margin-right: 9px;
+}
+.results-container .badge.primary {
+  color: var(--color-background-offset);
+  background-color: var(--color-primary);
+}
+.results-container .badge.secondary {
+  color: var(--color-dark-text);
+  background-color: var(--color-secondary);
+}
+.results-container .severity {
+  text-align: 'center';
+}
+.results-container .severity.red-bg {
+  background-color: rgba(219, 40, 40, 0.15);
+}
+.results-container .severity.orange-bg {
+  background-color: rgba(242, 113, 28, 0.15);
+}
+.results-container .severity.yellow-bg {
+  background-color: rgba(251, 189, 8, 0.15);
+}
+.results-container .severity.green-bg {
+  background-color: rgba(33, 186, 69, 0.15);
+}
+
+.results-container .commentary {
+  border-left: 3px solid #ccc;
+  padding-left: 12px;
+  margin-bottom: 6px;
+  color: var(--color-grey);
+}

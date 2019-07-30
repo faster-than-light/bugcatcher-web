@@ -1,0 +1,67 @@
+.rocket-bg {
+  /* padding-top: 72px; */
+  /* background-image: url(../images/logo-w-trail.png), url(../images/starrynight-bg.jpg);
+  background-repeat: no-repeat, repeat;
+  background-position: center bottom, center center;
+  background-size: contain, 300px 300px; */
+}
+
+#upload {
+  padding-bottom: 90px;
+}
+.upload-container {
+  background: var(--color-background-offset);
+  color: var(--color-dark-text);
+  border-radius: 9px;
+  margin: 12px auto;
+  padding: 12px;
+}
+#upload .lead i {
+  color: brown;
+}
+#upload .btn {
+  font-size: 15px;
+  line-height: 1.8rem;
+}
+#upload .btn.small {
+  padding: 3px 9px;
+  font-size: 90%;
+}
+
+#upload .or {
+  font-size: large;
+  color: var(--color-dark-text);
+  padding-bottom: 15px;
+}
+
+/**
+ * Upload status blocks
+ */
+.upload-status {
+  margin-bottom: 21px;
+  font-size: 100%;
+}
+.upload-status .icon {
+  font-size: 123%;
+  margin-right: 12px;
+}
+.upload-status div.error,
+.upload-status div.success,
+.upload-status div.info {
+  padding: 6px;
+  margin: 9px 0;
+  opacity: 0.81;
+  border-radius: 9px;
+}
+.upload-status div.error {
+  background: var(--color-file-status-bg-error);
+  color: var(--color-file-status-text-error);
+}
+.upload-status div.success {
+  background: var(--color-file-status-bg-success);
+  color: var(--color-file-status-text-success);
+}
+.upload-status div.info {
+  background: var(--color-file-status-bg-info);
+  color: var(--color-file-status-text-info);
+}

@@ -1,0 +1,12 @@
+.ftl-modal {
+  font-size: 1.2rem;
+}
+.ftl-modal .modal-sm {
+  max-width: 300px;
+}
+.ftl-modal .modal-lg {
+  max-width: 800px;
+}
+.ftl-modal .modal-xl {
+  max-width: 1140px;
+}

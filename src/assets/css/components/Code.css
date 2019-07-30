@@ -1,0 +1,20 @@
+.data-table {
+  margin: 0;
+}
+
+.data-table a {
+  color: var(--color-dark-text);
+}
+
+section.projects {
+  margin-bottom: 21px;
+}
+
+.actions .ui.checkbox label {
+  color: var(--color-grey);
+}
+
+.progress {
+  height: auto;
+  background-color: transparent;
+}

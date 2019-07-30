@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "staging-sat",
+    "production": "prod-sat",
+    "dev-bat": "dev-bat-sat"
+  }
+}

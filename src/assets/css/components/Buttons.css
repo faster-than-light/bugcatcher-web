@@ -1,0 +1,125 @@
+/*
+ * buttons
+ */
+ a:not([href]):not([tabindex]),
+.btn.link, button.link {
+  color: var(--color-primary-button);
+}
+
+.button, .btn {
+  background-color: var(--color-primary-button);
+  color: var(--color-primary-button-text);
+  padding: 9px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn.disabled {
+  opacity: 0.81;
+  cursor: default;
+}
+.button.primary, .btn.primary {
+  background-color: var(--color-primary-button) !important;
+}
+.btn:hover {
+  background-color: var(--color-primary-button);
+  opacity: 0.81;
+  color: var(--color-primary-button-text);
+}
+/* .btn.disabled:hover {
+  background-color: var(--color-primary-button);
+  cursor: default;
+} */
+.btn.working {
+  background: transparent !important;
+  background-image: repeating-linear-gradient(
+    -45deg, var(--color-primary),
+    var(--color-primary) 12px,
+    var(--color-primary-accent) 12px,
+    var(--color-primary-accent) 24px
+  ) !important;
+  -webkit-animation:progress 9s linear infinite;
+  -moz-animation:progress 9s linear infinite;
+  -ms-animation:progress 9s linear infinite;
+  animation:progress 9s linear infinite;
+  background-size: 300% 100% !important;
+}
+.button.secondary, .btn.secondary {
+  background-color: var(--color-secondary-button);
+  color: var(--color-secondary-button-text);
+}
+.btn.secondary:hover {
+  background-color: var(--color-secondary-button);
+  opacity: 0.81;
+  color: var(--color-secondary-button-text);
+}
+.btn.secondary.working {
+  background: transparent !important;
+  background-image: repeating-linear-gradient(
+    -45deg, var(--color-secondary),
+    var(--color-secondary) 12px,
+    var(--color-secondary-accent) 12px,
+    var(--color-secondary-accent) 24px
+  ) !important;
+  -webkit-animation:progress 9s linear infinite;
+  -moz-animation:progress 9s linear infinite;
+  -ms-animation:progress 9s linear infinite;
+  animation:progress 9s linear infinite;
+  background-size: 300% 100% !important;
+}
+.btn.big {
+  padding: 15px 18px;
+  font-size: 162%;
+}
+.btn.small {
+  padding: 6px 9px;
+  font-size: 90%;
+}
+.center-text{
+  text-align: center;
+}
+.btn.link, button.link {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.red {
+  color: red !important;
+}
+
+/* button animations */
+@-webkit-keyframes progress{
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: -175px 0px;
+    }
+  }
+  @-moz-keyframes progress{
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: -175px 0px;
+    }
+  }
+  @-ms-keyframes progress{
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: -175px 0px;
+    }
+  }
+  @keyframes progress{
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: -170px 0px;
+    }
+  }
+  
+  

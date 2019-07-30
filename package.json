@@ -1,0 +1,51 @@
+{
+  "name": "stl-sat-pwa",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/faster-than-light/bugcatcher-web.git"
+  },
+  "private": true,
+  "dependencies": {
+    "animate.css": "3.7.0",
+    "bugcatcher-api": "1.0.25",
+    "downloadjs": "1.4.7",
+    "file-selector": "0.1.12",
+    "js-sha256": "0.9.0",
+    "moment": "2.24.0",
+    "react": "16.8.6",
+    "react-animate-on-scroll": "2.1.5",
+    "react-dom": "16.8.6",
+    "react-dropzone": "5.1.0",
+    "react-google-login": "3.2.1",
+    "react-mailchimp-subscribe": "2.1.0",
+    "react-popup": "0.10.0",
+    "react-router-dom": "4.3.1",
+    "react-scripts": "2.1.8",
+    "react-stripe-checkout": "2.6.3",
+    "react-stripe-elements": "2.0.3",
+    "semantic-ui-css": "2.4.1",
+    "semantic-ui-react": "0.82.5"
+  },
+  "scripts": {
+    "test": "react-scripts test --env=jsdom",
+    "start": "REACT_APP_STL_INTERNAL_SID=$STL_INTERNAL_SID REACT_APP_FTL_ENV=development react-scripts start",
+    "start:bat": "REACT_APP_STL_INTERNAL_SID=$STL_INTERNAL_SID REACT_APP_FTL_ENV=bat react-scripts start",
+    "start:prod": "REACT_APP_STL_INTERNAL_SID=$STL_INTERNAL_SID REACT_APP_FTL_ENV=production react-scripts start",
+    "start:local": "REACT_APP_STL_INTERNAL_SID=$STL_INTERNAL_SID REACT_APP_API_URI='http://localhost' REACT_APP_FTL_ENV=development react-scripts start",
+    "build": "REACT_APP_FTL_ENV=development react-scripts build",
+    "build:prod": "REACT_APP_FTL_ENV=production react-scripts build",
+    "build:bat": "REACT_APP_FTL_ENV=bat react-scripts build",
+    "fbdeploy": "npm run build && firebase use default && firebase deploy",
+    "fbdeploy:prod": "npm run build:prod && firebase use production && firebase deploy",
+    "fbdeploy:dev-bat": "npm run build:dev-bat && firebase use dev-bat && firebase deploy",
+    "pusheverywhere": "npm run fbdeploy && npm run fbdeploy:prod && git push",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

@@ -1,0 +1,45 @@
+.theme-modal {
+  background-color: #333;
+  border-radius: 9;
+  margin: auto;
+  padding: 21px;
+  font-size: 18px;
+  background-color: Black;
+  width: 93%;
+  max-width: 900px;
+  color: White;
+}
+.theme-modal ul li {
+  margin: 24px auto;
+  line-height: 26px;
+  list-style: none;
+}
+.theme-modal ul li::before {
+  content: "\2022";  /* Add content: \2022 is the CSS Code/unicode for a bullet */
+  color: var(--color-secondary); /* Change the color */
+  font-weight: bold; /* If you want it to be bold */
+  display: inline-block; /* Needed to add space between the bullet and the text */ 
+  width: 1em; /* Also needed for space (tweak if needed) */
+  margin-left: -1.11em; /* Also needed for space (tweak if needed) */
+}
+
+
+
+/** Annotations Modal */
+.annotation-modal,
+.annotation-modal .ftl-modal .modal-content,
+.annotation-modal .ftl-modal .modal-dialog {
+  height: 90%;
+}
+.inverted-modal .ftl-modal {
+  background-color: White;
+  color: Black;
+  height: 100%;
+}
+.ftl-modal textarea {
+  font-family: monospace, monospace;
+  font-size: 1em;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+}
