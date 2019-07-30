@@ -1,4 +1,4 @@
-import BugCatcher from 'bugcatcher-api'
+import BugCatcher from 'node-bugcatcher'
 import { apiUrl } from '../config'
 import { setCookie } from './cookies'
 import mockResults from './mockResults.json'

@@ -1,19 +1,19 @@
 {
   "name": "stl-sat-pwa",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/faster-than-light/bugcatcher-web.git"
   },
   "private": false,
-  "license" : "GPL-2.0",
+  "license": "GPL-2.0",
   "dependencies": {
     "animate.css": "3.7.0",
-    "bugcatcher-api": "1.0.25",
     "downloadjs": "1.4.7",
     "file-selector": "0.1.12",
     "js-sha256": "0.9.0",
     "moment": "2.24.0",
+    "node-bugcatcher": "1.0.26",
     "react": "16.8.6",
     "react-animate-on-scroll": "2.1.5",
     "react-dom": "16.8.6",
