@@ -7,7 +7,7 @@
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
 [![Tweet](https://img.shields.io/twitter/url/https/github.com%2Ffaster-than-light%2Fbugcatcher-web)](https://twitter.com/intent/tweet?text=BugCatcher%20https://github.com/faster-than-light/bugcatcher-web)
-[![Follow](https://img.shields.io/twitter/follow/FTLBugCatcher.svg?style=social&label=Follow)](https://twitter.com/FTLBugCatcher)
+<a href="https://twitter.com/FTLBugCatcher" target="_blank"><img src="https://img.shields.io/twitter/follow/FTLBugCatcher.svg?style=social&label=Follow" alt="Follow" /></a>
 
 
 ### Installation
