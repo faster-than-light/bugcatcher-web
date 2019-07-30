@@ -1,12 +1,18 @@
 ## Faster Than Light Static Analysis Tool - Frontend Web App
-[![Twitter Follow](https://img.shields.io/twitter/follow/SoHoTokenLabs.svg?style=social&label=Follow)](https://twitter.com/SoHoTokenLabs)
+[![Issues](https://img.shields.io/github/issues/faster-than-light/bugcatcher-web)](https://github.com/faster-than-light/bugcatcher-web/issues)
+![Forks](https://img.shields.io/github/forks/faster-than-light/bugcatcher-web)
+![Stars](https://img.shields.io/github/stars/faster-than-light/bugcatcher-web)
+![License](https://img.shields.io/github/license/faster-than-light/bugcatcher-web)
+
+[![Tweet](https://img.shields.io/twitter/url/https/github.com%2Ffaster-than-light%2Fbugcatcher-web)](https://twitter.com/intent/tweet?text=BugCatcher%20https://github.com/faster-than-light/bugcatcher-web)
+[![Follow](https://img.shields.io/twitter/follow/FTLBugCatcher.svg?style=social&label=Follow)](https://twitter.com/FTLBugCatcher)
 
 
 ### Installation
 **NPM**
 ```
 npm i
-npm run start
+npm start
 ```
 
 **Yarn**
