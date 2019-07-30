@@ -2,7 +2,7 @@
 [![Issues](https://img.shields.io/github/issues/faster-than-light/bugcatcher-web)](https://github.com/faster-than-light/bugcatcher-web/issues)
 ![Forks](https://img.shields.io/github/forks/faster-than-light/bugcatcher-web)
 ![Stars](https://img.shields.io/github/stars/faster-than-light/bugcatcher-web)
-![License](https://img.shields.io/github/license/faster-than-light/bugcatcher-web)
+[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
 [![Tweet](https://img.shields.io/twitter/url/https/github.com%2Ffaster-than-light%2Fbugcatcher-web)](https://twitter.com/intent/tweet?text=BugCatcher%20https://github.com/faster-than-light/bugcatcher-web)
 [![Follow](https://img.shields.io/twitter/follow/FTLBugCatcher.svg?style=social&label=Follow)](https://twitter.com/FTLBugCatcher)
