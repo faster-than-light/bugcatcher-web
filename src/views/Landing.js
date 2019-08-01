@@ -121,9 +121,11 @@ export default class Landing extends Component {
                   &nbsp;|&nbsp;
                   <Link to="/faq" className="primary-color"
                     style={linkStyle}>FAQ</Link>
-                  &nbsp;|&nbsp;
-                  <Link to="/tour" className="primary-color"
-                    style={linkStyle}>Tour</Link>
+                  <span style={{ display: process.env.REACT_APP_FTL_ENV !== 'production' ? 'inline-block' : 'none' }}>
+                    &nbsp;|&nbsp;
+                    <Link to="/tour" className="primary-color"
+                      style={linkStyle}>Tour</Link>
+                  </span>
                 </p>
               </React.Fragment>
               else if (!user.isSubscriber) return <div style={{ paddingTop: 12 }}>
