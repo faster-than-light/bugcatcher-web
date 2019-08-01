@@ -8,6 +8,7 @@
   --color-background: #ececec;
   --color-background-offset: #ffffff;
   --color-grey: rgb(78, 78, 78);
+  --color-light-grey: rgb(240, 240, 240);
   --color-dark-text: #000000;
   --color-light-text: var(--color-background);
   --color-h1: var(--color-primary);

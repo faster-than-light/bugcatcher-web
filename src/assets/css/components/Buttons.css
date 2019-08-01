@@ -19,6 +19,10 @@
   opacity: 0.81;
   cursor: default;
 }
+.button.grey, .btn.grey {
+  background-color: var(--color-light-grey) !important;
+  color: var(--color-dark-text) !important;
+}
 .button.primary, .btn.primary {
   background-color: var(--color-primary-button) !important;
 }
@@ -69,12 +73,16 @@
   background-size: 300% 100% !important;
 }
 .btn.big {
-  padding: 15px 18px;
-  font-size: 162%;
+  padding: 15px 18px !important;
+  font-size: 162% !important;
 }
 .btn.small {
-  padding: 6px 9px;
-  font-size: 90%;
+  padding: 6px 9px !important;
+  font-size: 90% !important;
+}
+.btn.tiny {
+  padding: 3px 4.5px !important;
+  font-size: 72% !important;
 }
 .center-text{
   text-align: center;

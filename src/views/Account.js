@@ -11,10 +11,13 @@ import Loader from '../components/Loader'
 // helpers
 import api from '../helpers/api'
 import config from '../config'
+import { getCookie, setCookie } from '../helpers/cookies'
 import { fetchEntitlement } from '../helpers/data'
 
 export default class Account extends Component {
-  state ={}
+  state = {
+    cookiesAccepted: getCookie("cookies-accepted")
+  }
 
   componentWillMount() {
     this.setState({ user: this.props.user })
@@ -140,6 +143,35 @@ export default class Account extends Component {
           showAddCard={this.state.showAddCard}
           user={user}
           toggleShowAddCard={this.toggleShowAddCard.bind(this)} /> */}
+
+        <br />
+        <div style={{ display: this.state.cookiesAccepted ? 'block' : 'none' }}>
+          <h3>Privacy</h3>
+          <Table>
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell>
+                  <p>Cookies and IP addresses allow us to deliver and improve our web content, resolve technical errors, and provide you with a personalized experience. Our website uses cookies and collects your IP address for these purposes.</p>
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                  <p>
+                      Faster Than Light may use cookies and my IP address to
+                      collect individual statistics in order to help diagnose
+                      software errors and improve user experience in accordance 
+                      with our <a href="https://fasterthanlight.dev/privacy" target="_blank">Privacy Policy</a> and the <a href="https://fasterthanlight.dev/terms" target="_blank">Terms of Use</a>. 
+                  </p>
+                  <a href="" onClick={() => {
+                    setCookie("cookies-accepted", '')
+                    document.location.reload()
+                  }}
+                    style={{ float: 'right' }}>I revoke my consent</a>
+                </Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
+        </div>
       </div>
     </div>
   }

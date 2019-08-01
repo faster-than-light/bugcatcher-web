@@ -20,8 +20,11 @@ module.exports = {
   subscriptionProduct: 'BugCatcher Enterprise',
   subscriptionPricingPlan: 'bug_catcher_one_month_free_199_499',
 
+  // cookies alert
+  showCookiesAlert: Boolean(process.env.REACT_APP_SHOW_COOKIES_ALERT) || process.env.REACT_APP_FTL_ENV !== 'production',
+
   // payments
-  usePaywall: Boolean(process.env.REACT_APP_USE_PAYWALL),
+  usePaywall: Boolean(process.env.REACT_APP_USE_PAYWALL) || process.env.REACT_APP_FTL_ENV !== 'production',
   monthlyProductPrice: '$19.99',
   subscriberEntitlementName: 'bug_catcher_subscriber',
 

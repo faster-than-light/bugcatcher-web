@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 // components
 import Account from './views/Account'
 import Code from './views/Code'
+import CookiesAlert from './components/CookiesAlert'
 import FAQ from './views/FAQ/FAQ'
 import Home from './views/Home'
 import Results from './views/Results'
@@ -82,6 +83,7 @@ class App extends Component {
             <Route path="/project/:id" component={Code} exact />
             <Route path="/results/:id" component={Results} exact />
           </Switch>
+          <CookiesAlert />
         </div>
       </BrowserRouter>
     )
