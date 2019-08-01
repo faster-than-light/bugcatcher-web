@@ -1,6 +1,6 @@
 {
-  "name": "stl-sat-pwa",
-  "version": "1.0.5",
+  "name": "bugcatcher-web",
+  "version": "1.0.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/faster-than-light/bugcatcher-web.git"
