@@ -91,8 +91,8 @@ export default class Landing extends Component {
     return <div id="home" className={`${this.props.productCode}-theme theme`}>
       <div id="landing">
         <img src={logo} style={{ maxWidth: 210 }} />
-        <br />
-        <img src={bugCatcherLogo} alt="BugCatcher" style={{ width: 210, verticalAlign: 'middle', marginRight: 18 }} />
+        {/* <br />
+        <img src={bugCatcherLogo} alt="BugCatcher" style={{ width: 210, verticalAlign: 'middle', marginRight: 18 }} /> */}
         <div style={{ height: 21 }} />
         <div style={{ width: '100%' }}>
           <UserContext.Consumer>

@@ -702,8 +702,9 @@ export default class Code extends Component {
               }}>
                 <ProjectHelpModal {...this.props} />
                 <Link to={`/`}>
-                  <h1 style={{display: 'inline-block', verticalAlign: 'middle', margin: '0 9px 0 0'}}>{config.productNames[productCode]}</h1>
-                  <ThemeLogo productCode={productCode} style={{ width: 180, verticalAlign: 'middle', marginRight: 18 }} />
+                  <h1 style={{display: 'inline-block', verticalAlign: 'middle', margin: '0 9px 0 0'}}>BugCatcher</h1>
+                  {/* <h1 style={{display: 'inline-block', verticalAlign: 'middle', margin: '0 9px 0 0'}}>{config.productNames[productCode]}</h1>
+                  <ThemeLogo productCode={productCode} style={{ width: 180, verticalAlign: 'middle', marginRight: 18 }} /> */}
                 </Link>
               </div>
 
