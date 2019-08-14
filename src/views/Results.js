@@ -245,21 +245,25 @@ export default class Results extends Component {
                 <h3 style={{ textAlign: 'center', marginBottom: 36 }}>Feedback or bug reports about the BugCatcher beta? Email <a href={`mailto:${helpEmail}`}>{helpEmail}</a></h3>
                 <div className="container results-container">
                   <header style={{ marginBottom: 15 }}>
-                    <Link to={`/`}>
-                      <ThemeLogo productCode={this.state.theme}
-                        style={{
-                          width: 210
-                        }} />
-                    </Link>
                     <a href={'https://fasterthanlight.dev'}>
                       <img src={ftlLogo} style={{
                         width: 360,
                         float: 'right'
                       }} />
                     </a>
+                    <h1 style={{
+                      fontSize: '270%',
+                      margin: '0 0 0 12px',
+                    }}><Link to={`/`}>BugCatcher</Link></h1>
+                    {/* <Link to={`/`}>
+                      <ThemeLogo productCode={this.state.theme}
+                        style={{
+                          width: 210
+                        }} />
+                    </Link> */}
                   </header>
                   <Link to={`/project/${encodeURIComponent(project)}`}
-                     style={{ fontSize: '120%' }}>
+                     style={{ fontSize: '120%', marginLeft: 12 }}>
                     &laquo; back to project
                   </Link>
                   <Table color={color}>
