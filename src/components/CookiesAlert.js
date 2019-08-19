@@ -15,6 +15,12 @@ export default class CookiesAlert extends Component {
   state = {
     cookiesAccepted: getCookie("cookies-accepted")
   }
+
+  agree = () => {
+    setCookie("cookies-accepted", true, 90)
+    this.setState({ cookiesAccepted: true })
+  }
+
   render() {
     if (this.state.cookiesAccepted || showCookiesAlert === false) return null
     else return (
@@ -42,10 +48,7 @@ export default class CookiesAlert extends Component {
                 position: 'absolute',
                 right: 24
               }}
-              onClick={() => {
-                setCookie("cookies-accepted", true)
-                this.setState({ cookiesAccepted: true })
-              }}
+              onClick={this.agree}
               >I Agree</StlButton>
           </div>
           <p style={{ textAlign: 'center', paddingTop: 6 }}>
