@@ -1,5 +1,3 @@
-<img src="https://bugcatcher.fasterthanlight.dev/static/media/bugcatcher.645e99b7.png" width="300" alt="BugCatcher Logo" />
-
 ## BugCatcher Static Analysis Tool - Frontend Web App (by Faster Than Light)
 [![Issues](https://img.shields.io/github/issues/faster-than-light/bugcatcher-web)](https://github.com/faster-than-light/bugcatcher-web/issues)
 ![Forks](https://img.shields.io/github/forks/faster-than-light/bugcatcher-web)
