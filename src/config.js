@@ -1,6 +1,7 @@
 module.exports = {
 
-  ftlWebUrl: process.env.NODE_ENV === 'production' ?
+  // company/sales site
+  ftlWebUrl: process.env.REACT_APP_FTL_ENV === 'production' ?
     'https://fasterthanlight.dev' :
     'https://staging.fasterthanlight.dev'
   ,
