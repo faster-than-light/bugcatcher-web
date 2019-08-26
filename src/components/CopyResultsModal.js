@@ -92,11 +92,18 @@ ${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMa
       >
         <div className={`copy-results theme-modal ${productCode}-theme`}>
           <h2 className="primary-color">Copy Your Test Results as {format}</h2>
-          <p><textarea style={{
-            width: '100%',
-            height: 180,
-          }}>{markdown}</textarea></p>
-          <StlButton className={'link'}
+          <CopyToClipboard text={markdown}
+              onCopy={() => {
+                this.refs.markdown.select()
+                this.setState({copied: true})
+              }}>
+                <textarea ref="markdown" style={{
+                  width: '100%',
+                  height: '72%',
+                }}>{markdown}</textarea>
+          </CopyToClipboard>
+          <div style={{ height: 15 }} />
+          <StlButton className={'link close-markdown-modal'}
             onClick={() => this.setState({openModal:false})}
             style={{ float: 'right' }}>
             close

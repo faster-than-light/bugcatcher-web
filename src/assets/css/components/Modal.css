@@ -23,7 +23,15 @@
   margin-left: -1.11em; /* Also needed for space (tweak if needed) */
 }
 
-
+/** Copy results Markdown Modal */
+.copy-results {
+  height: 100%;
+}
+@media (max-width: 768px) {
+  .close-markdown-modal {
+    display: none;
+  }
+}
 
 /** Annotations Modal */
 .annotation-modal,
