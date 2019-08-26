@@ -61,7 +61,7 @@ ${results.test_run.codes.map(c => c.name).join('\n')}
 ## RESULTS:
 ${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMarkdownRow(r)}`).join('\n')}
 
-`
+&nbsp;<hr />&nbsp;`
     })()
 
     // remove "copied" label after short delay
