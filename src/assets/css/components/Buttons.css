@@ -92,7 +92,7 @@
   border: none;
   cursor: pointer;
 }
-.red {
+.link.red {
   color: red !important;
 }
 
