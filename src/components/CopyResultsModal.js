@@ -33,10 +33,13 @@ export default class DownloadResultsModal extends Component {
     const { copied, openModal, productCode } = this.state
     const { format, markdownPayload } = this.props
     const { groupedResults, languagesUsed, project, results, testId, testToolsUsed } = markdownPayload
-    const badge = `${appUrl}/img/bugcatcher-approved.png`
+    const badgeUrl = `${appUrl}/img/bugcatcher-approved.png`
+    const badge = `<img src="${badgeUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />`
+    const badgeAndText = `### Passing All Tests!\n${badge}`
+    const logoUrl = `${appUrl}/img/ftl-bugcatcher.png`
 
     const markdown = (() => {
-      return `<img src="${badge}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />
+      return `<img src="${logoUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />
 
 # BugCatcher Test Results\n
 
@@ -56,7 +59,7 @@ ${results.test_run.codes.map(c => c.name).join('\n')}
 \`\`\`
 
 ## RESULTS:
-${groupedResults.map(r => `- ${ResultsMarkdownRow(r)}`).join('\n')}
+${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMarkdownRow(r)}`).join('\n')}
 
 `
     })()
