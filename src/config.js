@@ -1,5 +1,12 @@
 module.exports = {
 
+  // app url
+  appUrl: ({
+    production: 'https://bugcatcher.fasterthanlight.dev',
+    development: 'https://staging.tiger.sohotokenlabs.com',
+    local: 'http://localhost:3000'
+  })[process.env.REACT_APP_FTL_ENV],
+  
   // company/sales site
   ftlWebUrl: process.env.REACT_APP_FTL_ENV === 'production' ?
     'https://fasterthanlight.dev' :

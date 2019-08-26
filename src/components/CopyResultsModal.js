@@ -6,6 +6,9 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import ResultsMarkdownRow from './ResultsMarkdownRow'
 import StlButton from './StlButton'
 
+// helpers
+import { appUrl } from '../config'
+
 // styles & images
 import '../assets/css/components/Modal.css'
 
@@ -30,7 +33,7 @@ export default class DownloadResultsModal extends Component {
     const { copied, openModal, productCode } = this.state
     const { format, markdownPayload } = this.props
     const { groupedResults, languagesUsed, project, results, testId, testToolsUsed } = markdownPayload
-    const badge = `${document.location.protocol}//${document.location.host}/img/ftl-bugcatcher-18.png`
+    const badge = `${appUrl}/img/bugcatcher-approved.png`
 
     const markdown = (() => {
       return `<img src="${badge}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />
