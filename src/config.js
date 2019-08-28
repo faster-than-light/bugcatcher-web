@@ -16,6 +16,9 @@ module.exports = {
   // support
   helpEmail: 'help@fasterthanlight.dev',
 
+  // Intercom
+  intercomAppId: 'reahimyu',
+
   // products
   productNames: {
     default: '',
