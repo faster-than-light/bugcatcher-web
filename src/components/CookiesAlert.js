@@ -7,6 +7,7 @@ import StlButton from './StlButton'
 // helpers
 import { showCookiesAlert } from '../config'
 import { getCookie, setCookie } from '../helpers/cookies'
+import { showWidget } from '../helpers/intercom'
 
 // images and styles
 import '../assets/css/components/CookiesAlert.css'
@@ -19,6 +20,7 @@ export default class CookiesAlert extends Component {
   agree = () => {
     setCookie("cookies-accepted", true, 90)
     this.setState({ cookiesAccepted: true })
+    showWidget()
   }
 
   render() {

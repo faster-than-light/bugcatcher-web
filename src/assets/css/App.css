@@ -137,3 +137,6 @@ div.stl-hr.accented.secondary-bg-color {
 @import "./themes/eth-theme.css";
 @import "./themes/java-theme.css";
 @import "./themes/python-theme.css";
+
+/** Intercom */
+#intercom-container { display: none; }
