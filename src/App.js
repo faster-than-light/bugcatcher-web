@@ -7,6 +7,7 @@ import Code from './views/Code'
 import CookiesAlert from './components/CookiesAlert'
 import FAQ from './views/FAQ/FAQ'
 import Home from './views/Home'
+import Project from './views/Project'
 import Results from './views/Results'
 import Tests from './views/Tests'
 import Tour from './views/Tour'
@@ -85,6 +86,7 @@ class App extends Component {
             <Route path="/" component={() => <Home {...props} />} exact />
             <Route path="/account" component={() => <Account {...props} />} exact />
             <Route path="/faq" component={() => <FAQ {...props} />} exact />
+            <Route path="/projects" component={() => <Project {...props} />} exact />
             <Route path="/tests" component={() => <Tests {...props} />} exact />
             <Route path="/tour" component={() => <Tour {...props} />} exact />
             <Route path="/project/:id" component={Code} exact />

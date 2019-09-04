@@ -43,6 +43,7 @@ import { UserContext } from '../contexts/UserContext'
 // helpers
 import api from '../helpers/api'
 import { appendS, testStatusToColor, noLeadingSlash } from '../helpers/strings'
+import { getCookie, setCookie } from '../helpers/cookies'
 import config from '../config'
 import LocalStorage from '../helpers/LocalStorage'
 import { scrollTo } from '../helpers/scrollTo'
@@ -97,6 +98,14 @@ export default class Code extends Component {
   /** @dev Lifecycle methods */
   async componentWillMount() {
     projectName = this.props.match ? this.props.match.params.id : null
+    let lastProjectsAccessed = JSON.parse(getCookie("lastProjectsAccessed") || '[]')
+    lastProjectsAccessed = lastProjectsAccessed.filter(p => p !== projectName)
+    let newList = [ projectName ]
+    for (let i = 0; i < 5; i++) {
+      if (lastProjectsAccessed[i]) newList.push( lastProjectsAccessed[i] )
+    }
+    setCookie("lastProjectsAccessed", JSON.stringify(newList))
+
     const fetchedUser = await this.context.actions.fetchUser()
     let testResultSid = LocalStorage.ProjectTestResults.getIds(projectName)
     testResultSid = testResultSid[0]
@@ -701,7 +710,7 @@ export default class Code extends Component {
                 borderBottom: '1px solid gray'
               }}>
                 <ProjectHelpModal {...this.props} />
-                <Link to={`/`}>
+                <Link to={`/projects`}>
                   <h1 style={{display: 'inline-block', verticalAlign: 'middle', margin: '0 9px 0 0'}}>BugCatcher</h1>
                   {/* <h1 style={{display: 'inline-block', verticalAlign: 'middle', margin: '0 9px 0 0'}}>{config.productNames[productCode]}</h1>
                   <ThemeLogo productCode={productCode} style={{ width: 180, verticalAlign: 'middle', marginRight: 18 }} /> */}
