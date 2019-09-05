@@ -44,7 +44,7 @@ export default class Dashboard extends Component {
     if (!this.props.user) return <Redirect to={'/'} />
     else return <div id="dashboard">
       <Menu />
-      <h3 className="contents" style={{ textAlign: 'center', margin: '36px 0' }}>Feedback or bug reports about the BugCatcher beta? Email <a href={`mailto:${config.helpEmail}`}>{config.helpEmail}</a></h3>
+      <h3 className="contents" style={{ textAlign: 'center', margin: '36px auto' }}>Feedback or bug reports about the BugCatcher beta? Email <a href={`mailto:${config.helpEmail}`}>{config.helpEmail}</a></h3>
       <div style={{
         maxWidth: 720,
         margin: 'auto',
