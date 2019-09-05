@@ -8,6 +8,7 @@ import Menu from '../components/Menu'
 // helpers
 import config from '../config'
 import { getCookie } from '../helpers/cookies'
+import { cleanProjectName } from '../helpers/strings'
 
 // styles
 import '../assets/css/Dashboard.css'
@@ -33,7 +34,7 @@ export default class Dashboard extends Component {
   }
   
   render() {
-    const { copied } = this.state
+    const { addNewProject, copied } = this.state
 
     // remove "copied" label after short delay
     let removeCopiedLabel
@@ -46,6 +47,7 @@ export default class Dashboard extends Component {
     )
     
     if (!this.props.user) return <Redirect to={'/'} />
+    else if (addNewProject) return <Redirect to={`/project/${addNewProject}`} />
     else return <div id="dashboard">
       <Menu />
       <div style={{
@@ -61,6 +63,16 @@ export default class Dashboard extends Component {
           <div className="block-content">
             <LastProjectsAccessed />
             <Link to={'/projects'}><StlButton semantic className="btn small default">View All Projects</StlButton></Link>
+            <button className={'link'}
+            onClick={() => {
+              let projectName = prompt('What is the name of your project?')
+              projectName = cleanProjectName(projectName)
+              if (projectName.length) this.setState({
+                addNewProject: encodeURIComponent(
+                  projectName.trim().replace(/\s\s+/g, ' ')
+                )
+              })
+            }}>add a project</button>
           </div>
         </div>
         <div className="white-block">
