@@ -44,32 +44,38 @@ export default class Dashboard extends Component {
     if (!this.props.user) return <Redirect to={'/'} />
     else return <div id="dashboard">
       <Menu />
-      <h3 className="contents" style={{ textAlign: 'center', margin: '36px auto' }}>Feedback or bug reports about the BugCatcher beta? Email <a href={`mailto:${config.helpEmail}`}>{config.helpEmail}</a></h3>
       <div style={{
         maxWidth: 720,
         margin: 'auto',
       }}>
-        <h1>Welcome to BugCatcher!</h1>
-        <div className="rounded-block">
-          <h3>Run Tests using the Web App</h3>
-          <LastProjectsAccessed /><br />
-          <Link to={'/projects'}><StlButton semantic className="btn small default">View All Projects</StlButton></Link>
+        <div className="white-block" style={{ textAlign: 'center', marginTop: 111, padding: 18 }}>
+          <h1>Welcome to BugCatcher!</h1>
+          <strong>Feedback or bug reports about the BugCatcher beta? Email <a href={`mailto:${config.helpEmail}`}>{config.helpEmail}</a></strong>
         </div>
-        <div className="rounded-block">
+        <div className="white-block">
+          <h3>Run Tests using the Web App</h3>
+          <div className="block-content">
+            <LastProjectsAccessed /><br />
+            <Link to={'/projects'}><StlButton semantic className="btn small default">View All Projects</StlButton></Link>
+          </div>
+        </div>
+        <div className="white-block">
           <h3>Run Tests using the CLI Tool</h3>
-          <p>This is your <code style={{ fontSize: '120%' }}>SID</code> to be used with the <a href="#" onClick={() => {alert('coming soon')}}>CLI Tool</a></p>
-          <p>
-            <CopyToClipboard text={getCookie("session")}
-              onCopy={() => {
-                this.refs.sid.select()
-                this.setState({copied: true})
-              }}>
-                <input type="text" ref="sid"
-                  value={getCookie("session")}
-                  style={{ width: '100%' }} />
-            </CopyToClipboard>
-            {copied ? <span style={{color: 'red'}}>&nbsp;Copied to clipboard.</span> : null}
-          </p>
+          <div className="block-content">
+            <p>This is your <code style={{ fontSize: '120%' }}>SID</code> to be used with the <a href="#" onClick={() => {alert('coming soon')}}>CLI Tool</a></p>
+            <p>
+              <CopyToClipboard text={getCookie("session")}
+                onCopy={() => {
+                  this.refs.sid.select()
+                  this.setState({copied: true})
+                }}>
+                  <input type="text" ref="sid"
+                    value={getCookie("session")}
+                    style={{ width: '100%' }} />
+              </CopyToClipboard>
+              {copied ? <span style={{color: 'red'}}>&nbsp;Copied to clipboard.</span> : null}
+            </p>
+          </div>
         </div>
 
         <br />
