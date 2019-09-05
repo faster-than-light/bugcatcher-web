@@ -17,9 +17,13 @@ class LastProjectsAccessed extends Component {
   render() {
     let lastProjectsAccessed = getCookie("lastProjectsAccessed") || []
     if (lastProjectsAccessed.length) lastProjectsAccessed = JSON.parse(lastProjectsAccessed)
-    return lastProjectsAccessed.map(p => <div>
+    let rtn = lastProjectsAccessed.map(p => <div>
       <Link to={`/project/${p}`}>{p}</Link>
     </div>)
+    if (lastProjectsAccessed.length) rtn = <span>
+      {rtn}<br />
+    </span>
+    return rtn
   }
 }
 export default class Dashboard extends Component {
@@ -55,7 +59,7 @@ export default class Dashboard extends Component {
         <div className="white-block">
           <h3>Run Tests using the Web App</h3>
           <div className="block-content">
-            <LastProjectsAccessed /><br />
+            <LastProjectsAccessed />
             <Link to={'/projects'}><StlButton semantic className="btn small default">View All Projects</StlButton></Link>
           </div>
         </div>
