@@ -54,7 +54,7 @@ export default class Dashboard extends Component {
         margin: 'auto',
       }}>
         <div className="white-block" style={{ textAlign: 'center', marginTop: 111, padding: 18 }}>
-          <h1>Welcome to BugCatcher!</h1>
+          <h1 className="secondary-color">Welcome to BugCatcher!</h1>
           <strong>Feedback or bug reports about the BugCatcher beta? Email <a href={`mailto:${config.helpEmail}`}>{config.helpEmail}</a></strong>
         </div>
         <div className="white-block">
