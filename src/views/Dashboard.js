@@ -11,7 +11,6 @@ import { getCookie } from '../helpers/cookies'
 import { cleanProjectName } from '../helpers/strings'
 
 // styles
-import '../assets/css/Dashboard.css'
 import StlButton from '../components/StlButton';
 
 class LastProjectsAccessed extends Component {
@@ -61,6 +60,7 @@ export default class Dashboard extends Component {
         <div className="white-block">
           <h3>Run Tests using the Web App</h3>
           <div className="block-content">
+            <p>You can use BugCatcher right here on the web! For best results, we recommend using Google&apos;s Chrome browser. By the way, closing you browser while tests are running won&apos;t affect your tests.</p>
             <LastProjectsAccessed />
             <Link to={'/projects'}><StlButton semantic className="btn small default">View All Projects</StlButton></Link>
             <button className={'link'}
@@ -78,6 +78,7 @@ export default class Dashboard extends Component {
         <div className="white-block">
           <h3>Run Tests using the CLI Tool</h3>
           <div className="block-content">
+            <p>We have a CLI tool you can use to test your code with BugCatcher. Simply follow the instructions found in the README.md file on <a href="#" onClick={() => {alert('coming soon')}}>GitHub</a>.</p>
             <p>This is your <code style={{ fontSize: '120%' }}>SID</code> to be used with the <a href="#" onClick={() => {alert('coming soon')}}>CLI Tool</a></p>
             <p>
               <CopyToClipboard text={getCookie("session")}

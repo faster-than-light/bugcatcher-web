@@ -134,6 +134,21 @@ div.stl-hr.accented.secondary-bg-color {
   box-shadow: 0px 1px #000, 0px 2px var(--color-secondary);
 }
 
+/* Divs & blocks */
+.white-block {
+  box-shadow: 1px 1px 4.5px #bbb;
+  /* border-radius: 12px; */
+  background: var(--color-background-offset);
+  margin-bottom: 21px;
+}
+.white-block .block-content {
+  padding: 18px;
+}
+.white-block h3 {
+  border-bottom: 1px solid #bbb;
+  padding: 18px;
+}
+
 @import "./themes/eth-theme.css";
 @import "./themes/java-theme.css";
 @import "./themes/python-theme.css";
