@@ -78,8 +78,8 @@ export default class Dashboard extends Component {
         <div className="white-block">
           <h3>Run Tests using the CLI Tool</h3>
           <div className="block-content">
-            <p>We have a CLI tool you can use to test your code with BugCatcher. Simply follow the instructions found in the README.md file on <a href="#" onClick={() => {alert('coming soon')}}>GitHub</a>.</p>
-            <p>This is your <code style={{ fontSize: '120%' }}>SID</code> to be used with the <a href="#" onClick={() => {alert('coming soon')}}>CLI Tool</a></p>
+            <p>We have a CLI tool you can use to test your code with BugCatcher. Simply follow the instructions found in the <a href="https://github.com/faster-than-light/ftl/blob/master/README.md" target="_blank">README.md file on GitHub</a>.</p>
+            <p>This is your <code style={{ fontSize: '120%' }}>SID</code> to be used with the <a href="https://github.com/faster-than-light/ftl" target="_blank">CLI Tool</a></p>
             <p>
               <CopyToClipboard text={getCookie("session")}
                 onCopy={() => {
@@ -90,7 +90,9 @@ export default class Dashboard extends Component {
                     value={getCookie("session")}
                     style={{ width: '100%' }} />
               </CopyToClipboard>
-              {copied ? <span style={{color: 'red'}}>&nbsp;Copied to clipboard.</span> : null}
+              <div style={{color: 'red', padding: 12}}>
+                {copied ? `Copied to clipboard` : null}
+              </div>
             </p>
           </div>
         </div>
