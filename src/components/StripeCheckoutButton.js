@@ -5,9 +5,9 @@ import Popup from 'react-popup'
 // helpers
 import config from '../config'
 import api from '../helpers/api'
-import LocalStorage from '../helpers/LocalStorage'
+// import LocalStorage from '../helpers/LocalStorage'
 
-import logo from '../assets/images/ftl-ladybug.png'
+import logo from '../assets/images/bugcatcher-shield.png'
 
 //styles
 import '../assets/css/components/Popup.css'

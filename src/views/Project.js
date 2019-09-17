@@ -73,9 +73,8 @@ export default class Project extends Component {
           borderBottom: '1px solid gray'
         }}>
           <ProjectsHelpModal {...this.props} />
-          <Link to={`/`}>
-            <h1 style={{display: 'inline-block', verticalAlign: 'middle', margin: '0 9px 0 0'}}>BugCatcher</h1>
-            {/* <ThemeLogo style={{ width: 180, verticalAlign: 'middle', marginRight: 18 }} /> */}
+          <Link to={`/projects`}>
+            <ThemeLogo style={{ width: 180, verticalAlign: 'middle', marginRight: 18 }} />
           </Link>
         </div>
 

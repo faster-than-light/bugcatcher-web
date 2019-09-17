@@ -22,6 +22,7 @@ import { version } from '../../package.json'
 // images and styles
 import '../assets/css/Results.css'
 import ftlLogo from '../assets/images/logo-1-line-black-text.png'
+import ThemeLogo from '../components/ThemeLogo'
 
 // constants
 const sortRowsByFileLine = (a, b) =>
@@ -268,16 +269,12 @@ export default class Results extends Component {
                         float: 'right'
                       }} />
                     </a>
-                    <h1 style={{
-                      fontSize: '270%',
-                      margin: '0 0 0 12px',
-                    }}><Link to={`/`}>BugCatcher</Link></h1>
-                    {/* <Link to={`/`}>
+                    <Link to={`/`}>
                       <ThemeLogo productCode={this.state.theme}
                         style={{
                           width: 210
                         }} />
-                    </Link> */}
+                    </Link>
                   </header>
                   <Link to={`/project/${encodeURIComponent(project)}`}
                      style={{ fontSize: '120%', marginLeft: 12 }}>
