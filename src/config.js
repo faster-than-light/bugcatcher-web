@@ -28,8 +28,26 @@ module.exports = {
   },
 
   // subscriptions
-  subscriptionProduct: 'BugCatcher Enterprise',
-  subscriptionPricingPlan: 'bug_catcher_one_month_free_199_499',
+  /**@todo:deprecate*/ subscriptionProduct: 'BugCatcher Enterprise',
+  /**@todo:deprecate*/ subscriptionPricingPlan: 'bug_catcher_one_month_free_199_499',
+  productSubscriptions: [
+    {
+      product: 'BugCatcher Free',
+      pricingPlan: 'bug_catcher_free',
+      priceInCents: 0,
+    },
+    {
+      product: 'BugCatcher Pro',
+      description: 'Professional Tier Product',
+      pricingPlan: 'bug_catcher_pro',
+      priceInCents: 2999,
+    },
+    {
+      product: 'BugCatcher Enterprise',
+      pricingPlan: 'bug_catcher_one_month_free_199_499',
+      priceInCents: 15000,
+    },
+  ],
 
   // cookies alert
   showCookiesAlert: Boolean(process.env.REACT_APP_SHOW_COOKIES_ALERT) || process.env.REACT_APP_FTL_ENV !== 'production',
