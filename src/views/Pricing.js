@@ -14,7 +14,8 @@ import api from '../helpers/api'
 import { version } from '../../package.json'
 
 // images & styles
-import logo from '../assets/images/ftl-ladybug.png'
+import logoShield from '../assets/images/bugcatcher-shield.png'
+import logo from '../assets/images/bugcatcher-transparent.png'
 import '../assets/css/Pricing.css'
 
 export default class Pricing extends Component {
@@ -134,7 +135,7 @@ export default class Pricing extends Component {
         stripeKey={config.stripePublicKey}
         currency="USD"
         email={user.email}
-        image={logo} // the pop-in header image (default none)
+        image={logoShield} // the pop-in header image (default none)
         closed={() => {}}
         {...this.props}
       >
@@ -171,7 +172,9 @@ export default class Pricing extends Component {
       <div className="contents">
         <section id="pricing">
           <div style={{marginTop: 21}}>
+            <img src={logo} style={{ float: 'right', width: 210 }} />
             <h1>BugCatcher Pricing</h1>
+            <div style={{ height: 18 }} />
 
             <div className="white-block">
               <h3>Free BugCatcher!</h3>
