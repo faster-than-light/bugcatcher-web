@@ -15,6 +15,7 @@ import { version } from '../../package.json'
 
 // images & styles
 import logo from '../assets/images/ftl-ladybug.png'
+import '../assets/css/Pricing.css'
 
 export default class Pricing extends Component {
   state = {
@@ -172,7 +173,7 @@ export default class Pricing extends Component {
           <div style={{marginTop: 21}}>
             <h1>BugCatcher Pricing</h1>
 
-            <div className="white-block" style={{ width: '49%', display: 'inline-block', verticalAlign: 'top' }}>
+            <div className="white-block">
               <h3>Free BugCatcher!</h3>
               <div className="block-content">
                 <p>Praesent imperdiet orci eu commodo suscipit. Aliquam sed sodales sem. Curabitur pellentesque mi at dolor iaculis tincidunt. Integer sed neque et nunc ultricies congue. Fusce id justo ac odio hendrerit blandit ac vitae metus. Fusce eleifend scelerisque imperdiet.</p>
@@ -180,7 +181,7 @@ export default class Pricing extends Component {
               </div>
             </div>
 
-            <div className="white-block" style={{ width: '49%', display: 'inline-block', marginLeft: 12, verticalAlign: 'top' }}>
+            <div className="white-block">
               <h3>BugCatcher Pro</h3>
               <div className="block-content">
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas viverra mauris ac aliquet placerat. Aenean at velit eleifend, viverra dui vitae, egestas lacus. Mauris justo ex, laoreet et aliquam sed, euismod at ipsum. </p>

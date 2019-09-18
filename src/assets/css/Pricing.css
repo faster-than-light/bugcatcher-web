@@ -1,0 +1,15 @@
+#pricing .white-block {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  #pricing .white-block {
+    min-height: 300px;
+    width: 49%;
+    display: inline-block;
+    vertical-align: top;
+  }
+  #pricing .white-block:nth-child(even) {
+    margin-right: 1%;
+  }
+}
