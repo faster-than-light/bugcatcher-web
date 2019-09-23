@@ -170,9 +170,8 @@ export default class Pricing extends Component {
       <Menu />
       <div className="contents">
         <section id="pricing">
-          <div style={{marginTop: 21}}>
-            <img src={logo} style={{ float: 'right', width: 210 }} />
-            <h1>BugCatcher Pricing</h1>
+          <div style={{marginTop: 21 }}>
+            <p style={{textAlign: 'center'}}><img src={logo} style={{ width: 210 }} /></p>
             <div style={{ height: 18 }} />
 
             <div className="white-block">
@@ -189,7 +188,7 @@ export default class Pricing extends Component {
               <div className="block-content">
                 <h3>10X speeds<br />
                   $19.99/month<br />
-                  No charge until January 1, 2020</h3>
+                  Free until January 1, 2020</h3>
                 <p>We&apos;re offering a (very big) discount to the first 50 customers who pre-register. Pro includes up to 5 licenses, for you and your team. We plan to charge around $249/month for Pro in 2020.</p>
                 {proButton}
               </div>
