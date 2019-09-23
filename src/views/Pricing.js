@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Redirect } from 'react-router-dom'
 import { GoogleLogin } from 'react-google-login'
 import StripeCheckout from 'react-stripe-checkout'
 import Popup from 'react-popup'
@@ -21,6 +22,7 @@ import '../assets/css/Pricing.css'
 export default class Pricing extends Component {
   state = {
     savingPaymentMethod: false,
+    redirectToThankYou: false,
   }
 
   componentWillUnmount() {
@@ -97,8 +99,8 @@ export default class Pricing extends Component {
         payment_method : `Stripe/${token.id}`
       })
       if (subscribeToBugCatcher) {
+        this.setState({ redirectToThankYou: true })
         await fetchUser(true)
-        alert('redirect to welcome view')
       }
       else Popup.alert('There was a network error, you were not subscribed')
     } 
@@ -165,13 +167,15 @@ export default class Pricing extends Component {
   }
   
   render() {
+    const { redirectToThankYou } = this.state
     const { user = {email: ''} } = this.props
     const proButton = user.isSubscriber ? <this.proButton {...this.props} /> :
       <React.Fragment>
         <this.proButton {...this.props} />
       </React.Fragment>
 
-    return <div className={`theme`}>
+    if (redirectToThankYou) return <Redirect to={'/thankyou'} />
+    else return <div className={`theme`}>
       <Menu />
       <div className="contents">
         <section id="pricing">

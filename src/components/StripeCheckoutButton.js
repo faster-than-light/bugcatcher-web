@@ -1,4 +1,5 @@
 import React from 'react'
+import { Redirect } from 'react-router-dom'
 import StripeCheckout from 'react-stripe-checkout'
 import Popup from 'react-popup'
 
@@ -15,6 +16,7 @@ import '../assets/css/components/Popup.css'
 export default class StripeCheckoutButton extends React.Component {
   state = {
     clickedStripeButton: false,
+    redirectToThankYou: false,
   }
 
   _onToken = async (token) => {
@@ -30,7 +32,10 @@ export default class StripeCheckoutButton extends React.Component {
         pricing_plan : config.subscriptionPricingPlan,
         payment_method : `Stripe/${token.id}`
       })
-      if (subscribeToBugCatcher) await fetchUser(true)
+      if (subscribeToBugCatcher) {
+        this.setState({ redirectToThankYou: true })
+        await fetchUser(true)
+      }
       else Popup.alert('There was a network error, you were not subscribed')
     } 
     else Popup.alert('There was a network error, your payment was not proccessed')
@@ -55,8 +60,10 @@ export default class StripeCheckoutButton extends React.Component {
   }
   
   render() {
+    const { redirectToThankYou } = this.state
     const { savingPaymentMethod, user } = this.props
-    return (
+    if (redirectToThankYou) return <Redirect to={'/thankyou'} />
+    else return (
       <div style={{display: 'inline-block'}}>
         <StripeCheckout
           allowRememberMe={false}
