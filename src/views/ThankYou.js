@@ -32,7 +32,7 @@ export default class ThankYou extends Component {
               <li>You won&apos;t be charged until January 1, 2020. BugCatcher will be free for you to use until then. You can cancel any time (in Settings.)</li>
               <li>We love our early adopters! If you&apos;d like to set up a video call with our CEO, just email <a href="mailto:elissa@fasterthanlight.dev">elissa@fasterthanlight.dev</a>. We&apos;d love to meet you.</li>
               <li>You can log in using your Google account (the same one you used to sign up.)</li>
-              <li>(anything that we could post about Github could go here)</li>
+              <li>You can use our <a href="https://github.com/faster-than-light/ftl" target="_blank">CLI Tool</a> with your new BugCatcher account.</li>
               <li>You can follow our updates on Twitter at <a href="https://twitter.com/ftlbugcatcher" target="_blank">@ftlbugcatcher</a>.</li>
             </ul>
             <p style={{ textAlign: 'center', marginTop: 30 }}>
