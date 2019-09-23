@@ -164,7 +164,7 @@ export default class Pricing extends Component {
     const proButton = user.isSubscriber ? <this.proButton {...this.props} /> :
       <React.Fragment>
         <this.proButton {...this.props} />
-        <span style={{paddingLeft: 21}}>$29.99 / month</span>
+        <span style={{paddingLeft: 21, color: config.themes.default.primaryColor}}>$19.99 / month</span>
       </React.Fragment>
 
     return <div className={`theme`}>
@@ -179,15 +179,19 @@ export default class Pricing extends Component {
             <div className="white-block">
               <h3>Free BugCatcher!</h3>
               <div className="block-content">
-                <p>Praesent imperdiet orci eu commodo suscipit. Aliquam sed sodales sem. Curabitur pellentesque mi at dolor iaculis tincidunt. Integer sed neque et nunc ultricies congue. Fusce id justo ac odio hendrerit blandit ac vitae metus. Fusce eleifend scelerisque imperdiet.</p>
-                <this.freeButton {...this.props} />
+                <h3>We will offer 4X speeds for free. Great for for developers, open source projects and students.</h3>
+                <p>We&apos;re very close to launch! You&apos;re welcome to use this beta version and we&apos;d love feedback. Send thoughts to <a href="mailto:help@fasterthanlight.dev">help@fasterthanlight.dev</a></p>
+                <br /><this.freeButton {...this.props} />
               </div>
             </div>
 
             <div className="white-block">
               <h3>BugCatcher Pro</h3>
               <div className="block-content">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas viverra mauris ac aliquet placerat. Aenean at velit eleifend, viverra dui vitae, egestas lacus. Mauris justo ex, laoreet et aliquam sed, euismod at ipsum. </p>
+                <h3>10X speeds<br />
+                  $19.99/month<br />
+                  No charge until January 1, 2020</h3>
+                <p>We&apos;re offering a (very big) discount to the first 50 customers who pre-register. Free in 2019 and $19.99/month in 2020.</p>
                 {proButton}
               </div>
             </div>

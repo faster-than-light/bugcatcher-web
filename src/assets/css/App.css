@@ -148,6 +148,10 @@ div.stl-hr.accented.secondary-bg-color {
   border-bottom: 1px solid #bbb;
   padding: 18px;
 }
+.white-block .block-content h3 {
+  border-bottom: none;
+  padding: 18px 0;
+}
 
 @import "./themes/eth-theme.css";
 @import "./themes/java-theme.css";
