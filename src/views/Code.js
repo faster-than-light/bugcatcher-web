@@ -69,7 +69,7 @@ const uploadsPerSecond = 0, // 0 = unlimited
   millisecondTimeout = Math.floor(1000 / uploadsPerSecond),
   uiUploadThreshold = 1000,
   retryAttemptsAllowed = 300,
-  retryIntervalMilliseconds = 6000
+  retryIntervalMilliseconds = 9000
 let retryAttempts = 0,
   lastPercentComplete = 0,
   projectName,
@@ -472,8 +472,14 @@ export default class Code extends Component {
   }
 
   _checkTestStatus(stlid) {
+    let { reconnecting } = this.state
     if (!stlid) return
     else return new Promise(async (resolve, reject) => {
+      const noConnection = (err) => {
+        reconnecting = true
+        this.setState({ reconnecting })
+        console.error(err || new Error('GET /run_tests connection timed out. Retrying...'))
+      }
       const failed = (err) => {
         alert("There was an error running the tests.")
         this.setState({
@@ -482,12 +488,23 @@ export default class Code extends Component {
         console.error(err || new Error('GET /run_tests returned a 502 Bad Gateway response'))
         reject()
       }
+
       this.setState({ fetchingTest: true })
-      const getRunTests = await api.getRunTests({ stlid }).catch(failed)
+      const getRunTests = await api.getRunTests({ stlid }).catch(noConnection)
       this.setState({ fetchingTest: false })
       const { data } = getRunTests || {}
       const { response } = data || {}
-      if (!getRunTests || !response) failed()
+
+      console.log({ reconnecting, stlid: response ? response.stlid : null, testId: this.state.testResultSid })
+      // Fail for any status in the 400's
+      if (getRunTests && response && response.status >= 400 && response.status <= 499) failed()
+      
+      // Retry failed connections
+      if (!getRunTests || !response) noConnection()
+      else {
+        reconnecting = false
+        this.setState({ reconnecting })
+      }
 
       // abort if stlid does not match testResultSid
       if (response && response.stlid !== this.state.testResultSid) {
@@ -503,6 +520,7 @@ export default class Code extends Component {
         response.percent_complete >= lastPercentComplete
       ) this.setState({
         results: response,
+        reconnecting: false,
       })
 
       // `percent_complete` has progressed
@@ -513,13 +531,14 @@ export default class Code extends Component {
       ) {
         lastPercentComplete = response.percent_complete
         retryAttempts = 0
+        this.setState({ reconnecting: false })
       }
 
       // results are ready
       if (response && response.status_msg === 'COMPLETE') {
         response.percent_complete = 100
-        this.setState({ results: response })
-        window.mixpanel.track('Test Completed', {
+        this.setState({ results: response, reconnecting: false })
+          window.mixpanel.track('Test Completed', {
           project: projectName,
           stlid,
           fileCount: this.state.codeOnServer ? this.state.codeOnServer.length : 0,
@@ -530,7 +549,7 @@ export default class Code extends Component {
       }
 
       // the incoming response is from the current test
-      else if (response.stlid === this.state.testResultSid) {
+      else if (reconnecting || response.stlid === this.state.testResultSid) {
         // we should be fetching or not
         if (
           !this.state.fetchingTest &&
@@ -554,7 +573,7 @@ export default class Code extends Component {
     let testDuration = (testTimeElapsed % 60).toString() + ' second' + appendS(testTimeElapsed % 60)
     if (Math.floor(testTimeElapsed / 60)) testDuration = Math.floor(testTimeElapsed / 60) + ' minute' + appendS(Math.floor(testTimeElapsed / 60)) + ', ' + testDuration
     const button = document.getElementById('running_tests_button')
-    button.innerHTML = `Running Tests... (${testDuration})`
+    if (button) button.innerHTML = `Running Tests... (${testDuration})`
   }
 
   _updateCode = (row, status) => {
@@ -673,8 +692,12 @@ export default class Code extends Component {
     let {
       binaryFilesToUpload,
       codeOnServer,
+      deletingFiles,
+      droppingFiles,
       numFilesDropped = 0,
+      numFilesToDelete,
       productCode,
+      reconnecting,
       results,
       showCodeList,
       showDropzone,
@@ -692,8 +715,9 @@ export default class Code extends Component {
     const numFailedUploads = codeOnServer && codeOnServer.length ?
       codeOnServer.filter(c => c.status === 'failed').length : 0
 
-    if (this.state.droppingFiles) return <Loader text={`Evaluating ${numFilesDropped} Files`} />
-    else if (this.state.deletingFiles) return <Loader text={`Deleting ${this.state.numFilesToDelete} Files`} />
+    if (droppingFiles) return <Loader text={`Evaluating ${numFilesDropped} Files`} />
+    else if (deletingFiles) return <Loader text={`Deleting ${numFilesToDelete} Files`} />
+    else if (reconnecting) return <Loader text={`Re-establishing Network Connection...`} />
     else return <div className={`theme`}>
       <Menu />
       <section id="upload" className="contents">
