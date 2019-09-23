@@ -71,7 +71,7 @@ export default class Pricing extends Component {
         onRequest={() => {
           this.setState({ loggingIn: true })
         }}
-        className={'btn'}
+        className={props.className + ' btn'}
         style={style}
       />
     </React.Fragment>
@@ -96,7 +96,10 @@ export default class Pricing extends Component {
         pricing_plan : subscription.pricingPlan,
         payment_method : `Stripe/${token.id}`
       })
-      if (subscribeToBugCatcher) await fetchUser(true)
+      if (subscribeToBugCatcher) {
+        await fetchUser(true)
+        alert('redirect to welcome view')
+      }
       else Popup.alert('There was a network error, you were not subscribed')
     } 
     else Popup.alert('There was a network error, your payment was not proccessed')
@@ -117,11 +120,12 @@ export default class Pricing extends Component {
     const subscription = config.productSubscriptions.find(s => s.product === 'BugCatcher Pro')
     if (!user || !user.sid) return <React.Fragment>
       <this.Login
+        className={'bottom'}
         buttonText={'Get BugCatcher Pro'}
         actionName={'User Signup'}
         setUser={showStripe} />
     </React.Fragment>
-    else if (user && user.isSubscriber) return <h4>You are a BugCatcher Pro User!</h4>
+    else if (user && user.isSubscriber) return <h4 style={{margin:0}}>You are a BugCatcher Pro User!</h4>
     else return <React.Fragment>
       <Loader show={this.state.savingPaymentMethod} />
       <StripeCheckout
@@ -139,7 +143,7 @@ export default class Pricing extends Component {
         closed={() => {}}
         {...this.props}
       >
-        <button id="stripe_button" className={'btn'}
+        <button id="stripe_button" className={'btn bottom'}
           ref={this.openStripe}>
           {'Subscribe to BugCatcher Pro'}
         </button>
@@ -151,12 +155,13 @@ export default class Pricing extends Component {
     const { setUser, user } = props
     if (!user || !user.sid) return <React.Fragment>
       <this.Login
+        className={'bottom'}
         buttonText={'Use BugCatcher Free'}
         actionName={'User Signup'}
         setUser={setUser} />
     </React.Fragment>
     else if (user && user.isSubscriber) return <h4>You are a BugCatcher Pro User!</h4>
-    else if (user) return <h4>You are using BugCatcher Free!</h4>
+    else if (user) return <h4 style={{margin:0}}>You are using BugCatcher Free!</h4>
   }
   
   render() {
@@ -171,20 +176,21 @@ export default class Pricing extends Component {
       <div className="contents">
         <section id="pricing">
           <div style={{marginTop: 21 }}>
-            <p style={{textAlign: 'center'}}><img src={logo} style={{ width: 210 }} /></p>
+            <p style={{textAlign: 'center'}}><img src={logo} style={{ width: 360 }} /></p>
             <div style={{ height: 18 }} />
 
             <div className="white-block">
-              <h3>Free BugCatcher!</h3>
+              <h2>Free BugCatcher!</h2>
               <div className="block-content">
-                <h3>We will offer 4X speeds for free. Great for for developers, open source projects and students.</h3>
+                <h3>We will offer 4X speeds for free.
+                  <br />Great for for developers, open source projects and students.</h3>
                 <p>We&apos;re very close to launch! You&apos;re welcome to use this beta version and we&apos;d love to hear from you. Send feedback to <a href="mailto:help@fasterthanlight.dev">help@fasterthanlight.dev</a></p>
-                <br /><this.freeButton {...this.props} />
+                <this.freeButton {...this.props} />
               </div>
             </div>
 
             <div className="white-block">
-              <h3>BugCatcher Pro</h3>
+              <h2>BugCatcher Pro</h2>
               <div className="block-content">
                 <h3>10X speeds<br />
                   $19.99/month<br />

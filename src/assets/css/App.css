@@ -144,13 +144,17 @@ div.stl-hr.accented.secondary-bg-color {
 .white-block .block-content {
   padding: 18px;
 }
-.white-block h3 {
+.white-block h2, .white-block h3 {
   border-bottom: 1px solid #bbb;
   padding: 18px;
 }
-.white-block .block-content h3 {
+.white-block .block-content h2, .white-block .block-content h3 {
   border-bottom: none;
   padding: 18px 0;
+}
+/** Alignment */
+.bottom {
+  clear: right;
 }
 
 @import "./themes/eth-theme.css";

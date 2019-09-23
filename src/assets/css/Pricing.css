@@ -1,13 +1,19 @@
+#pricing {
+  --block-min-height: 102px;
+}
+
 #pricing .white-block {
   display: block;
 }
 
 @media (min-width: 768px) {
   #pricing .white-block {
-    min-height: 390px;
     width: 49%;
     display: inline-block;
     vertical-align: top;
     margin-right: 1%;
+  }
+  #pricing .white-block .block-content p {
+      min-height: var(--block-min-height);
   }
 }
