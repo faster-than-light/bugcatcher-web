@@ -88,7 +88,7 @@ class App extends Component {
             <Route path="/" component={() => <Home {...props} />} exact />
             <Route path="/account" component={() => <Account {...props} />} exact />
             <Route path="/faq" component={() => <FAQ {...props} />} exact />
-            <Route path={process.env.REACT_APP_FTL_ENV === 'production' ? '/98ucrn93r29r4' : '/pricing'} component={() => <Pricing {...props} />} exact />
+            <Route path={'/pricing'} component={() => <Pricing {...props} />} exact />
             <Route path="/projects" component={() => <Project {...props} />} exact />
             <Route path="/tests" component={() => <Tests {...props} />} exact />
             <Route path="/thankyou" component={() => <ThankYou {...props} />} exact />
