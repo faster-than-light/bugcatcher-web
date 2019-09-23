@@ -164,7 +164,6 @@ export default class Pricing extends Component {
     const proButton = user.isSubscriber ? <this.proButton {...this.props} /> :
       <React.Fragment>
         <this.proButton {...this.props} />
-        <span style={{paddingLeft: 21, color: config.themes.default.primaryColor}}>$19.99 / month</span>
       </React.Fragment>
 
     return <div className={`theme`}>
