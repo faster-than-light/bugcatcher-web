@@ -180,7 +180,7 @@ export default class Pricing extends Component {
               <h3>Free BugCatcher!</h3>
               <div className="block-content">
                 <h3>We will offer 4X speeds for free. Great for for developers, open source projects and students.</h3>
-                <p>We&apos;re very close to launch! You&apos;re welcome to use this beta version and we&apos;d love feedback. Send thoughts to <a href="mailto:help@fasterthanlight.dev">help@fasterthanlight.dev</a></p>
+                <p>We&apos;re very close to launch! You&apos;re welcome to use this beta version and we&apos;d love to hear from you. Send feedback to <a href="mailto:help@fasterthanlight.dev">help@fasterthanlight.dev</a></p>
                 <br /><this.freeButton {...this.props} />
               </div>
             </div>
@@ -191,7 +191,7 @@ export default class Pricing extends Component {
                 <h3>10X speeds<br />
                   $19.99/month<br />
                   No charge until January 1, 2020</h3>
-                <p>We&apos;re offering a (very big) discount to the first 50 customers who pre-register. Free in 2019 and $19.99/month in 2020.</p>
+                <p>We&apos;re offering a (very big) discount to the first 50 customers who pre-register. Pro includes up to 5 licenses, for you and your team. We plan to charge around $249/month for Pro in 2020.</p>
                 {proButton}
               </div>
             </div>
