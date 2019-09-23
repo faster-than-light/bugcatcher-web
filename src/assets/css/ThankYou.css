@@ -1,0 +1,22 @@
+#thank_you {
+  padding: 0 12px;
+}
+#thank_you .logos {
+  margin-top: 90px;
+}
+#thank_you .white-block {
+  text-align: center;
+}
+#thank_you .logos {
+  margin-bottom: 21px;
+}
+#thank_you .logos img {
+  width: 45%;
+  vertical-align: middle;
+}
+#thank_you .logos img:first-child {
+  float: right;
+}
+#thank_you .logos img:nth-child(2) {
+  width: 21%;
+}

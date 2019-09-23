@@ -4,6 +4,11 @@ import { Link } from 'react-router-dom'
 // helpers
 import StlButton from '../components/StlButton'
 
+// images & styles
+import logo from '../assets/images/ftl-rocket-color.png'
+import bugcatcherLogo from '../assets/images/bugcatcher-transparent.png'
+import '../assets/css/ThankYou.css'
+
 export default class ThankYou extends Component { 
   componentWillMount() {
     console.log({props: this.props})
@@ -14,7 +19,11 @@ export default class ThankYou extends Component {
         maxWidth: 720,
         margin: 'auto',
       }}>
-        <div className="white-block" style={{ textAlign: 'center', marginTop: 111 }}>
+        <div className={'logos'}>
+          <img src={bugcatcherLogo} alt="BugCatcher" />
+          <img src={logo} alt="Faster Than Light" />
+        </div>
+        <div className="white-block">
           <div className="block-content">
             <h1 className="secondary-color">Thank you for pre-registering!</h1>
             <h3 style={{margin:0}}>Here&apos;s what you need to know about your subscription:</h3>
