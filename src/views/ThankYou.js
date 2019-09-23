@@ -10,9 +10,6 @@ import bugcatcherLogo from '../assets/images/bugcatcher-transparent.png'
 import '../assets/css/ThankYou.css'
 
 export default class ThankYou extends Component { 
-  componentWillMount() {
-    console.log({props: this.props})
-  }
   render() {
     return <div id="thank_you">
       <div style={{

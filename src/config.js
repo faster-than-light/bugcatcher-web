@@ -38,7 +38,7 @@ module.exports = {
     },
     {
       product: 'BugCatcher Pro',
-      description: 'Professional Tier Product',
+      description: 'Special Pre-Reg Promo',
       pricingPlan: 'bug_catcher_pro',
       priceInCents: 1999,
     },
