@@ -66,7 +66,6 @@ export default class Landing extends Component {
         onFailure={e => {
           console.error(e)
           setUser(null)
-          alert('There was an error logging into Google.')
           this.setState({ loggingIn: false })
         }}
         onRequest={() => {

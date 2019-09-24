@@ -21,6 +21,7 @@ import '../assets/css/Pricing.css'
 
 export default class Pricing extends Component {
   state = {
+    loggingIn: false,
     savingPaymentMethod: false,
     redirectToThankYou: false,
   }
@@ -67,7 +68,6 @@ export default class Pricing extends Component {
         onFailure={e => {
           console.error(e)
           setUser(null)
-          alert('There was an error logging into Google.')
           this.setState({ loggingIn: false })
         }}
         onRequest={() => {
@@ -169,7 +169,7 @@ export default class Pricing extends Component {
   render() {
     const { redirectToThankYou } = this.state
     const { user = {email: ''} } = this.props
-    const proButton = user.isSubscriber ? <this.proButton {...this.props} /> :
+    const proButton = user && user.isSubscriber ? <this.proButton {...this.props} /> :
       <React.Fragment>
         <this.proButton {...this.props} />
       </React.Fragment>
@@ -178,6 +178,7 @@ export default class Pricing extends Component {
     else return <div className={`theme`}>
       <Menu />
       <div className="contents">
+        <Loader show={this.state.loggingIn} text="logging in" />
         <section id="pricing">
           <div style={{marginTop: 21 }}>
             <p style={{textAlign: 'center'}}><img src={logo} style={{ width: 360 }} /></p>
