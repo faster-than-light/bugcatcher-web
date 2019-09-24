@@ -13,7 +13,9 @@
     vertical-align: top;
     margin-right: 1%;
   }
-  #pricing .white-block .block-content p {
+  #pricing .white-block .block-content p,
+  #pricing .white-block .block-content h3 {
       min-height: var(--block-min-height);
+      padding: 0;
   }
 }

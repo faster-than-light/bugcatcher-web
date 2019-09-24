@@ -158,12 +158,12 @@ export default class Pricing extends Component {
     if (!user || !user.sid) return <React.Fragment>
       <this.Login
         className={'bottom'}
-        buttonText={'Use BugCatcher Free'}
+        buttonText={'Use BugCatcher Developer Version'}
         actionName={'User Signup'}
         setUser={setUser} />
     </React.Fragment>
     else if (user && user.isSubscriber) return <h4>You are a BugCatcher Pro User!</h4>
-    else if (user) return <h4 style={{margin:0}}>You are using BugCatcher Free!</h4>
+    else if (user) return <h4 style={{margin:0}}>You are using BugCatcher Developer Version</h4>
   }
   
   render() {
@@ -184,7 +184,7 @@ export default class Pricing extends Component {
             <div style={{ height: 18 }} />
 
             <div className="white-block">
-              <h2>Free BugCatcher!</h2>
+              <h2>BugCatcher Developer Version</h2>
               <div className="block-content">
                 <h3>We will offer 4X speeds for free.
                   <br />Great for for developers, open source projects and students.</h3>
@@ -198,7 +198,8 @@ export default class Pricing extends Component {
               <div className="block-content">
                 <h3>10X speeds<br />
                   $19.99/month<br />
-                  Free until January 1, 2020</h3>
+                  Free until January 1, 2020<br />
+                  Cancel anytime</h3>
                 <p>We&apos;re offering a (very big) discount to the first 50 customers who pre-register. Pro includes up to 5 licenses, for you and your team. We plan to charge around $249/month for Pro in 2020.</p>
                 {proButton}
               </div>
