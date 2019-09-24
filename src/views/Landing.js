@@ -5,7 +5,6 @@ import { Icon, Modal } from 'semantic-ui-react'
 
 // components
 import CustomerInfoForm from '../components/CustomerInfoForm'
-import Subscribe from '../components/Subscribe'
 import StripeCheckoutButton from '../components/StripeCheckoutButton'
 import Loader from '../components/Loader'
 
@@ -91,8 +90,8 @@ export default class Landing extends Component {
     return <div id="home" className={`${this.props.productCode}-theme theme`}>
       <div id="landing">
         <img src={logo} style={{ width: 270 }} />
-        {/* <br />
-        <img src={bugCatcherLogo} alt="BugCatcher" style={{ width: '100%' }} /> */}
+        <br />
+        <img src={bugCatcherLogo} alt="BugCatcher" style={{ width: '100%' }} />
         <div style={{ height: 21 }} />
         <div style={{ width: '100%' }}>
           <UserContext.Consumer>
@@ -154,7 +153,6 @@ export default class Landing extends Component {
             }}
           </UserContext.Consumer>
         </div>
-        <Subscribe {...this.props} />
         <Modal
           closeIcon
           onClose={() => this.setState({openModal:false})}
