@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { GoogleLogin } from 'react-google-login'
-import { Icon, Modal } from 'semantic-ui-react'
+import { Modal } from 'semantic-ui-react'
 
 // components
 import CustomerInfoForm from '../components/CustomerInfoForm'
@@ -17,8 +17,8 @@ import { version } from '../../package.json'
 
 // images and styles
 import '../assets/css/Home.css'
-import logo from '../assets/images/logo.png'
 import bugCatcherLogo from '../assets/images/bugcatcher-white.png'
+import StlButton from '../components/StlButton'
 
 export default class Landing extends Component {
   constructor () {
@@ -88,8 +88,6 @@ export default class Landing extends Component {
 
     return <div id="home" className={`${this.props.productCode}-theme theme`}>
       <div id="landing">
-        <img src={logo} style={{ width: 270 }} />
-        <br />
         <img src={bugCatcherLogo} alt="BugCatcher" style={{ width: '100%' }} />
         <div style={{ height: 21 }} />
         <div style={{ width: '100%' }}>
@@ -104,15 +102,16 @@ export default class Landing extends Component {
                     actionName={'User Login'}
                     style={{ float:'left' }}
                     setUser={setUser} />
-                  <this.Login
-                    buttonText={'sign up'}
-                    actionName={'User Signup'}
-                    style={{ marginLeft: 15 }}
-                    setUser={setUser} />
+                  <Link to={'/pricing'}>
+                    <StlButton
+                      className="btn big"
+                      style={{ marginLeft: 15 }}>sign up</StlButton>
+                  </Link>
                 </div>
-                <p className="lead product-description">
+                <p className="lead product-description" style={{color: 'white'}}>
                   BugCatcher is a fast, easy static analysis tool for your code.
                 </p>
+                <p><a href="https://fasterthanlight.dev" target="_blank" style={{color: '#999'}}>Made by Faster Than Light</a></p>
                 <p>
                   <Link to="/tests" className="primary-color"
                     style={linkStyle}>Documentation</Link>
