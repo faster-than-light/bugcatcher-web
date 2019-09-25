@@ -89,7 +89,7 @@ export default class Landing extends Component {
     return <div id="home" className={`${this.props.productCode}-theme theme`}>
       <div id="landing">
         <img src={bugCatcherLogo} alt="BugCatcher" style={{ width: '100%' }} />
-        <p><a href="https://fasterthanlight.dev" target="_blank" style={{color: '#eaeaea'}}>Made by Faster Than Light</a></p>
+        <div><a href="https://fasterthanlight.dev" target="_blank" style={{color: '#ccc'}}>Made by Faster Than Light</a></div>
         <div style={{ height: 21 }} />
         <div style={{ width: '100%' }}>
           <UserContext.Consumer>
@@ -109,7 +109,7 @@ export default class Landing extends Component {
                       style={{ marginLeft: 15 }}>sign up</StlButton>
                   </Link>
                 </div>
-                <p className="lead product-description" style={{color: '#eaeaea'}}>
+                <p className="lead product-description" style={{color: '#ddd', marginBottom: 18}}>
                   BugCatcher is a fast, easy static analysis tool for your code.
                 </p>
                 <p>
