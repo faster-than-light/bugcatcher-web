@@ -35,7 +35,7 @@ export default class Pricing extends Component {
   }
 
   Login = (props) => {
-    const { actionName, buttonText, setUser, style } = props
+    const { actionName, buttonText, callback, setUser, style } = props
     const { fetchUser } = this.props
     return <React.Fragment>
       <GoogleLogin
@@ -63,7 +63,7 @@ export default class Pricing extends Component {
             version,
           })
           fetchUser()
-          this.setState({ openWidget: true })
+          callback()
         }}
         onFailure={e => {
           console.error(e)
@@ -110,7 +110,6 @@ export default class Pricing extends Component {
   proButton = props => {
     const { setUser, user } = props
     const showStripe = args => {
-      setUser(args)
       this.setState({
         shouldShowStripe: true,
         openStripeTimeout: setTimeout(
@@ -125,7 +124,8 @@ export default class Pricing extends Component {
         className={'bottom'}
         buttonText={'Get BugCatcher Pro'}
         actionName={'User Signup'}
-        setUser={showStripe} />
+        setUser={setUser}
+        callback={showStripe} />
     </React.Fragment>
     else if (user && user.isSubscriber) return <h4 style={{margin:0}}>You are a BugCatcher Pro User!</h4>
     else return <React.Fragment>
@@ -153,6 +153,10 @@ export default class Pricing extends Component {
     </React.Fragment>
   }
 
+  goToThankYou = () => {
+    window.location.href = '/thankyou'
+  }
+
   freeButton = props => {
     const { setUser, user } = props
     if (!user || !user.sid) return <React.Fragment>
@@ -160,7 +164,8 @@ export default class Pricing extends Component {
         className={'bottom'}
         buttonText={'Use BugCatcher Developer Version'}
         actionName={'User Signup'}
-        setUser={setUser} />
+        setUser={setUser}
+        callback={this.goToThankYou} />
     </React.Fragment>
     else if (user && user.isSubscriber) return <h4>You are a BugCatcher Pro User!</h4>
     else if (user) return <h4 style={{margin:0}}>You are using BugCatcher Developer Version</h4>
