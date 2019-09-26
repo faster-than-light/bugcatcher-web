@@ -5,8 +5,11 @@ import { Link } from 'react-router-dom'
 import Menu from '../components/Menu'
 import StlButton from '../components/StlButton'
 
-// external files
+// styles, images & files
+import '../assets/css/Tour.css'
 import resultsPdf from '../assets/sample-results.pdf'
+import shot1 from '../assets/images/results_screenshot-1.jpg'
+import shot2 from '../assets/images/results_screenshot-2.jpg'
 
 export default class Tour extends Component {
   render() {
@@ -16,9 +19,14 @@ export default class Tour extends Component {
         <div className="tools-box">
           <h1>BugCatcher Tour</h1>
 
+          <StlButton semantic primary href={resultsPdf}
+            style={{float: 'right'}}>Open Results PDF</StlButton>
           <h3>See the Sample Results</h3>
-          <p>
-            <StlButton semantic primary href={resultsPdf}>Open Results PDF</StlButton>
+          <p className="results-shots">
+            <a href={resultsPdf}>
+              <img src={shot1} alt="Results 1" />
+              <img src={shot2} alt="Results 2" />
+            </a>
           </p>
           <hr />
           

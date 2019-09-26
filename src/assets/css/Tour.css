@@ -1,0 +1,16 @@
+.results-shots img {
+  width: 100%;
+  box-shadow: 1px 1px 4.5px #bbb;
+}
+.results-shots img:first-child {
+  margin: 0 0 3% 0;
+}
+
+@media (min-width: 768px) {
+  .results-shots img {
+    width: 49%;
+  }
+  .results-shots img:first-child {
+    margin: 0 1% 0 0;
+  }  
+}
