@@ -69,7 +69,18 @@ module.exports = {
     process.env.REACT_APP_PROD_MIXPANEL_TOKEN :
       process.env.REACT_APP_STAGING_MIXPANEL_TOKEN,
 
-  // oauth
+  // github oauth
+  github: {
+    enterpriseUri: 'http://github.at.home/api/v3',
+    dotComUri: 'https://api.github.com',
+    clientId: ({
+      production: 'bf803b9cb69105c1c66f',
+      development: '37647c8bd2536e298348',
+      local: 'c7208e5474b2d9d81af3',
+    })[process.env.REACT_APP_FTL_ENV]
+  },
+  
+  // google oauth
   googleLoginId: process.env.REACT_APP_GOOGLE_LOGIN_ID,
 
   // stripe

@@ -1,0 +1,10 @@
+.oauth-images {
+  margin-bottom: 21px;
+}
+.oauth-images img {
+  height: 120px;
+  width: 120px;
+}
+.oauth-images img:first-child {
+  margin-right: 30px;
+}
