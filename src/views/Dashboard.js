@@ -60,7 +60,7 @@ export default class Dashboard extends Component {
         <div className="white-block">
           <h3>Run Tests using the Web App</h3>
           <div className="block-content">
-            <p>You can use BugCatcher right here on the web! For best results, we recommend using Google&apos;s Chrome browser. By the way, closing you browser while tests are running won&apos;t affect your tests.</p>
+            <p>You can use BugCatcher right here on the web! For best results, we recommend using Google&apos;s Chrome browser. By the way, closing your browser while tests are running won&apos;t affect your tests. The next time that you open BugCatcher, your tests will be either running or completed for you.</p>
             <LastProjectsAccessed />
             <Link to={'/projects'}><StlButton semantic className="btn small default">View All Projects</StlButton></Link>
             <button className={'link'}
