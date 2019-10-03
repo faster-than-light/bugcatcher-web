@@ -73,6 +73,4 @@ class GitHubClient {
   }
 }
 
-module.exports = {
-  GitHubClient: GitHubClient
-};
+export default GitHubClient

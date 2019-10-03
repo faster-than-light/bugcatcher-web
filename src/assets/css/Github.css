@@ -8,3 +8,9 @@
 .oauth-images img:first-child {
   margin-right: 30px;
 }
+#github .well {
+  border-radius: 6px;
+  background-color: #eee;
+  padding: 21px;
+  margin-top: 21px;
+}
