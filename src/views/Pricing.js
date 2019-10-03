@@ -167,7 +167,7 @@ export default class Pricing extends Component {
         setUser={setUser}
         callback={this.goToDashboard} />
     </React.Fragment>
-    else if (user && user.isSubscriber) return <h4>You are a BugCatcher Pro User!</h4>
+    else if (user && user.isSubscriber) return <h4 style={{margin:0}}>You are a BugCatcher Pro User!</h4>
     else if (user) return <h4 style={{margin:0}}>You are using BugCatcher Developer Version</h4>
   }
   
