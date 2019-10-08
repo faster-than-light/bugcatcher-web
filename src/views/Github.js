@@ -102,7 +102,7 @@ export default class Github extends Component {
     if (this.state.repos && !this.state.contents) {
       const repos = this.state.repos.map((repo, k) => <li key={k}>
         <a onClick={async () => {
-          const ref = prompt("Name of the commit/branch/tag?")
+          const ref = prompt("Optional name of the commit/branch/tag?")
           const contents = await githubApi.getRepoContents(repo, ref)
           console.log(contents)
           this.setState({ contents })
