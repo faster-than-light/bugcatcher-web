@@ -66,8 +66,8 @@ export default class Github extends Component {
   }
 
   ApiFunctions = () => {
-    const { automateAuth } = this.props
-    if (automateAuth) return null
+    const { automateAuth } = this.state
+    if (automateAuth) return <h2>WIP</h2>
     else return <div style={{padding: 21, textAlign: 'left'}}>
       <StlButton primary semantic disabled={Boolean(this.state.token)}
         onClick={async () => {
