@@ -130,7 +130,7 @@ export default class Github extends Component {
   }
 
   render() {
-    const { automateAuth, code, contents, repos, token, working } = this.state
+    const { automateAuth, code, token, user, working } = this.state
     const onSuccess = response => {
       const { code } = response
       this.setState({ code, working: false })
@@ -166,8 +166,13 @@ export default class Github extends Component {
               </React.Fragment> : null
             }
             { 
-              token ? <React.Fragment>
+              token && !user ? <React.Fragment>
                 <div className={'well'}>ACCESS TOKEN: {token}</div>
+              </React.Fragment> : null
+            }
+            { 
+              user ? <React.Fragment>
+                <div className={'well'}>USER LOGIN: {user.login}</div>
               </React.Fragment> : null
             }
             </div>
