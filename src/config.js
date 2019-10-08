@@ -71,13 +71,18 @@ module.exports = {
 
   // github oauth
   github: {
+    backend: ({
+      production: 'https://ftl-node-github.herokuapp.com/',
+      development: 'https://ftl-node-github.herokuapp.com/',
+      local: 'http://localhost:3003',
+    })[process.env.REACT_APP_FTL_ENV],
     enterpriseUri: 'http://github.at.home/api/v3',
     dotComUri: 'https://api.github.com',
     clientId: ({
       production: 'bf803b9cb69105c1c66f',
       development: '37647c8bd2536e298348',
       local: 'c7208e5474b2d9d81af3',
-    })[process.env.REACT_APP_FTL_ENV]
+    })[process.env.REACT_APP_FTL_ENV],
   },
   
   // google oauth

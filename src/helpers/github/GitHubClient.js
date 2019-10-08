@@ -22,7 +22,8 @@ class GitHubClient {
     this.headers = {
       "Content-Type": "application/json",
       "Accept": "application/vnd.github.v3.full+json",
-      "Authorization": this.credentials
+      "Authorization": this.credentials,
+      "Access-Control-Allow-Headers": "Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, Accept-Encoding, X-GitHub-OTP, X-Requested-With, User-Agent"
     };
     return Object.assign(this, ...features);
   }
