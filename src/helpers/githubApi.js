@@ -45,12 +45,16 @@ async function getRepos() {
  * @dev Get the contents of a repo on a specified branch or master (default)
  * 
  * @param {string} repo Full name of repo (ex: "your-org/your-project")
+ * @param {string} path The file path or directory of the contents
  * @param {string} ref The name of the commit/branch/tag. (Default:  master)
  * 
  * @returns {array(object(...fileInfo))}
  */
-async function getRepoContents(repo, ref) {
-  const { data: contents } = await get(`/repos/${repo}/contents/${ref}`)
+async function getRepoContents(repo, path, ref) {
+  let uri = `/repos/${repo}/contents/`
+  if (path) uri = uri + `${path}`
+  if (ref) uri = uri + `?ref=${ref}`
+  const { data: contents } = await get(uri)
   return contents.map(c => c)
 }
 

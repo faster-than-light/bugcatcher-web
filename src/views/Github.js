@@ -103,7 +103,7 @@ export default class Github extends Component {
       const repos = this.state.repos.map((repo, k) => <li key={k}>
         <a onClick={async () => {
           const ref = prompt("Optional name of the commit/branch/tag?")
-          const contents = await githubApi.getRepoContents(repo, ref)
+          const contents = await githubApi.getRepoContents(repo, null, ref)
           console.log(contents)
           this.setState({ contents })
         }}>{repo}</a>
