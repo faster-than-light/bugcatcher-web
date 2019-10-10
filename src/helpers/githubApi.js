@@ -41,6 +41,11 @@ async function getRepos() {
   return repos.map(r => r.full_name)
 }
 
+async function getBranch(owner, repo, branch) {
+  const { data } = await get(`/repos/${owner}/${repo}/branches/${branch}`)
+  return data
+}
+
 /**
  * @dev Get the contents of a repo on a specified branch or master (default)
  * 
@@ -75,6 +80,7 @@ function get(path, options) {
 export default {
   ...octokit,
   getAccessToken,
+  getBranch,
   getRepos,
   getRepoContents,
 }

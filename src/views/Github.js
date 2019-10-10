@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import queryString from 'query-string'
 import GitHubLogin from 'react-github-login'
 
@@ -22,21 +22,29 @@ import '../assets/css/Github.css'
 /** Constants */
 const initialState = {
   code: null,
-  contents: null,
-  token: null,
+  currentRepo: null,
+  branches: null,
+  redirect: null,
   repos: null,
+  token: null,
+  tree: null,
   user: null,
   working: false,
 }
-const cookieName = 'automate-gh_auth'
+const automateCookieName = 'automate-gh_auth'
+const tokenCookieName = 'github-ftl-token'
 let githubCliEnterprise, githubCliDotCom, githubUserInfo
 
 export default class Github extends Component {
   constructor(props) {
-    super(props);
+    super(props)
+
+    let token = getCookie(tokenCookieName)
+    token = token.length ? token : null
     this.state = {
       ...initialState,
-      automateAuth: Boolean(getCookie(cookieName)),
+      automateAuth: getCookie(automateCookieName) == 'true',
+      token,
     }
 
     this.toggleAutomateOption = this.toggleAutomateOption.bind(this)
@@ -45,68 +53,87 @@ export default class Github extends Component {
   }
 
   async componentWillMount() {
-    const automateAuth = getCookie(cookieName) == 'true'
     this.setState({
       code: queryString.parse(document.location.search)['code'] ?
         queryString.parse(document.location.search)['code'] : null,
-      automateAuth,
     })
   }
 
   async toggleAutomateOption(event) {
     const automate = event.target.checked
-    console.log(automate, this.state.automateAuth, getCookie(cookieName))
-    await setCookie(cookieName, automate)
+    await setCookie(automateCookieName, automate)
     await this.setState({ automateAuth: automate })
-    console.log(automate, this.state.automateAuth, getCookie(cookieName))
   }
   
   resetState = () => {
+    setCookie(tokenCookieName, '')
     this.setState(initialState)
   }
 
   ApiFunctions = () => {
-    const { automateAuth } = this.state
+    const { automateAuth, token } = this.state
     if (automateAuth) return <h2>WIP</h2>
     else return <div style={{padding: 21, textAlign: 'left'}}>
-      <StlButton primary semantic disabled={Boolean(this.state.token)}
-        onClick={async () => {
-          this.setState({ working: true })
-          const accessToken = await githubApi.getAccessToken(this.state.code)
-          if (accessToken) this.setState({
-            token: accessToken,
-            working: false,
-          })
-          else {
-            alert('There was a problem fetching a token. Please try again.')
-            this.resetState()
-          }
-        }}>Fetch Access Token &raquo;</StlButton>
-      <StlButton primary semantic disabled={Boolean(!this.state.token || this.state.user)}
-        onClick={ async () => {
-          this.setState({ working: true })
-          const user = await githubApi.getAuthenticated()
-          this.setState({ user, working: false })
-        }}>Fetch User Profile &raquo;</StlButton>
-      <StlButton primary semantic disabled={Boolean(!this.state.user)}
-        onClick={ async () => {
-          this.setState({ working: true })
-          const repos = await githubApi.getRepos()
-          console.log({repos})
-          this.setState({ repos, contents: null, working: false })
-        }}>Fetch User&apos;s Repositories &raquo;</StlButton>
+
+      <this.FetchAccessToken />
+
+      <this.FetchUserProfile />
+
+      <this.FetchUserRepos />
+
     </div>
   }
 
+  FetchAccessToken = () => <StlButton primary semantic disabled={Boolean(this.state.token)}
+    onClick={async () => {
+      this.setState({ working: true })
+      const token = await githubApi.getAccessToken(this.state.code)
+      if (token) {
+        setCookie(tokenCookieName, token)
+        this.setState({
+          redirect: this.state.code ? '/github' : null,
+          token,
+          working: false,
+        }) 
+      }
+      else {
+        alert('There was a problem fetching a token. Please try again.')
+        this.resetState()
+      }
+    }}>Fetch Access Token &raquo;</StlButton>
+
+  FetchUserProfile = () => <StlButton primary semantic
+    disabled={Boolean(!this.state.token || this.state.user)}
+    onClick={ async () => {
+      this.setState({ working: true })
+      let user
+      try { user = await githubApi.getAuthenticated() }
+      catch(c) {}
+      if (!user) {
+        alert("There was a problem fetching your Profile. Please start over and try again.")
+        this.resetState()
+      }
+      else this.setState({ user, working: false })
+    }}>Fetch User Profile &raquo;</StlButton>
+
+  FetchUserRepos = () => <StlButton primary semantic disabled={Boolean(!this.state.user)}
+    onClick={ async () => {
+      this.setState({ working: true })
+      let repos
+      try {
+        repos = await githubApi.getRepos()
+      } catch(c) {}
+      console.log({ repos })
+      if (!repos) {
+        alert("There was a problem fetching your Repository List. Please start over and try again.")
+      }
+      else this.setState({ repos, contents: null, working: false })
+    }}>Fetch User&apos;s Repositories &raquo;</StlButton>
+
   RepoList = () => {
-    if (this.state.repos && !this.state.contents) {
+    if (this.state.repos && !this.state.branches) {
       const repos = this.state.repos.map((repo, k) => <li key={k}>
-        <a onClick={async () => {
-          const ref = prompt("Optional name of the commit/branch/tag?")
-          const contents = await githubApi.getRepoContents(repo, null, ref)
-          console.log(contents)
-          this.setState({ contents })
-        }}>{repo}</a>
+        <a onClick={() => this.getBranches(repo)}>{repo}</a>
       </li>)
       return <ul className="repo-list">
         <h3>Your Repositories</h3>
@@ -116,13 +143,59 @@ export default class Github extends Component {
     else return null
   }
 
+  getBranches = async currentRepo => {
+    this.setState({ working: true })
+    const [ owner, repo ] = currentRepo.split('/')
+    let branches = await githubApi.getBranches(owner, repo)
+    branches = branches.map(b => b.name)
+    this.setState({ branches, currentRepo, working: false })
+  }
+
+  BranchList = () => {
+    if (this.state.branches && !this.state.tree) {
+      const branches = this.state.branches.map((branch, k) => <li key={k}>
+        <a onClick={() => { this.getTree(branch) }}>{branch}</a>
+      </li>)
+      return <ul className="repo-list">
+        <h3>{`Choose a branch of ${this.state.currentRepo}`}</h3>
+        { branches }
+      </ul>
+    }
+    else return null
+  }
+
+  getTree = async branchName => {
+    this.setState({ working: true })
+    const [ owner, repo ] = this.state.currentRepo.split('/')
+    const branch = await githubApi.getBranch(owner, repo, branchName)
+
+    if (
+      branch &&
+      branch.commit &&
+      branch.commit.commit &&
+      branch.commit.commit.tree &&
+      branch.commit.commit.tree.sha
+    ) {
+      const treeSha = branch['commit']['commit']['tree']['sha']
+      const tree = await githubApi.getTree(
+        owner,
+        repo,
+        treeSha,
+        true // recursive bool
+      )
+      this.setState({ tree, working: false })
+    }
+  }
+
   RepoContents = () => {
-    if (this.state.contents) {
-      const contents = this.state.contents.map((file, k) => <li key={k}>
+    const { currentRepo, tree } = this.state
+    if (tree) {
+      const contents = tree.tree.map((file, k) => <li key={k}>
         {file.path}
       </li>)
       return <ul className="repo-list">
-        <h3>Repository Contents</h3>
+        <h3>Contents of {currentRepo} Repository</h3>
+        <p>GitHub Tree SHA: {tree.sha}</p>
         { contents }
       </ul>
     }
@@ -130,14 +203,15 @@ export default class Github extends Component {
   }
 
   render() {
-    const { automateAuth, code, token, user, working } = this.state
+    const { automateAuth, code, redirect, token, user, working } = this.state
     const onSuccess = response => {
       const { code } = response
       this.setState({ code, working: false })
     }
     const onFailure = response => console.error(response)
 
-    return <div id="github">
+    if (redirect) return <Redirect to={redirect} />
+    else return <div id="github">
       <Menu />
       <Loader show={working} text="working" />
       <div style={{
@@ -178,7 +252,7 @@ export default class Github extends Component {
             </div>
 
             {
-              code ? <this.ApiFunctions automateAuth={automateAuth} /> : <React.Fragment>
+              code || token ? <this.ApiFunctions automateAuth={automateAuth} /> : <React.Fragment>
                 <p>
                   <a href={`https://github.com/login/oauth/authorize?client_id=${github.clientId}&type=user_agent&scope=user,repo&redirect_uri=${appUrl}/gh_auth`}>
                     <StlButton className="big"
@@ -210,6 +284,8 @@ export default class Github extends Component {
             }
 
             <this.RepoList />
+
+            <this.BranchList />
 
             <this.RepoContents />
 
