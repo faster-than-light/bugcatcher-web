@@ -53,9 +53,17 @@ export default class Github extends Component {
   }
 
   async componentWillMount() {
+    const { token } = this.state
+    let user
+    if (token) {
+      githubApi.setToken(token)
+      try { user = await githubApi.getAuthenticated() }
+      catch(c) {}
+    }
     this.setState({
       code: queryString.parse(document.location.search)['code'] ?
         queryString.parse(document.location.search)['code'] : null,
+      user,
     })
   }
 
@@ -118,12 +126,11 @@ export default class Github extends Component {
 
   FetchUserRepos = () => <StlButton primary semantic disabled={Boolean(!this.state.user)}
     onClick={ async () => {
-      this.setState({ working: true })
+      this.setState({ branches: null, tree: null, working: true })
       let repos
       try {
         repos = await githubApi.getRepos()
       } catch(c) {}
-      console.log({ repos })
       if (!repos) {
         alert("There was a problem fetching your Repository List. Please start over and try again.")
       }
@@ -189,6 +196,7 @@ export default class Github extends Component {
 
   RepoContents = () => {
     const { currentRepo, tree } = this.state
+    console.log({ tree })
     if (tree) {
       const contents = tree.tree.map((file, k) => <li key={k}>
         {file.path}
@@ -196,6 +204,7 @@ export default class Github extends Component {
       return <ul className="repo-list">
         <h3>Contents of {currentRepo} Repository</h3>
         <p>GitHub Tree SHA: {tree.sha}</p>
+        <p>{tree.tree.length} total files</p>
         { contents }
       </ul>
     }
