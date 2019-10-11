@@ -53,16 +53,24 @@ export default class Github extends Component {
   }
 
   async componentWillMount() {
-    const { token } = this.state
-    let user
-    if (token) {
-      githubApi.setToken(token)
-      try { user = await githubApi.getAuthenticated() }
-      catch(c) {}
+    const code = queryString.parse(document.location.search)['code']
+    let { token, user } = this.state
+    if (!token && code) {
+      token = await this.fetchToken()
     }
+    if (token) {
+      await githubApi.setToken(token)
+      user = await this.fetchUser()
+    }
+    console.log({
+      token, 
+      cookie: getCookie(tokenCookieName), 
+      user,
+      code,
+      codeBool: Boolean(!user && code),
+    })
     this.setState({
-      code: queryString.parse(document.location.search)['code'] ?
-        queryString.parse(document.location.search)['code'] : null,
+      code: !user && code ? code : null,
       user,
     })
   }
@@ -78,10 +86,21 @@ export default class Github extends Component {
     this.setState(initialState)
   }
 
+  runApiFunctions = async () => {
+    const { code, repos, token, user } = this.state
+    if (code && !token) await this.fetchToken()
+    if (!user) await this.fetchUser()
+    if (!repos) await this.fetchRepos()
+  }
+  
   ApiFunctions = () => {
-    const { automateAuth, token } = this.state
-    if (automateAuth) return <h2>WIP</h2>
-    else return <div style={{padding: 21, textAlign: 'left'}}>
+    const { automateAuth } = this.state
+    if (automateAuth) this.runApiFunctions()
+    return this.ApiButtons()
+  }
+  
+  ApiButtons = () => {
+    return <div style={{padding: 21, textAlign: 'left'}}>
 
       <this.FetchAccessToken />
 
@@ -92,49 +111,63 @@ export default class Github extends Component {
     </div>
   }
 
+  fetchToken = async alertError => {
+    let token
+    try {
+      token = await githubApi.getAccessToken(this.state.code)
+    } catch(e) { console.error(e) }
+    if (!token) {
+      if (alertError) alert('There was a problem fetching a token. Please try again.')
+      this.resetState()
+    }
+    else {
+      setCookie(tokenCookieName, token)
+      this.setState({ token })
+    }
+    return token
+  }
+
+  fetchUser = async alertError => {
+    let user
+    try { user = await githubApi.getAuthenticated() }
+    catch(e) { console.error(e) }
+    if (!user) {
+      if (alertError) alert("There was a problem fetching your Profile. Please start over and try again.")
+      this.resetState()
+    }
+    else this.setState({ user })
+    return user
+  }
+
+  fetchRepos = async alertError => {
+    let repos
+    try { repos = await githubApi.getRepos() }
+    catch(e) { console.error(e) }
+    if (!repos && alertError) alert("There was a problem fetching your Repository List. Please start over and try again.")
+    else this.setState({ repos, contents: null })
+    return repos
+  }
+
   FetchAccessToken = () => <StlButton primary semantic disabled={Boolean(this.state.token)}
     onClick={async () => {
       this.setState({ working: true })
-      const token = await githubApi.getAccessToken(this.state.code)
-      if (token) {
-        setCookie(tokenCookieName, token)
-        this.setState({
-          redirect: this.state.code ? '/github' : null,
-          token,
-          working: false,
-        }) 
-      }
-      else {
-        alert('There was a problem fetching a token. Please try again.')
-        this.resetState()
-      }
+      await this.fetchToken(true)
+      this.setState({ working: false }) 
     }}>Fetch Access Token &raquo;</StlButton>
 
   FetchUserProfile = () => <StlButton primary semantic
     disabled={Boolean(!this.state.token || this.state.user)}
     onClick={ async () => {
       this.setState({ working: true })
-      let user
-      try { user = await githubApi.getAuthenticated() }
-      catch(c) {}
-      if (!user) {
-        alert("There was a problem fetching your Profile. Please start over and try again.")
-        this.resetState()
-      }
-      else this.setState({ user, working: false })
+      await this.fetchUser(true)
+      this.setState({ working: false })
     }}>Fetch User Profile &raquo;</StlButton>
 
   FetchUserRepos = () => <StlButton primary semantic disabled={Boolean(!this.state.user)}
     onClick={ async () => {
       this.setState({ branches: null, tree: null, working: true })
-      let repos
-      try {
-        repos = await githubApi.getRepos()
-      } catch(c) {}
-      if (!repos) {
-        alert("There was a problem fetching your Repository List. Please start over and try again.")
-      }
-      else this.setState({ repos, contents: null, working: false })
+      await this.fetchRepos()
+      this.setState({ working: false })
     }}>Fetch User&apos;s Repositories &raquo;</StlButton>
 
   RepoList = () => {
@@ -196,7 +229,6 @@ export default class Github extends Component {
 
   RepoContents = () => {
     const { currentRepo, tree } = this.state
-    console.log({ tree })
     if (tree) {
       const contents = tree.tree.map((file, k) => <li key={k}>
         {file.path}
@@ -261,7 +293,7 @@ export default class Github extends Component {
             </div>
 
             {
-              code || token ? <this.ApiFunctions automateAuth={automateAuth} /> : <React.Fragment>
+              code || token ? <this.ApiFunctions /> : <React.Fragment>
                 <p>
                   <a href={`https://github.com/login/oauth/authorize?client_id=${github.clientId}&type=user_agent&scope=user,repo&redirect_uri=${appUrl}/gh_auth`}>
                     <StlButton className="big"

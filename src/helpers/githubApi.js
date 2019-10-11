@@ -3,6 +3,7 @@ import octokit from './octokit'
 import { github } from '../config'
 
 let token
+function getToken() { return token }
 
 /**
  * @dev Sets a new token for use in this file and in octokit.js
@@ -83,5 +84,7 @@ export default {
   getBranch,
   getRepos,
   getRepoContents,
+  getToken,
+  setToken,
 }
 
