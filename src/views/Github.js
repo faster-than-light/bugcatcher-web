@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import queryString from 'query-string'
 import GitHubLogin from 'react-github-login'
+import { Icon, Table } from 'semantic-ui-react'
 
 // components
 import Loader from '../components/Loader'
@@ -15,7 +16,7 @@ import githubApi from '../helpers/githubApi'
 
 // images & styles
 import bugcatcherShield from '../assets/images/bugcatcher-shield-square.png'
-import githubLogo from '../assets/images/github.png'
+import githubLogo from '../assets/images/github-logo.png'
 import StlButton from '../components/StlButton'
 import '../assets/css/Github.css'
 
@@ -24,6 +25,7 @@ const initialState = {
   code: null,
   currentRepo: null,
   branches: null,
+  branchName: null,
   redirect: null,
   repos: null,
   token: null,
@@ -43,7 +45,8 @@ export default class Github extends Component {
     token = token.length ? token : null
     this.state = {
       ...initialState,
-      automateAuth: getCookie(automateCookieName) == 'true',
+      automateAuth: true,
+      // automateAuth: getCookie(automateCookieName) == 'true',
       token,
     }
 
@@ -53,6 +56,7 @@ export default class Github extends Component {
   }
 
   async componentWillMount() {
+    this.setState({ working: true })
     const code = queryString.parse(document.location.search)['code']
     let { token, user } = this.state
     if (!token && code) {
@@ -62,16 +66,10 @@ export default class Github extends Component {
       await githubApi.setToken(token)
       user = await this.fetchUser()
     }
-    console.log({
-      token, 
-      cookie: getCookie(tokenCookieName), 
-      user,
-      code,
-      codeBool: Boolean(!user && code),
-    })
     this.setState({
       code: !user && code ? code : null,
       user,
+      working: false,
     })
   }
 
@@ -95,16 +93,21 @@ export default class Github extends Component {
   
   ApiFunctions = () => {
     const { automateAuth } = this.state
-    if (automateAuth) this.runApiFunctions()
+    if (automateAuth) {
+      this.runApiFunctions()
+    }
     return this.ApiButtons()
   }
   
   ApiButtons = () => {
-    return <div style={{padding: 21, textAlign: 'left'}}>
+    const { automateAuth } = this.state
+    const show = { display: !automateAuth ? 'inline-block' : 'none' }
 
-      <this.FetchAccessToken />
+    return <div style={{padding: '21px 0', textAlign: 'left'}}>
 
-      <this.FetchUserProfile />
+      <this.FetchAccessToken style={show} />
+
+      <this.FetchUserProfile style={show} />
 
       <this.FetchUserRepos />
 
@@ -148,37 +151,48 @@ export default class Github extends Component {
     return repos
   }
 
-  FetchAccessToken = () => <StlButton primary semantic disabled={Boolean(this.state.token)}
+  FetchAccessToken = (props) => <StlButton primary semantic disabled={Boolean(this.state.token)}
+    style={props.style}
     onClick={async () => {
       this.setState({ working: true })
       await this.fetchToken(true)
       this.setState({ working: false }) 
     }}>Fetch Access Token &raquo;</StlButton>
 
-  FetchUserProfile = () => <StlButton primary semantic
+  FetchUserProfile = (props) => <StlButton primary semantic
     disabled={Boolean(!this.state.token || this.state.user)}
+    style={props.style}
     onClick={ async () => {
       this.setState({ working: true })
       await this.fetchUser(true)
       this.setState({ working: false })
     }}>Fetch User Profile &raquo;</StlButton>
 
-  FetchUserRepos = () => <StlButton primary semantic disabled={Boolean(!this.state.user)}
+  FetchUserRepos = () => <StlButton primary semantic
+    disabled={Boolean(!this.state.user || !this.state.branches)}
     onClick={ async () => {
       this.setState({ branches: null, tree: null, working: true })
       await this.fetchRepos()
       this.setState({ working: false })
-    }}>Fetch User&apos;s Repositories &raquo;</StlButton>
+    }}>List Your Repositories &raquo;</StlButton>
 
   RepoList = () => {
     if (this.state.repos && !this.state.branches) {
-      const repos = this.state.repos.map((repo, k) => <li key={k}>
-        <a onClick={() => this.getBranches(repo)}>{repo}</a>
-      </li>)
-      return <ul className="repo-list">
+      const repos = this.state.repos ? this.state.repos.map((repo, k) => <Table.Row key={k}>
+        <Table.Cell><a onClick={() => this.getBranches(repo)}>
+          {repo}
+        </a></Table.Cell>
+      </Table.Row>) : <Table.Row key={0}>
+        <Table.Cell>Not found.</Table.Cell>
+      </Table.Row>
+      return <div className="repo-list">
         <h3>Your Repositories</h3>
-        { repos }
-      </ul>
+        <Table celled striped className={'data-table'}>
+          <Table.Body>
+            { repos }
+          </Table.Body>
+        </Table>
+      </div>
     }
     else return null
   }
@@ -193,13 +207,22 @@ export default class Github extends Component {
 
   BranchList = () => {
     if (this.state.branches && !this.state.tree) {
-      const branches = this.state.branches.map((branch, k) => <li key={k}>
-        <a onClick={() => { this.getTree(branch) }}>{branch}</a>
-      </li>)
-      return <ul className="repo-list">
-        <h3>{`Choose a branch of ${this.state.currentRepo}`}</h3>
-        { branches }
-      </ul>
+      const branches = this.state.branches.length ? this.state.branches.map((branch, k) => 
+      <Table.Row key={k}>
+        <Table.Cell>
+          <a onClick={() => { this.getTree(branch) }}>{branch}</a>
+        </Table.Cell>
+      </Table.Row>) : <Table.Row key={0}>
+        <Table.Cell>Not found.</Table.Cell>
+      </Table.Row>
+      return <div className="repo-list">
+        <h3>Choose a branch of <code>{this.state.currentRepo}</code></h3>
+        <Table celled striped className={'data-table'}>
+          <Table.Body>
+            { branches }
+          </Table.Body>
+        </Table>
+      </div>
     }
     else return null
   }
@@ -223,22 +246,39 @@ export default class Github extends Component {
         treeSha,
         true // recursive bool
       )
-      this.setState({ tree, working: false })
+      this.setState({ branchName, tree, working: false })
     }
   }
 
   RepoContents = () => {
-    const { currentRepo, tree } = this.state
-    if (tree) {
-      const contents = tree.tree.map((file, k) => <li key={k}>
-        {file.path}
-      </li>)
-      return <ul className="repo-list">
-        <h3>Contents of {currentRepo} Repository</h3>
+    const { branchName, currentRepo, showFiles, tree } = this.state
+    if (tree) {console.log({ tree })
+      const contents = tree.tree && tree.tree.length ? tree.tree.map((t, k) => 
+      <Table.Row key={k}>
+        <Table.Cell>
+          { t.path }
+        </Table.Cell>
+      </Table.Row>) : <Table.Row key={0}>
+        <Table.Cell>Not found.</Table.Cell>
+      </Table.Row>
+      return <div className="repo-list">
+        <h3 style={{ padding: 0 }}>Contents of <code>{currentRepo}</code> Repository</h3>
+        <h3 style={{ padding: 0 }}>Branch: <code>{branchName}</code></h3>
         <p>GitHub Tree SHA: {tree.sha}</p>
-        <p>{tree.tree.length} total files</p>
-        { contents }
-      </ul>
+        <p>
+          {tree.tree.length} total files &nbsp;
+          <a onClick={() => { this.setState({ showFiles: !showFiles })}}>
+            show / hide
+          </a>
+        </p>
+        <Table celled striped className={'data-table'}
+          style={{ display: !showFiles ? 'none' : 'table' }}>
+          <Table.Body>
+            { contents }
+          </Table.Body>
+        </Table>
+        <StlButton  disabled>Test This GitHub Repo</StlButton>
+      </div>
     }
     else return null
   }
@@ -271,6 +311,11 @@ export default class Github extends Component {
 
             <p className="oauth-images">
               <img src={bugcatcherShield} alt="BugCatcher" />
+              <div className="center-check">
+                <div className="icon-box">
+                  <Icon name="chevron circle right" size="big" style={{ color: 'green' }} />
+                </div>
+              </div>
               <img src={githubLogo} alt="GitHub" />
             </p>
 
@@ -299,28 +344,28 @@ export default class Github extends Component {
                     <StlButton className="big"
                     onClick={
                       () => { this.setState({ working: true }) }
-                    }>Option 1&raquo;In Same Window</StlButton>
+                    }>Authorize BugCatcher on GitHub</StlButton>
                   </a>
-                  <GitHubLogin className="big btn"
+                  {/* <GitHubLogin className="big btn"
                     clientId={github.clientId}
                     redirectUri=''
                     scope="user repo"
                     buttonText="Option 2&raquo;In New Tab"
                     onSuccess={onSuccess}
-                    onFailure={onFailure}/>
+                    onFailure={onFailure}/> */}
                 </p>
 
-                <p>
-                  <input type="checkbox" onChange={this.toggleAutomateOption}
+                <label htmlFor="automate" style={{ zoom: 1.2, display: 'none' }} className="well">
+                  <input id="automate" type="checkbox" onChange={this.toggleAutomateOption}
                     checked={this.state.automateAuth} />
                   &nbsp;Automate all steps of the authentication process
-                </p>
+                </label>
 
-                <ul style={{textAlign: 'left', margin: 18}}>
+                {/* <ul style={{textAlign: 'left', margin: 18}}>
                   <li>Option 1 is redirecting you straight to Github in this window.</li>
                   <li>Option 2 is using a React JS component library to use a new window/tab to log in.</li>
                 </ul>
-                <p>Both options result in a temporary <code>code</code> being returned from GitHub. This code can be used with the GitHub API for 10 minutes to retrieve an <code>Access Token</code>. The access token can then be used to interact with GitHub on behalf of the user for 1 hour or until the user logs out of GitHub.</p>
+                <p>Both options result in a temporary <code>code</code> being returned from GitHub. This code can be used with the GitHub API for 10 minutes to retrieve an <code>Access Token</code>. The access token can then be used to interact with GitHub on behalf of the user for 1 hour or until the user logs out of GitHub.</p> */}
               </React.Fragment>
             }
 
