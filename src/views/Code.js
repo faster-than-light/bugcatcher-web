@@ -26,6 +26,7 @@ import { Label, Icon, Progress, Table } from 'semantic-ui-react'
 import { fromEvent } from 'file-selector'
 import { sha256 } from 'js-sha256'
 import moment from 'moment'
+import queryString from 'query-string'
 
 // components
 import CodeListNav from '../components/CodeListNav'
@@ -48,6 +49,7 @@ import config from '../config'
 import LocalStorage from '../helpers/LocalStorage'
 import { scrollTo } from '../helpers/scrollTo'
 import { version } from '../../package.json'
+import githubApi from '../helpers/githubApi'
 
 // images and styles
 import '../assets/css/UploadFiles.css'
@@ -69,7 +71,9 @@ const uploadsPerSecond = 0, // 0 = unlimited
   millisecondTimeout = Math.floor(1000 / uploadsPerSecond),
   uiUploadThreshold = 1000,
   retryAttemptsAllowed = 300,
-  retryIntervalMilliseconds = 9000
+  retryIntervalMilliseconds = 9000,
+  tokenCookieName = 'github-ftl-token'
+
 let retryAttempts = 0,
   lastPercentComplete = 0,
   projectName,
@@ -93,11 +97,12 @@ export default class Code extends Component {
     this._countUp = this._countUp.bind(this)
     this._restoreDirName = this._restoreDirName.bind(this)
     this._runTests = this._runTests.bind(this)
+    this._getTree = githubApi.getTree.bind(this)
   }
 
   /** @dev Lifecycle methods */
   async componentWillMount() {
-    projectName = this.props.match ? this.props.match.params.id : null
+    projectName = this.props.match ? decodeURIComponent(this.props.match.params.id) : null
     let lastProjectsAccessed = JSON.parse(getCookie("lastProjectsAccessed") || '[]')
     lastProjectsAccessed = lastProjectsAccessed.filter(p => p !== projectName)
     let newList = [ projectName ]
@@ -141,6 +146,8 @@ export default class Code extends Component {
       startCounting = setInterval(this._countUp, 1000)
       this._initCheckTestStatus(testResultSid)
     }
+
+    this._fetchGithubRepo()
   }
 
   componentWillUnmount() {
@@ -150,6 +157,47 @@ export default class Code extends Component {
     startCounting = null
     testTimeElapsed = 0
     currentUploadQueue = null
+  }
+
+  _fetchGithubRepo = async () => {
+    const { projectName } = this.state
+
+    /** @dev Fetch GitHub repo if querystring param is found */
+    const gh = queryString.parse(document.location.search)['gh']
+    if (gh) {
+      const token = getCookie(tokenCookieName)
+      if (token) {
+        githubApi.setToken(token)
+        this.setState({ working: true })
+        const [ repoName, branchName ] = projectName.split('/tree/')
+        const [ owner, repo ] = repoName.split('/')
+        const { tree } = await this._getTree(
+          owner,
+          repo,
+          branchName,
+        )
+        if (tree && tree.tree) {
+          // const contents = tree.tree.length ?
+          //   tree.tree.map((t) => t.path)
+          //     : ''
+          // console.log({
+          //   branchName,
+          //   repo,
+          //   owner,
+          //   contents,
+          //   tree,
+          // })
+          this.setState({
+            ghTree: tree,
+            branchName,
+            repo,
+            owner,
+            step: 4,
+            working: false,
+          })    
+        }
+      }
+    }    
   }
 
   /** @dev Component methods */
@@ -634,6 +682,10 @@ export default class Code extends Component {
 
   _setState = state => this.setState(state || initialState)
 
+  _testGithubRepo = () => {
+    alert(`Tree is ${this.state.tree.length} files large`)
+  }
+
   /** @dev Sub components */
   Instructions = () => {
     const {
@@ -691,19 +743,25 @@ export default class Code extends Component {
   render() {
     let {
       binaryFilesToUpload,
+      branchName,
       codeOnServer,
       deletingFiles,
       droppingFiles,
       numFilesDropped = 0,
       numFilesToDelete,
+      owner,
       productCode,
       reconnecting,
+      redirect,
+      repo,
       results,
-      showCodeList,
+      showGithubFiles,
       showDropzone,
       showResults,
       step,
       testResultSid,
+      ghTree = [],
+      working,
     } = this.state
     results = results || { // inital state for the results table
       status_msg: 'SETUP',
@@ -717,6 +775,8 @@ export default class Code extends Component {
 
     if (droppingFiles) return <Loader text={`Evaluating ${numFilesDropped} Files`} />
     else if (deletingFiles) return <Loader text={`Deleting ${numFilesToDelete} Files`} />
+    else if (redirect) return <Redirect to={`/github`} />
+    else if (working) return <Loader text={`working`} />
     else if (reconnecting) return <Loader text={`Re-establishing Network Connection...`} />
     else return <div className={`theme`}>
       <Menu />
@@ -748,7 +808,7 @@ export default class Code extends Component {
 
               {/* drop files */}
               <div id="dropzone" style={{
-                display: showDropzone ? 'block' : 'none',
+                display: showDropzone && !ghTree ? 'block' : 'none',
                 clear: 'right',
                 paddingTop: 6,
                 }}>
@@ -779,6 +839,39 @@ export default class Code extends Component {
                     </div>
                   </Dropzone>
                 </div>
+              </div>
+
+              {/** @title Upload GitHug repo */}
+              <div style={{
+                display: ghTree.tree && ghTree.tree.length ? 'block' : 'none',
+                clear: 'right',
+                paddingTop: 18,
+                }} className="repo-list">
+                  <h3 style={{ padding: 0 }}>Contents of <code>{owner}/{repo}</code> Repository</h3>
+                  <h3 style={{ padding: 0, margin: 0 }}>Branch: <code>{branchName}</code></h3>
+                  <p style={{ marginTop: 15 }}>GitHub Tree SHA: <code>{ghTree.sha}</code></p>
+                  <p>
+                    {ghTree.tree && ghTree.tree.length} total files &nbsp;
+                    <a onClick={() => { this.setState({ showGithubFiles: !showGithubFiles })}}>
+                      show / hide
+                    </a>
+                  </p>
+                  <Table celled striped className={'data-table'}
+                    style={{ display: !showGithubFiles ? 'none' : 'table' }}>
+                    <Table.Body>
+                    { 
+                      ghTree.tree && ghTree.tree.length ? ghTree.tree.map((t, k) => 
+                        <Table.Row key={k}>
+                          <Table.Cell>
+                            { t.path }
+                          </Table.Cell>
+                        </Table.Row>) : <Table.Row key={0}>
+                          <Table.Cell>Not found.</Table.Cell>
+                        </Table.Row>
+                    }
+                    </Table.Body>
+                  </Table>
+                  {/* <StlButton onClick={this._testGithubRepo}>Run BugCatcher on this Repository</StlButton> */}
               </div>
 
               {/* upload files */}
@@ -908,14 +1001,19 @@ export default class Code extends Component {
                     display: step !== 1 ? 'inline-block' : 'none'
                   }}
                   onClick={() => {
-                    LocalStorage.ProjectTestResults.setIds(projectName)
-                    this.setState({
-                      showResults: false,
-                      testResultSid: null,
-                      currentUploadQueue: null,
-                    })
-                    this._resetUploadButton()
-                    window.scrollTo({ top: 0 })                  
+                    if (ghTree.tree.length) {
+                      this.setState({ redirect: '/github' })
+                    }
+                    else {
+                      LocalStorage.ProjectTestResults.setIds(projectName)
+                      this.setState({
+                        showResults: false,
+                        testResultSid: null,
+                        currentUploadQueue: null,
+                      })
+                      this._resetUploadButton()
+                      window.scrollTo({ top: 0 })  
+                    }
                   }}>
                   &laquo; start over
                 </a>

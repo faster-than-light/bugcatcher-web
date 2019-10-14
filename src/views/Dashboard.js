@@ -64,7 +64,7 @@ export default class Dashboard extends Component {
           <div className="block-content">
             <p>You can use BugCatcher right here on the web! For best results, we recommend using Google&apos;s Chrome browser. By the way, closing your browser while tests are running won&apos;t affect your tests. The next time that you open BugCatcher, your tests will be either running or completed for you.</p>
             <LastProjectsAccessed />
-            <Link to={'/projects'}><StlButton semantic className="btn default">View Your Projects</StlButton></Link>
+            <Link to={'/projects'}><StlButton semantic className="btn default">View All Your Projects</StlButton></Link>
             <Link to={'/github'}>
               <StlButton semantic className="github-button">
                 Test your&nbsp;

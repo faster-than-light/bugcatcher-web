@@ -78,6 +78,28 @@ function get(path, options) {
   })
 }
 
+const getTree = async (owner, repo, branchName) => {
+  const branch = await getBranch(owner, repo, branchName)
+
+  if (
+    branch &&
+    branch.commit &&
+    branch.commit.commit &&
+    branch.commit.commit.tree &&
+    branch.commit.commit.tree.sha
+  ) {
+    const treeSha = branch['commit']['commit']['tree']['sha']
+    const tree = await octokit.getTree(
+      owner,
+      repo,
+      treeSha,
+      true // recursive bool
+    )
+    return({ branchName, tree })
+  }
+}
+
+
 export default {
   ...octokit,
   getAccessToken,
@@ -85,6 +107,7 @@ export default {
   getRepos,
   getRepoContents,
   getToken,
+  getTree,
   setToken,
 }
 

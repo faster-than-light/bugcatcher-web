@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import queryString from 'query-string'
-import GitHubLogin from 'react-github-login'
 import { Icon, Table } from 'semantic-ui-react'
 
 // components
@@ -11,7 +10,6 @@ import Menu from '../components/Menu'
 // helpers
 import { appUrl, github } from '../config'
 import { getCookie, setCookie } from '../helpers/cookies'
-// import GitHubClient from '../helpers/github/GitHubClient'
 import githubApi from '../helpers/githubApi'
 
 // images & styles
@@ -35,7 +33,6 @@ const initialState = {
 }
 const automateCookieName = 'automate-gh_auth'
 const tokenCookieName = 'github-ftl-token'
-let githubCliEnterprise, githubCliDotCom, githubUserInfo
 
 export default class Github extends Component {
   constructor(props) {
@@ -53,6 +50,7 @@ export default class Github extends Component {
     this.toggleAutomateOption = this.toggleAutomateOption.bind(this)
     this.ApiFunctions = this.ApiFunctions.bind(this)
     this.RepoList = this.RepoList.bind(this)
+    this._getTree = githubApi.getTree.bind(this)
   }
 
   async componentWillMount() {
@@ -157,7 +155,7 @@ export default class Github extends Component {
       this.setState({ working: true })
       await this.fetchToken(true)
       this.setState({ working: false }) 
-    }}>Fetch Access Token &raquo;</StlButton>
+    }}>Fetch Access Token &laquo;</StlButton>
 
   FetchUserProfile = (props) => <StlButton primary semantic
     disabled={Boolean(!this.state.token || this.state.user)}
@@ -168,13 +166,14 @@ export default class Github extends Component {
       this.setState({ working: false })
     }}>Fetch User Profile &raquo;</StlButton>
 
-  FetchUserRepos = () => <StlButton primary semantic
-    disabled={Boolean(!this.state.user || !this.state.branches)}
+  FetchUserRepos = () => <StlButton className="big btn link"
+    style={{ display: Boolean(!this.state.user || !this.state.branches) ?
+      'none' : 'block' }}
     onClick={ async () => {
       this.setState({ branches: null, tree: null, working: true })
       await this.fetchRepos()
       this.setState({ working: false })
-    }}>List Your Repositories &raquo;</StlButton>
+    }}>&laquo; Back to Repository List</StlButton>
 
   RepoList = () => {
     if (this.state.repos && !this.state.branches) {
@@ -227,32 +226,45 @@ export default class Github extends Component {
     else return null
   }
 
+  // getTree1 = async branchName => {
+  //   this.setState({ working: true })
+  //   const [ owner, repo ] = this.state.currentRepo.split('/')
+  //   const branch = await githubApi.getBranch(owner, repo, branchName)
+
+  //   if (
+  //     branch &&
+  //     branch.commit &&
+  //     branch.commit.commit &&
+  //     branch.commit.commit.tree &&
+  //     branch.commit.commit.tree.sha
+  //   ) {
+  //     const treeSha = branch['commit']['commit']['tree']['sha']
+  //     const tree = await githubApi.getTree(
+  //       owner,
+  //       repo,
+  //       treeSha,
+  //       true // recursive bool
+  //     )
+  //     this.setState({ branchName, tree, working: false })
+  //   }
+  // }
+
   getTree = async branchName => {
     this.setState({ working: true })
     const [ owner, repo ] = this.state.currentRepo.split('/')
-    const branch = await githubApi.getBranch(owner, repo, branchName)
-
-    if (
-      branch &&
-      branch.commit &&
-      branch.commit.commit &&
-      branch.commit.commit.tree &&
-      branch.commit.commit.tree.sha
-    ) {
-      const treeSha = branch['commit']['commit']['tree']['sha']
-      const tree = await githubApi.getTree(
-        owner,
-        repo,
-        treeSha,
-        true // recursive bool
-      )
-      this.setState({ branchName, tree, working: false })
-    }
+    const data = await this._getTree(
+      owner,
+      repo,
+      branchName,
+    )
+    this.setState({ ...data, working: false })
   }
 
   RepoContents = () => {
     const { branchName, currentRepo, showFiles, tree } = this.state
-    if (tree) {console.log({ tree })
+    let newProjectPath = `${this.state.currentRepo}/tree/${this.state.branchName}`
+    newProjectPath = '/project/' + newProjectPath.replace(/\//g,'%2F') + '?gh=1'
+    if (tree) {
       const contents = tree.tree && tree.tree.length ? tree.tree.map((t, k) => 
       <Table.Row key={k}>
         <Table.Cell>
@@ -263,8 +275,8 @@ export default class Github extends Component {
       </Table.Row>
       return <div className="repo-list">
         <h3 style={{ padding: 0 }}>Contents of <code>{currentRepo}</code> Repository</h3>
-        <h3 style={{ padding: 0 }}>Branch: <code>{branchName}</code></h3>
-        <p>GitHub Tree SHA: {tree.sha}</p>
+        <h3 style={{ padding: 0, margin: 0 }}>Branch: <code>{branchName}</code></h3>
+        <p style={{ marginTop: 15 }}>GitHub Tree SHA: <code>{tree.sha}</code></p>
         <p>
           {tree.tree.length} total files &nbsp;
           <a onClick={() => { this.setState({ showFiles: !showFiles })}}>
@@ -277,7 +289,9 @@ export default class Github extends Component {
             { contents }
           </Table.Body>
         </Table>
-        <StlButton  disabled>Test This GitHub Repo</StlButton>
+        <Link to={newProjectPath}>
+          <StlButton onClick={this.testRepo}>Test This GitHub Repo</StlButton>
+        </Link>
       </div>
     }
     else return null
