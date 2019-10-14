@@ -847,7 +847,7 @@ export default class Code extends Component {
                 clear: 'right',
                 paddingTop: 18,
                 }} className="repo-list">
-                  <h3 style={{ padding: 0 }}>Contents of <code>{owner}/{repo}</code> Repository</h3>
+                  <h3 style={{ padding: 0 }}>GitHub Repo: <code>{owner}/{repo}</code></h3>
                   <h3 style={{ padding: 0, margin: 0 }}>Branch: <code>{branchName}</code></h3>
                   <p style={{ marginTop: 15 }}>GitHub Tree SHA: <code>{ghTree.sha}</code></p>
                   <p>

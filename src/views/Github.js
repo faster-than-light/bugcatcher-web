@@ -166,8 +166,9 @@ export default class Github extends Component {
       this.setState({ working: false })
     }}>Fetch User Profile &raquo;</StlButton>
 
-  FetchUserRepos = () => <StlButton className="big btn link"
-    style={{ display: Boolean(!this.state.user || !this.state.branches) ?
+  FetchUserRepos = () => <StlButton className="link"
+    style={{ fontSize: 21, padding: 0,
+      display: Boolean(!this.state.user || !this.state.branches) ?
       'none' : 'block' }}
     onClick={ async () => {
       this.setState({ branches: null, tree: null, working: true })
@@ -274,7 +275,7 @@ export default class Github extends Component {
         <Table.Cell>Not found.</Table.Cell>
       </Table.Row>
       return <div className="repo-list">
-        <h3 style={{ padding: 0 }}>Contents of <code>{currentRepo}</code> Repository</h3>
+        <h3 style={{ padding: 0 }}>GitHub Repo: <code>{currentRepo}</code></h3>
         <h3 style={{ padding: 0, margin: 0 }}>Branch: <code>{branchName}</code></h3>
         <p style={{ marginTop: 15 }}>GitHub Tree SHA: <code>{tree.sha}</code></p>
         <p>
