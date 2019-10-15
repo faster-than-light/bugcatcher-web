@@ -304,7 +304,7 @@ export default class Github extends Component {
         <h3 style={{ padding: 0, margin: 0 }}>Branch: <code>{branchName}</code></h3>
         <p style={{ marginTop: 15 }}>GitHub Tree SHA: <code>{tree.sha}</code></p>
         <p>
-          {tree.tree.length} total files &nbsp;
+          {tree.tree.filter(t => t.type === 'blob').length} total files &nbsp;
           <a onClick={() => { this.setState({ showFiles: !showFiles })}}>
             show / hide
           </a>

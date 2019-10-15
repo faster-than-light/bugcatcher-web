@@ -679,21 +679,26 @@ export default class Code extends Component {
     const thisUploadQueue = currentUploadQueue = new Date().getTime()
     projectName = cleanProjectName(projectName)
 
-    this.setState({
-      ghFileCount: ghTree.tree.length,
-    })
-
     // clear then show status messages
     let uploadErrors = [],
       uploaded = [],
-      toUpload = ghTree.tree,
+      toUpload = ghTree.tree.filter(t => t.type === 'blob'),
       interval
+    const treeSize = toUpload.length
+
+    this.setState({
+      ghFileCount: treeSize,
+    })
+
     const checkUploadsComplete = () => {
-      if (uploaded.length + uploadErrors.length === ghTree.tree.length) { 
+      if (uploaded.length + uploadErrors.length === treeSize) { 
         clearInterval(interval)
         this._fetchProductCode()
         if (!uploadErrors.length) this._runTests()
-        else this.setState({ step: -1 })
+        else {
+          alert(`${uploadErrors.length} errors`)
+          this.setState({ step: -1 })
+        }
         window.mixpanel.track('GitHub Files Uploaded', {
           project: projectName,
           fileCount: toUpload.length,
@@ -711,9 +716,16 @@ export default class Code extends Component {
     }
     const sendFile = async (file) => {
       concurrentUploads++
-      api.putCode({
+      const blob = await githubApi.getBlob(owner, repo, file.sha)
+        .catch(c => {
+          console.error(c)
+          console.log(`Failed: ${file.sha}`, file.path)
+          return null
+        })
+      if (!blob) {}
+      else api.putCode({
         name: file.path,
-        code: 'data:application/octet-stream;base64,' + (await githubApi.getBlob(owner, repo, file.sha))['content'],
+        code: 'data:application/octet-stream;base64,' + blob['content'],
         project: encodeURIComponent(projectName),
       })
       .then(apiResponse => {
@@ -739,7 +751,7 @@ export default class Code extends Component {
         else {
           const file = toUpload[0]
           toUpload = toUpload.filter(f => f !== file)
-          console.log(`upload ${file.path} after pausing ${millisecondTimeout} milliseconds with ${concurrentUploads} files in queue and ${successfulUploads} successful uploads`)
+          // console.log(`upload ${file.path} after pausing ${millisecondTimeout} milliseconds with ${concurrentUploads} files in queue and ${successfulUploads} successful uploads`)
           sendFile(file)
         }
       }
@@ -829,6 +841,7 @@ export default class Code extends Component {
       ghFileCount = 0,
       working,
     } = this.state
+    const treeSize = !ghTree.tree ? null : ghTree.tree.filter(t => t.type === 'blob').length
     const percentComplete = Math.floor((ghUploaded / ghFileCount) * 100)
     // console.log({percentComplete, ghUploaded, ghFileCount})
     results = results || { // inital state for the results table
@@ -911,7 +924,7 @@ export default class Code extends Component {
 
               {/** @title Upload GitHug repo */}
               <div style={{
-                display: ghTree.tree && ghTree.tree.length &&
+                display: treeSize &&
                   (ghUploaded !== ghFileCount) ? 'block' : 'none',
                 clear: 'right',
                 paddingTop: 18,
@@ -920,7 +933,7 @@ export default class Code extends Component {
                   <h3 style={{ padding: 0, margin: 0 }}>Branch: <code>{branchName}</code></h3>
                   <p style={{ marginTop: 15 }}>GitHub Tree SHA: <code>{ghTree.sha}</code></p>
                   <p>
-                    Transferring {ghUploaded} of {ghTree.tree && ghTree.tree.length} total files &nbsp;
+                    Transferring {ghUploaded} of {treeSize} total files &nbsp;
                     <a onClick={() => { this.setState({ showGithubFiles: !showGithubFiles })}}>
                       show / hide
                     </a>
