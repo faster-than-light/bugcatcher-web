@@ -921,7 +921,7 @@ export default class Code extends Component {
                   <h3 style={{ padding: 0, margin: 0 }}>Branch: <code>{branchName}</code></h3>
                   <p style={{ marginTop: 15 }}>GitHub Tree SHA: <code>{ghTree.sha}</code></p>
                   <p>
-                    {ghUploaded} of {ghTree.tree && ghTree.tree.length} total files transferred &nbsp;
+                    Transferring {ghUploaded} of {ghTree.tree && ghTree.tree.length} total files &nbsp;
                     <a onClick={() => { this.setState({ showGithubFiles: !showGithubFiles })}}>
                       show / hide
                     </a>
@@ -945,7 +945,7 @@ export default class Code extends Component {
                   <Progress percent={percentComplete} style={{
                       marginTop: -6,
                     }}
-                    color={(ghUploaded / ghFileCount) === 1 ? 'green' : 'yellow'}
+                    color={(ghUploaded / ghFileCount) === 1 ? 'green' : 'blue'}
                     progress />
               </div>
 
