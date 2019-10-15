@@ -227,29 +227,6 @@ export default class Github extends Component {
     else return null
   }
 
-  // getTree1 = async branchName => {
-  //   this.setState({ working: true })
-  //   const [ owner, repo ] = this.state.currentRepo.split('/')
-  //   const branch = await githubApi.getBranch(owner, repo, branchName)
-
-  //   if (
-  //     branch &&
-  //     branch.commit &&
-  //     branch.commit.commit &&
-  //     branch.commit.commit.tree &&
-  //     branch.commit.commit.tree.sha
-  //   ) {
-  //     const treeSha = branch['commit']['commit']['tree']['sha']
-  //     const tree = await githubApi.getTree(
-  //       owner,
-  //       repo,
-  //       treeSha,
-  //       true // recursive bool
-  //     )
-  //     this.setState({ branchName, tree, working: false })
-  //   }
-  // }
-
   getTree = async branchName => {
     this.setState({ working: true })
     const [ owner, repo ] = this.state.currentRepo.split('/')

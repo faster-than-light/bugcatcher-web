@@ -35,6 +35,21 @@ async function getTree(owner, repo, tree_sha, recursive) {
   return data
 }
 
+/**
+ * 
+ * @param {string} owner 
+ * @param {string} repo 
+ * @param {string} file_sha 
+ */
+async function getBlob(owner, repo, file_sha) {
+  const { data } = await octokit.git.getBlob({
+    owner,
+    repo,
+    file_sha,
+  })
+  return data
+}
+
 async function getBranches(owner, repo) {
   const { data } = await octokit.repos.listBranches({
     owner,
@@ -47,6 +62,7 @@ async function getBranches(owner, repo) {
 export default {
   setToken,
   getAuthenticated,
+  getBlob,
   getBranches,
   getTree,
 }

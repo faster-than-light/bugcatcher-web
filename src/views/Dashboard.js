@@ -19,8 +19,8 @@ class LastProjectsAccessed extends Component {
   render() {
     let lastProjectsAccessed = getCookie("lastProjectsAccessed") || []
     if (lastProjectsAccessed.length) lastProjectsAccessed = JSON.parse(lastProjectsAccessed)
-    let rtn = lastProjectsAccessed.map(p => <div>
-      <Link to={`/project/${p}`}>{p}</Link>
+    let rtn = lastProjectsAccessed.map((p, k) => <div>
+      <Link key={k} to={`/project/${p}`}>{p}</Link>
     </div>)
     if (lastProjectsAccessed.length) rtn = <span>
       {rtn}<br />

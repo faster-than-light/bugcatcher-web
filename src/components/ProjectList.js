@@ -11,6 +11,7 @@ import { UserContext } from '../contexts/UserContext'
 // helpers
 import api from '../helpers/api'
 import { appendS } from '../helpers/strings'
+import { getCookie, setCookie } from '../helpers/cookies'
 import LocalStorage from '../helpers/LocalStorage'
 
 // images and styles
@@ -73,6 +74,11 @@ export default class ProjectList extends Component {
             remainingProjects = remainingProjects.filter(r => r.name !== p)
             this.props.updateProjects( remainingProjects )
             LocalStorage.ProjectTestResults.pruneProjects( remainingProjects )
+
+            let lastProjectsAccessed = JSON.parse(getCookie("lastProjectsAccessed") || '[]')
+            lastProjectsAccessed = lastProjectsAccessed.filter(prj => prj !== p)
+            setCookie("lastProjectsAccessed", JSON.stringify(lastProjectsAccessed))
+        
           }
           else failed(p)
         })

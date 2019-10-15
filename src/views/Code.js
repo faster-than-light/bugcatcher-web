@@ -43,7 +43,7 @@ import { UserContext } from '../contexts/UserContext'
 
 // helpers
 import api from '../helpers/api'
-import { appendS, testStatusToColor, noLeadingSlash } from '../helpers/strings'
+import { appendS, cleanProjectName, testStatusToColor, noLeadingSlash } from '../helpers/strings'
 import { getCookie, setCookie } from '../helpers/cookies'
 import config from '../config'
 import LocalStorage from '../helpers/LocalStorage'
@@ -103,9 +103,10 @@ export default class Code extends Component {
   /** @dev Lifecycle methods */
   async componentWillMount() {
     projectName = this.props.match ? decodeURIComponent(this.props.match.params.id) : null
+    // projectName = cleanProjectName(projectName)
     let lastProjectsAccessed = JSON.parse(getCookie("lastProjectsAccessed") || '[]')
-    lastProjectsAccessed = lastProjectsAccessed.filter(p => p !== projectName)
-    let newList = [ projectName ]
+    lastProjectsAccessed = lastProjectsAccessed.filter(p => p !== cleanProjectName(projectName))
+    let newList = [ cleanProjectName(projectName) ]
     for (let i = 0; i < 5; i++) {
       if (lastProjectsAccessed[i]) newList.push( lastProjectsAccessed[i] )
     }
@@ -157,47 +158,6 @@ export default class Code extends Component {
     startCounting = null
     testTimeElapsed = 0
     currentUploadQueue = null
-  }
-
-  _fetchGithubRepo = async () => {
-    const { projectName } = this.state
-
-    /** @dev Fetch GitHub repo if querystring param is found */
-    const gh = queryString.parse(document.location.search)['gh']
-    if (gh) {
-      const token = getCookie(tokenCookieName)
-      if (token) {
-        githubApi.setToken(token)
-        this.setState({ working: true })
-        const [ repoName, branchName ] = projectName.split('/tree/')
-        const [ owner, repo ] = repoName.split('/')
-        const { tree } = await this._getTree(
-          owner,
-          repo,
-          branchName,
-        )
-        if (tree && tree.tree) {
-          // const contents = tree.tree.length ?
-          //   tree.tree.map((t) => t.path)
-          //     : ''
-          // console.log({
-          //   branchName,
-          //   repo,
-          //   owner,
-          //   contents,
-          //   tree,
-          // })
-          this.setState({
-            ghTree: tree,
-            branchName,
-            repo,
-            owner,
-            step: 4,
-            working: false,
-          })    
-        }
-      }
-    }    
   }
 
   /** @dev Component methods */
@@ -543,7 +503,6 @@ export default class Code extends Component {
       const { data } = getRunTests || {}
       const { response } = data || {}
 
-      console.log({ reconnecting, stlid: response ? response.stlid : null, testId: this.state.testResultSid })
       // Fail for any status in the 400's
       if (getRunTests && response && response.status >= 400 && response.status <= 499) failed()
       
@@ -682,8 +641,114 @@ export default class Code extends Component {
 
   _setState = state => this.setState(state || initialState)
 
-  _testGithubRepo = () => {
-    alert(`Tree is ${this.state.tree.length} files large`)
+  /** @title GitHub */
+  _fetchGithubRepo = async () => {
+    const { projectName } = this.state
+
+    /** @dev Fetch GitHub repo if querystring param is found */
+    const gh = queryString.parse(document.location.search)['gh']
+    if (gh) {
+      const token = getCookie(tokenCookieName)
+      if (token) {
+        githubApi.setToken(token)
+        this.setState({ working: true })
+        const [ repoName, branchName ] = projectName.split('/tree/')
+        const [ owner, repo ] = repoName.split('/')
+        const { tree } = await this._getTree(
+          owner,
+          repo,
+          branchName,
+        )
+        if (tree && tree.tree) {
+          this.setState({
+            ghTree: tree,
+            branchName,
+            repo,
+            owner,
+            step: 4,
+            working: false,
+          })
+          this._testGithubRepo()    
+        }
+      }
+    }    
+  }
+
+  _testGithubRepo = async () => {
+    const { owner, repo, ghTree } = this.state
+    const thisUploadQueue = currentUploadQueue = new Date().getTime()
+    projectName = cleanProjectName(projectName)
+
+    this.setState({
+      ghFileCount: ghTree.tree.length,
+    })
+
+    // clear then show status messages
+    let errorCount = 0,
+      uploaded = [],
+      toUpload = ghTree.tree,
+      interval
+    const checkUploadsComplete = () => {
+      if (uploaded.length + errorCount === ghTree.tree.length) { 
+        clearInterval(interval)
+        this._fetchProductCode()
+        if (errorCount === 0) this._runTests()
+        else this.setState({ step: -1 })
+        window.mixpanel.track('GitHub Files Uploaded', {
+          project: projectName,
+          fileCount: toUpload.length,
+          version,
+        })
+      }
+      this.setState({
+        ghUploaded: uploaded.length,
+      })
+    }
+    const apiError = (err, file) => {
+      console.error(err)
+      errorCount++
+      // this._updateCodeRowStatus(file, 'failed')
+      checkUploadsComplete()
+    }
+    const sendFile = async (file) => {
+      concurrentUploads++
+      api.putCode({
+        name: file.path,
+        code: 'data:application/octet-stream;base64,' + (await githubApi.getBlob(owner, repo, file.sha))['content'],
+        project: encodeURIComponent(projectName),
+      })
+      .then(apiResponse => {
+        successfulUploads++
+        concurrentUploads--
+        if (!apiResponse) apiError(null, file)
+        else {
+          // this._updateCodeRowStatus(file, 'code')
+          uploaded.push(file)
+          checkUploadsComplete()
+        }
+      })
+      .catch(err => apiError(err, file))
+    }
+
+    // send the files
+    const sendFiles = () => {
+      if (
+        currentUploadQueue === thisUploadQueue
+        && concurrentUploads <= maxConcurrentUploads
+      ) {
+        if (!toUpload.length) checkUploadsComplete()
+        else {
+          const file = toUpload[0]
+          toUpload = toUpload.filter(f => f !== file)
+          console.log(`upload ${file.path} after pausing ${millisecondTimeout} milliseconds with ${concurrentUploads} files in queue and ${successfulUploads} successful uploads`)
+          sendFile(file)
+        }
+      }
+    }
+    interval = setInterval(
+      sendFiles,
+      millisecondTimeout
+    )
   }
 
   /** @dev Sub components */
@@ -761,8 +826,12 @@ export default class Code extends Component {
       step,
       testResultSid,
       ghTree = [],
+      ghUploaded = 0,
+      ghFileCount = 0,
       working,
     } = this.state
+    const percentComplete = Math.floor((ghUploaded / ghFileCount) * 100)
+    // console.log({percentComplete, ghUploaded, ghFileCount})
     results = results || { // inital state for the results table
       status_msg: 'SETUP',
       codes: [],
@@ -808,7 +877,7 @@ export default class Code extends Component {
 
               {/* drop files */}
               <div id="dropzone" style={{
-                display: showDropzone && !ghTree ? 'block' : 'none',
+                display: showDropzone && !ghTree.tree ? 'block' : 'none',
                 clear: 'right',
                 paddingTop: 6,
                 }}>
@@ -843,7 +912,8 @@ export default class Code extends Component {
 
               {/** @title Upload GitHug repo */}
               <div style={{
-                display: ghTree.tree && ghTree.tree.length ? 'block' : 'none',
+                display: ghTree.tree && ghTree.tree.length &&
+                  (ghUploaded !== ghFileCount) ? 'block' : 'none',
                 clear: 'right',
                 paddingTop: 18,
                 }} className="repo-list">
@@ -851,7 +921,7 @@ export default class Code extends Component {
                   <h3 style={{ padding: 0, margin: 0 }}>Branch: <code>{branchName}</code></h3>
                   <p style={{ marginTop: 15 }}>GitHub Tree SHA: <code>{ghTree.sha}</code></p>
                   <p>
-                    {ghTree.tree && ghTree.tree.length} total files &nbsp;
+                    {ghUploaded} of {ghTree.tree && ghTree.tree.length} total files transferred &nbsp;
                     <a onClick={() => { this.setState({ showGithubFiles: !showGithubFiles })}}>
                       show / hide
                     </a>
@@ -872,6 +942,11 @@ export default class Code extends Component {
                     </Table.Body>
                   </Table>
                   {/* <StlButton onClick={this._testGithubRepo}>Run BugCatcher on this Repository</StlButton> */}
+                  <Progress percent={percentComplete} style={{
+                      marginTop: -6,
+                    }}
+                    color={(ghUploaded / ghFileCount) === 1 ? 'green' : 'yellow'}
+                    progress />
               </div>
 
               {/* upload files */}
@@ -923,7 +998,7 @@ export default class Code extends Component {
                 {/* uploading */}
                 <div style={{
                   width: '100%',
-                  display: step === 4 ? 'inline-block' : 'none'
+                  display: !ghTree.tree && step === 4 ? 'inline-block' : 'none'
                 }}>
                   <Progress percent={Math.floor((successfulUploads / binaryFilesToUpload.length) * 100)} style={{
                       marginTop: -6,
