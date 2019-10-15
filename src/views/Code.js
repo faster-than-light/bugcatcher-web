@@ -684,15 +684,15 @@ export default class Code extends Component {
     })
 
     // clear then show status messages
-    let errorCount = 0,
+    let uploadErrors = [],
       uploaded = [],
       toUpload = ghTree.tree,
       interval
     const checkUploadsComplete = () => {
-      if (uploaded.length + errorCount === ghTree.tree.length) { 
+      if (uploaded.length + uploadErrors.length === ghTree.tree.length) { 
         clearInterval(interval)
         this._fetchProductCode()
-        if (errorCount === 0) this._runTests()
+        if (!uploadErrors.length) this._runTests()
         else this.setState({ step: -1 })
         window.mixpanel.track('GitHub Files Uploaded', {
           project: projectName,
@@ -706,8 +706,7 @@ export default class Code extends Component {
     }
     const apiError = (err, file) => {
       console.error(err)
-      errorCount++
-      // this._updateCodeRowStatus(file, 'failed')
+      uploadErrors.push(file)
       checkUploadsComplete()
     }
     const sendFile = async (file) => {

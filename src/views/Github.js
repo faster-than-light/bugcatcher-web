@@ -26,6 +26,8 @@ const initialState = {
   branchName: null,
   redirect: null,
   repos: null,
+  sortReposBy: 'full_name',
+  sortReposDirection: 'asc',
   token: null,
   tree: null,
   user: null,
@@ -142,7 +144,12 @@ export default class Github extends Component {
 
   fetchRepos = async alertError => {
     let repos
-    try { repos = await githubApi.getRepos() }
+    try {
+      repos = await githubApi.getRepos(
+        this.state.sortReposBy,
+        this.state.sortReposDirection
+      )
+    }
     catch(e) { console.error(e) }
     if (!repos && alertError) alert("There was a problem fetching your Repository List. Please start over and try again.")
     else this.setState({ repos, contents: null })
@@ -186,6 +193,29 @@ export default class Github extends Component {
         <Table.Cell>Not found.</Table.Cell>
       </Table.Row>
       return <div className="repo-list">
+        <div style={{
+          width: 'auto',
+          float: 'right',
+          paddingTop: 15,
+        }}>
+          Sort:&nbsp;
+          <select onChange={this.sortOptionChange}>
+            <option value={'full_name'}
+              selected={this.state.sortReposBy === 'full_name'}>name</option>
+            <option value={'created'}
+              selected={this.state.sortReposBy === 'created'}>created</option>
+            <option value={'updated'}
+              selected={this.state.sortReposBy === 'updated'}>updated</option>
+            <option value={'pushed'}
+              selected={this.state.sortReposBy === 'pushed'}>pushed</option>
+          </select>&nbsp;
+          <select onChange={this.sortDirectionChange}>
+            <option value={'asc'}
+              selected={this.state.sortReposDirection === 'asc'}>asc</option>
+            <option value={'desc'}
+              selected={this.state.sortReposDirection === 'desc'}>desc</option>
+          </select>
+        </div>
         <h3>Your Repositories</h3>
         <Table celled striped className={'data-table'}>
           <Table.Body>
@@ -195,6 +225,22 @@ export default class Github extends Component {
       </div>
     }
     else return null
+  }
+
+  sortOptionChange = e => {
+    const sortReposBy = e.target.value
+    if (sortReposBy != this.state.sortReposBy) this.setState({
+      sortReposBy,
+      repos: null,
+    })
+  }
+
+  sortDirectionChange = e => {
+    const sortReposDirection = e.target.value
+    if (sortReposDirection != this.state.sortReposDirection) this.setState({
+      sortReposDirection,
+      repos: null,
+    })
   }
 
   getBranches = async currentRepo => {
@@ -276,7 +322,14 @@ export default class Github extends Component {
   }
 
   render() {
-    const { automateAuth, code, redirect, token, user, working } = this.state
+    const {
+      automateAuth,
+      code,
+      redirect,
+      token,
+      user,
+      working,
+    } = this.state
     const onSuccess = response => {
       const { code } = response
       this.setState({ code, working: false })

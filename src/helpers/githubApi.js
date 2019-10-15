@@ -37,8 +37,8 @@ async function getAccessToken(code) {
 /**
  * @returns List of repositories the user has explicit permission (:read, :write, or :admin) to access.
  */
-async function getRepos() {
-  const { data: repos } = await get('/user/repos')
+async function getRepos(sort, direction) {
+  const { data: repos } = await get(`/user/repos?sort=${sort}&direction=${direction}`)
   return repos.map(r => r.full_name)
 }
 
