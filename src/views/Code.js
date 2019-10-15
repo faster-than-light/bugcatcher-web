@@ -943,7 +943,7 @@ export default class Code extends Component {
                   </Table>
                   {/* <StlButton onClick={this._testGithubRepo}>Run BugCatcher on this Repository</StlButton> */}
                   <Progress percent={percentComplete} style={{
-                      marginTop: -6,
+                      marginTop: 21,
                     }}
                     color={(ghUploaded / ghFileCount) === 1 ? 'green' : 'blue'}
                     progress />
