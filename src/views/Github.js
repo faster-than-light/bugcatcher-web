@@ -244,6 +244,7 @@ export default class Github extends Component {
   }
 
   getBranches = async currentRepo => {
+    window.scrollTo({ top: 0 })
     this.setState({ working: true })
     const [ owner, repo ] = currentRepo.split('/')
     let branches = await githubApi.getBranches(owner, repo)
@@ -274,6 +275,7 @@ export default class Github extends Component {
   }
 
   getTree = async branchName => {
+    window.scrollTo({ top: 0 })
     this.setState({ working: true })
     const [ owner, repo ] = this.state.currentRepo.split('/')
     const data = await this._getTree(
