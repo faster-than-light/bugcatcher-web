@@ -1110,7 +1110,7 @@ export default class Code extends Component {
                     display: step !== 1 ? 'inline-block' : 'none'
                   }}
                   onClick={() => {
-                    if (ghTree.tree.length) {
+                    if (ghTree.tree && ghTree.tree.length) {
                       this.setState({ redirect: '/github' })
                     }
                     else {
