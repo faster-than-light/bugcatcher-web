@@ -326,7 +326,7 @@ export default class Github extends Component {
   }
 
   LoadingRepos = () => {
-    return this.state.token && !this.state.repos ?
+    return this.state.token && !this.state.repos && !this.state.working ?
       <Loader active inline='centered' size='large' /> : <this.RepoList />
   }
 

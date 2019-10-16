@@ -908,7 +908,7 @@ export default class Code extends Component {
 
               {/* drop files */}
               <div id="dropzone" style={{
-                display: showDropzone && !ghTree.tree ? 'block' : 'none',
+                display: showDropzone && !ghTree.tree && !ghUploaded ? 'block' : 'none',
                 clear: 'right',
                 paddingTop: 6,
                 }}>
