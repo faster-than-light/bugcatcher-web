@@ -65,6 +65,7 @@ const initialState = {
   statusRows: [],
   step: 1,
   uploadButtonClassname: 'hide',
+  uploadErrors: [],
 }
 const uploadsPerSecond = 0, // 0 = unlimited
   maxConcurrentUploads = 99,
@@ -414,7 +415,14 @@ export default class Code extends Component {
       binaryFilesToUpload: [],
       results: null,
       testResultSid: null,
+      ghTree: {},
+      branchName: null,
+      repo: null,
+      owner: null,
+      uploadErrors: [],
     })
+    await this._fetchProductCode()
+
     scrollTo('bottom', true)
 
     // tell the server to run tests
@@ -683,6 +691,7 @@ export default class Code extends Component {
     let uploadErrors = [],
       uploaded = [],
       toUpload = ghTree.tree.filter(t => t.type === 'blob'),
+      retryFailedUploadsAttempt = 0,
       interval
     const treeSize = toUpload.length
 
@@ -692,18 +701,27 @@ export default class Code extends Component {
 
     const checkUploadsComplete = () => {
       if (uploaded.length + uploadErrors.length === treeSize) { 
-        clearInterval(interval)
-        this._fetchProductCode()
-        if (!uploadErrors.length) this._runTests()
-        else {
-          alert(`${uploadErrors.length} errors`)
-          this.setState({ step: -1 })
+        if (!uploadErrors.length) {
+          clearInterval(interval)
+          this._fetchProductCode()
+          window.mixpanel.track('GitHub Files Uploaded', {
+            project: projectName,
+            fileCount: toUpload.length,
+            version,
+          })
+          this._runTests()
         }
-        window.mixpanel.track('GitHub Files Uploaded', {
-          project: projectName,
-          fileCount: toUpload.length,
-          version,
-        })
+        else if (retryFailedUploadsAttempt < 3) {
+          retryFailedUploadsAttempt++
+          console.log('Retry attempt #' + retryFailedUploadsAttempt)
+          successfulUploads = successfulUploads - uploadErrors.length
+          toUpload = uploadErrors
+          uploadErrors = []
+        }
+        else {
+          clearInterval(interval)
+          this.setState({ step: -1, uploadErrors })
+        }
       }
       this.setState({
         ghUploaded: uploaded.length,
@@ -836,9 +854,10 @@ export default class Code extends Component {
       showResults,
       step,
       testResultSid,
-      ghTree = [],
+      ghTree = {},
       ghUploaded = 0,
       ghFileCount = 0,
+      uploadErrors = [],
       working,
     } = this.state
     const treeSize = !ghTree.tree ? null : ghTree.tree.filter(t => t.type === 'blob').length
@@ -959,6 +978,9 @@ export default class Code extends Component {
                     }}
                     color={(ghUploaded / ghFileCount) === 1 ? 'green' : 'blue'}
                     progress />
+                  <div style={{ color: 'red', display: uploadErrors.length ? 'block' : 'none' }}>
+                    {uploadErrors.length} files were not uploaded
+                  </div>
               </div>
 
               {/* upload files */}

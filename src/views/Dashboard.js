@@ -11,8 +11,8 @@ import { getCookie } from '../helpers/cookies'
 import { cleanProjectName } from '../helpers/strings'
 
 // images & styles
-import githubText from '../assets/images/github.png'
-import githubLogo from '../assets/images/github-logo.png'
+import githubText from '../assets/images/github-inverted.png'
+import githubLogo from '../assets/images/github-logo-inverted.png'
 import StlButton from '../components/StlButton';
 
 class LastProjectsAccessed extends Component {
@@ -64,15 +64,15 @@ export default class Dashboard extends Component {
           <div className="block-content">
             <p>You can use BugCatcher right here on the web! For best results, we recommend using Google&apos;s Chrome browser. By the way, closing your browser while tests are running won&apos;t affect your tests. The next time that you open BugCatcher, your tests will be either running or completed for you.</p>
             <LastProjectsAccessed />
-            <Link to={'/projects'}><StlButton semantic className="btn default">View All Your Projects</StlButton></Link>
             <Link to={'/github'}>
-              <StlButton semantic className="github-button">
+              <StlButton className="github-button">
                 Test your&nbsp;
                 <img src={githubLogo} alt="GitHub Logo" />
                 <img src={githubText} alt="GitHub Text" />
                 &nbsp;repositories
               </StlButton>
-            </Link>
+            </Link>&nbsp;
+            <Link to={'/projects'}><StlButton>View All Your Projects</StlButton></Link>
             <button className={'link'}
             onClick={() => {
               let projectName = prompt('What is the name of your project?')

@@ -2,9 +2,10 @@ import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import queryString from 'query-string'
 import { Icon, Table } from 'semantic-ui-react'
+import { Loader } from 'semantic-ui-react'
 
 // components
-import Loader from '../components/Loader'
+import FtlLoader from '../components/Loader'
 import Menu from '../components/Menu'
 
 // helpers
@@ -52,6 +53,7 @@ export default class Github extends Component {
     this.toggleAutomateOption = this.toggleAutomateOption.bind(this)
     this.ApiFunctions = this.ApiFunctions.bind(this)
     this.RepoList = this.RepoList.bind(this)
+    this.LoadingRepos = this.LoadingRepos.bind(this)
     this._getTree = githubApi.getTree.bind(this)
   }
 
@@ -323,11 +325,17 @@ export default class Github extends Component {
     else return null
   }
 
+  LoadingRepos = () => {
+    return this.state.token && !this.state.repos ?
+      <Loader active inline='centered' size='large' /> : <this.RepoList />
+  }
+
   render() {
     const {
       automateAuth,
       code,
       redirect,
+      repos,
       token,
       user,
       working,
@@ -341,7 +349,7 @@ export default class Github extends Component {
     if (redirect) return <Redirect to={redirect} />
     else return <div id="github">
       <Menu />
-      <Loader show={working} text="working" />
+      <FtlLoader show={working} text="working" />
       <div style={{
         maxWidth: 720,
         margin: 'auto',
@@ -355,6 +363,8 @@ export default class Github extends Component {
                   onClick={this.resetState}
                   style={{float: 'left'}}>&laquo; start over</Link>
             }
+
+            <h2>Test Your GitHub Repos</h2>
 
             <p className="oauth-images">
               <img src={bugcatcherShield} alt="BugCatcher" />
@@ -416,7 +426,7 @@ export default class Github extends Component {
               </React.Fragment>
             }
 
-            <this.RepoList />
+            <this.LoadingRepos />
 
             <this.BranchList />
 

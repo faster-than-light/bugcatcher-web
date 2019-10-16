@@ -26,8 +26,8 @@ import config from '../config'
 import { cleanProjectName } from '../helpers/strings'
 
 // images & styles
-import githubText from '../assets/images/github.png'
-import githubLogo from '../assets/images/github-logo.png'
+import githubText from '../assets/images/github-inverted.png'
+import githubLogo from '../assets/images/github-logo-inverted.png'
 
 export default class Project extends Component {
   state = {}
@@ -101,8 +101,7 @@ export default class Project extends Component {
               })
             }}>add a project</button>
             <Link to={'/github'}>
-              <StlButton semantic className="github-button"
-                style={{ lineHeight: '1rem' }}>
+              <StlButton className="github-button">
                 Test your&nbsp;
                 <img src={githubLogo} alt="GitHub Logo" />
                 <img src={githubText} alt="GitHub Text" />
