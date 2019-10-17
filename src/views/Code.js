@@ -885,7 +885,7 @@ export default class Code extends Component {
         <UserContext.Consumer>
           {(userContext) => {
             const { user } = userContext ? userContext.state : {}
-            if (user && user.isSubscriber) return <div className="upload-container">
+            if (user && (user.isSubscriber || !process.env.REACT_APP_USE_PAYWALL)) return <div className="upload-container">
 
               <div style={{
                 fontSize: 24,

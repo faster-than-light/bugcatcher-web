@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import queryString from 'query-string'
-import { Icon, Table } from 'semantic-ui-react'
+import { Icon, Input, Table } from 'semantic-ui-react'
 import { Loader } from 'semantic-ui-react'
 
 // components
@@ -186,6 +186,12 @@ export default class Github extends Component {
     }}>&laquo; Back to Repository List</StlButton>
 
   RepoList = () => {
+    const specifyRepo = <React.Fragment>
+      <h3>Specify a Repo</h3>
+      <Input id='custom_repo' type="text" placeholder=":owner/:repo" />
+      <StlButton onClick={this.fetchCustomRepo}>fetch</StlButton>
+    </React.Fragment>
+
     if (this.state.repos && !this.state.branches) {
       const repos = this.state.repos ? this.state.repos.map((repo, k) => <Table.Row key={k}>
         <Table.Cell><a onClick={() => this.getBranches(repo)}>
@@ -224,6 +230,8 @@ export default class Github extends Component {
             { repos }
           </Table.Body>
         </Table>
+
+        {specifyRepo}
       </div>
     }
     else return null
@@ -323,6 +331,18 @@ export default class Github extends Component {
       </div>
     }
     else return null
+  }
+
+  fetchCustomRepo = async () => {
+    const currentRepo = document.getElementById("custom_repo").value
+    const [ owner, repo ] = currentRepo.split('/')
+    let branches = await githubApi.getBranches(owner, repo)
+    branches = branches.map(b => b.name)
+    this.setState({
+      branches,
+      currentRepo,
+      working: false
+    })
   }
 
   LoadingRepos = () => {
