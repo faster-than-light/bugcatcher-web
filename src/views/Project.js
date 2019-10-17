@@ -15,6 +15,7 @@ import ProjectsHelpModal from '../components/ProjectsHelpModal'
 import Menu from '../components/Menu'
 import ProjectList from '../components/ProjectList'
 import ThemeLogo from '../components/ThemeLogo'
+import StlButton from '../components/StlButton'
 
 // context
 import { UserContext } from '../contexts/UserContext'
@@ -23,6 +24,10 @@ import { UserContext } from '../contexts/UserContext'
 import api from '../helpers/api'
 import config from '../config'
 import { cleanProjectName } from '../helpers/strings'
+
+// images & styles
+import githubText from '../assets/images/github-inverted.png'
+import githubLogo from '../assets/images/github-logo-inverted.png'
 
 export default class Project extends Component {
   state = {}
@@ -95,6 +100,14 @@ export default class Project extends Component {
                 )
               })
             }}>add a project</button>
+            <Link to={'/github'}>
+              <StlButton className="github-button">
+                Test your&nbsp;
+                <img src={githubLogo} alt="GitHub Logo" />
+                <img src={githubText} alt="GitHub Text" />
+                &nbsp;repositories
+              </StlButton>
+            </Link>
         </div>
 
       </div>

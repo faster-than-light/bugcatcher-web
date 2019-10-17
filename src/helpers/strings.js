@@ -27,6 +27,7 @@ module.exports = {
   },
   cleanProjectName: (projectName) => {
     if (!projectName) return ''
+    projectName = projectName.replace(/\//g, '_')
     const delims = ["<", ">", "#", "%", '"']
     const reserved = [";", "/", "?", ":", "@", "&", "=", "+", "$", ","]
     const unwise = ["{", "}", "|", "\\", "^", "[", "]", "`"]

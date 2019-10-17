@@ -1,0 +1,54 @@
+.oauth-images {
+  clear: both;
+  margin-bottom: 21px;
+  vertical-align: middle;
+}
+.oauth-images > element {
+  vertical-align: middle;
+}
+.oauth-images img {
+  height: 120px;
+  width: 120px;
+}
+.oauth-images img:first-child {
+  /* margin-right: 30px; */
+}
+.oauth-images .center-check {
+  display: inline-block;
+  border-top: 2px dashed rgb(216, 216, 216);
+  width: 111px;
+  text-align: center;
+  /* margin-top: -36px; */
+}
+.oauth-images .center-check .icon-box {
+  width: 36px;
+  display: block;
+  background: white;
+  margin: auto;
+  margin-top: -15px;
+}
+
+#github .well {
+  border-radius: 6px;
+  background-color: #eee;
+  padding: 21px;
+  margin-top: 21px;
+}
+#github .btn {
+  margin: 1px;
+}
+#github .repo-list {
+  text-align: left;
+}
+#github .repo-list li {
+  list-style: none;
+}
+
+.github-button {
+  /* display: inline-block; */
+  /* height: 36px; */
+  /* line-height: 0.9rem !important; */
+}
+.github-button img {
+  max-height: 18px;
+}
