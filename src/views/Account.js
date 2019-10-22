@@ -133,9 +133,15 @@ export default class Account extends Component {
             <Table.Body>
               <Table.Row>
                 <Table.Cell>
-                  <StlButton semantic disabled className="default">Developer Level User</StlButton>
-                  &nbsp;
-                  <Link to={'/pricing'}><StlButton>Upgrade to Pro</StlButton></Link>
+                  <p>
+                    You are currently using BugCatcher Developer.
+                    {/* <br /><StlButton semantic disabled className="default">Developer Level User</StlButton> */}
+                  </p>
+                  <hr />
+                  <p>
+                    Upgrade to BugCatcher Pro for only {config.monthlyProductPrice} a month.
+                  </p>
+                  <p><Link to={'/pricing'}><StlButton>Upgrade to BugCatcher Pro</StlButton></Link></p>
                 </Table.Cell>
               </Table.Row>
             </Table.Body>
