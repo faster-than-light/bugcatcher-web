@@ -323,6 +323,8 @@ export default class Results extends Component {
                       <Table.Row>
                         <Table.Cell className="grey-color light-grey-bg-color">Download Results</Table.Cell>
                         <Table.Cell colSpan={2}>
+                          <StlButton semantic primary onClick={this._fetchPDF}>PDF</StlButton>
+                          &nbsp;&nbsp;
                           {
                             process.env.REACT_APP_FTL_ENV !== 'production' ?
                               <span>
@@ -333,8 +335,6 @@ export default class Results extends Component {
                               </span> : null
                           }
                           <StlButton semantic onClick={this._fetchJSON}>JSON</StlButton>
-                          &nbsp;&nbsp;
-                          <StlButton semantic onClick={this._fetchPDF}>PDF</StlButton>
                        </Table.Cell>
                       </Table.Row>
                     </Table.Body>
