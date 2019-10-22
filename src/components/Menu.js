@@ -32,8 +32,8 @@ class Welcome extends Component {
     const greeting = `Welcome, ${user ? user.name : 'guest'}!`
     return <span {...this.props}>
       {
-        usePaywall && user && user.isSubscriber ? <Link to="/account">{greeting}</Link> :
-          user ? greeting : <span>{greeting} &nbsp;<Link to="/">log in</Link></span>
+        usePaywall && user ? <Link to="/account">{greeting}</Link>
+          : <span>{greeting} &nbsp;<Link to="/">log in</Link></span>
       }
     </span>
   }

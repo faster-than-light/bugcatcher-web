@@ -42,14 +42,20 @@ class App extends Component {
 
   }
 
-  async fetchUser(clearStorage) {
+  async fetchUserData(clearStorage) {
     const user = await this.context.actions.fetchUser(clearStorage)
     const { userDataLoaded } = this.context.state
-    if (user && userDataLoaded) this.setState({
+    const userData = {
       user,
       userDataLoaded,
-    })
-    return user
+    }
+    if (user && userDataLoaded) this.setState(userData)
+    return userData
+  }
+
+  async fetchUser(clearStorage) {
+    const userData = await this.fetchUserData(clearStorage)
+    return userData ? userData.user : null
   }
 
   setUser(user) {
@@ -79,6 +85,7 @@ class App extends Component {
     const props = {
       ...this.state,
       fetchUser: this.fetchUser.bind(this),
+      fetchUserData: this.fetchUserData.bind(this),
       setUser: this.setUser.bind(this),
     }
 

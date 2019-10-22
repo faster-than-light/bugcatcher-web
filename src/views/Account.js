@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import { Checkbox, Icon, Table } from 'semantic-ui-react'
 import moment from 'moment'
 
 // components
 import Menu from '../components/Menu'
 import Loader from '../components/Loader'
-// import Stripe from '../components/stripe/Stripe'
+import StlButton from '../components/StlButton'
 
 // helpers
 import api from '../helpers/api'
@@ -76,6 +76,7 @@ export default class Account extends Component {
       <div className="contents" style={{
         maxWidth: 720,
         margin: 'auto',
+        paddingBottom: 90,
       }}>
         <h1>Account Settings</h1>
         <h3>User Profile</h3>
@@ -92,7 +93,7 @@ export default class Account extends Component {
           </Table.Body>
         </Table>
 
-        <div style={{ display: config.usePaywall ? 'block' : 'none' }}>
+        <div style={{ display: config.usePaywall && user.isSubscriber ? 'block' : 'none' }}>
           <h3>Subscription</h3>
           <Table>
             <Table.Body>
@@ -125,24 +126,21 @@ export default class Account extends Component {
           </Table>
         </div>
 
-        {/* <h3>
-          <span style={{
-            color: config.themes.default.primaryColor,
-            float: 'right',
-            cursor: 'pointer',
-            fontSize: '90%',
-          }}
-          onClick={() => { this.setState({ showAddCard: true }) }}>
-            <Icon name="add" />
-            add card
-          </span>
-          Saved Credit Cards
-        </h3>
-        <Stripe id="payment"
-          fetchUser={fetchUser}
-          showAddCard={this.state.showAddCard}
-          user={user}
-          toggleShowAddCard={this.toggleShowAddCard.bind(this)} /> */}
+        <br />
+        <div style={{ display: config.usePaywall && !user.isSubscriber ? 'block' : 'none' }}>
+          <h3>Subscription</h3>
+          <Table>
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell>
+                  <StlButton semantic disabled className="default">Developer Level User</StlButton>
+                  &nbsp;
+                  <Link to={'/pricing'}><StlButton>Upgrade to Pro</StlButton></Link>
+                </Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
+        </div>
 
         <br />
         <div style={{ display: this.state.cookiesAccepted ? 'block' : 'none' }}>
