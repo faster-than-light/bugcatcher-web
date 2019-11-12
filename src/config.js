@@ -62,7 +62,6 @@ module.exports = {
     process.env.REACT_APP_PROD_API_URI :
       process.env.REACT_APP_FTL_ENV === 'bat' ?
         process.env.REACT_APP_BAT_API_URI :
-          // process.env.REACT_APP_BAT_API_URI, // temporary for demo day
           process.env.REACT_APP_STAGING_API_URI,
 
   // mixpanel
