@@ -51,6 +51,10 @@
   color: #fff !important;
 }
 
+.ui.info.message {
+  color: inherit !important;
+}
+
 /* mobile / responsive */
 @media (max-width: 768px) {
   h3 {

@@ -22,12 +22,18 @@ module.exports = {
 
   encrypt: (toEncrypt, publicKey) => {
     const buffer = Buffer.from(toEncrypt)
-    const encrypted = publicEncrypt(publicKey, buffer)
+    const encrypted = publicEncrypt(publicKey.toString(), buffer)
     return encrypted.toString("base64")
   },
 
   decrypt: (toDecrypt, privateKey) => {
     try {
+      
+      /** @todo Find the real issue and remove this hack */
+      // Glitch reads the .env differently than localhost ?
+      if (privateKey.includes('\\n'))
+        privateKey = privateKey.replace(/\\n/g, '\n')
+      
       const buffer = Buffer.from(toDecrypt, 'base64')
       const decrypted = privateDecrypt(
         {

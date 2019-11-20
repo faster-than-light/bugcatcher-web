@@ -3,7 +3,15 @@ import { Link, Redirect } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 // import faker from 'faker'
 import _ from 'lodash'
-import { Accordion, Label, Message } from 'semantic-ui-react'
+import {
+  Accordion,
+  Divider,
+  Dropdown,
+  Form,
+  Input,
+  Label,
+  Message
+} from 'semantic-ui-react'
 
 // components
 import Menu from '../components/Menu'
@@ -19,56 +27,134 @@ import githubText from '../assets/images/github-inverted.png'
 import githubLogo from '../assets/images/github-logo-inverted.png'
 import StlButton from '../components/StlButton';
 
-
-class LastProjectsAccessed extends Component {
-  render() {
-    let lastProjectsAccessed = getCookie("lastProjectsAccessed") || []
-    if (lastProjectsAccessed.length) lastProjectsAccessed = JSON.parse(lastProjectsAccessed)
-    let rtn = lastProjectsAccessed.map((p, k) => <div>
-      <Link key={k} to={`/project/${p}`}>{p}</Link>
-    </div>)
-    if (lastProjectsAccessed.length) rtn = <span>
-      {rtn}<br />
-    </span>
-    return rtn
-  }
-}
 export default class Dashboard extends Component {
   state = {
     value: '',
     copied: {
       clear: false,
       encrypted: false,
+      // severityThreshold: 'medium',
     },
-    severityThreshold: 'low',
   }
 
-  encryptConfigFile() {
-    const cleanToken = `${getCookie("session")}|${this.state.repo}`
+  encryptConfigFile(repo, severity) {
+    const cleanToken = `${getCookie("session")}|${repo}`
     const crypToken = encrypt(cleanToken, process.env.REACT_APP_PUBLIC_KEY)
     return `ENCRYPTED_SID=${crypToken}
-SEVERITY_THRESHOLD=${this.state.severityThreshold}`
+SEVERITY_THRESHOLD=${severity}`
   }
 
-  changeRepo() {
-    const repo = this.repoToEncrypt ? this.repoToEncrypt.value : ''
-    this.setState({ repo })
+  checkRepo() {
+    
+    const repo = this.repoToEncrypt.inputRef.value
+    const hasOneSlash =  Boolean(repo.split('/').length === 2)
+    const hasOwner =  Boolean(
+      repo.split('/')[0] &&
+      repo.split('/')[0].length
+    )
+    const hasRepoName =  Boolean(
+      repo.split('/')[1] &&
+      repo.split('/')[1].length
+    )
+    if (hasOneSlash && hasOwner && hasRepoName) {
+      this.setState({ foundRepo: repo })
+    }
+
   }
   
-  changeSeverity() {
-    const severityThreshold = this.severityThreshold ? this.severityThreshold.value : ''
-    this.setState({ severityThreshold })
+  checkSeverity(e) {
+    let severityThreshold = this.severityThreshold ? this.severityThreshold.state.value : ''
+    if (e) severityThreshold = e.target.textContent
+    if (severityThreshold) {
+      this.setState({ severityThreshold })
+      return severityThreshold
+    }
+    else return false
+  }
+
+  encryptToken() {
+    const severityThreshold = this.checkSeverity()
+    if (!severityThreshold) {
+      alert('Please choose a severity threshold')
+      return false
+    }
+    else {
+      const encryptedConfigFile = this.encryptConfigFile(this.state.foundRepo,severityThreshold)
+      this.setState({ encryptedConfigFile })
+    }
   }
 
   setOpenPanel(openPanel) {
-    console.log({openPanel})
     this.setState({ openPanel })
   }
 
+  EncryptTokenForm = () => {
+    const { findingRepo, foundRepo, severityThreshold } = this.state
+    return <Form id="encrypt_token" key="encrypt_token">
+      <Divider />
+      <Form.Field>
+        <h4>Repository Name <span style={{
+          fontSize: 13,
+          marginLeft: 9,
+          color: '#666',
+          fontStyle: 'italic',
+          fontWeight: 'normal',
+        }}>(ex: faster-than-light/ftl)</span></h4>
+        <Input ref={r => this.repoToEncrypt = r}
+          value={foundRepo}
+          key="repoToEncrypt"
+          id="repoToEncrypt"
+          name="repoToEncrypt"
+          loading={Boolean(findingRepo)}
+          icon={foundRepo && foundRepo.length ? 'check' : null} 
+          onChange={() => {}}
+          onBlur={this.checkRepo.bind(this)}
+          placeholder="<owner>/<repo>" />
+      </Form.Field>
+      <Divider />
+      <Form.Field>
+        <h4>Severity Threshold</h4>
+        <Dropdown ref={r => this.severityThreshold = r}
+          key="severity"
+          id="severity"
+          name="severity"
+          onChange={this.checkSeverity.bind(this)}
+          value={severityThreshold}
+          fluid selection options={
+          [
+            {
+              key: 'high',
+              text: 'high',
+              value: 'high',
+            },
+            {
+              key: 'medium',
+              text: 'medium',
+              value: 'medium',
+            },
+            {
+              key: 'low',
+              text: 'low',
+              value: 'low',
+            },
+          ]
+        } placeholder="Select the minimum severity level for triggering a failure" />
+      </Form.Field>
+      <Divider />
+      <Form.Field>
+        <StlButton onClick={this.encryptToken.bind(this)}>Generate Encrypted Config File</StlButton>
+      </Form.Field>
+    </Form>
+
+  }
+
   render() {
-    const { addNewProject, copied, openPanel } = this.state
-    const repo = this.repoToEncrypt ? this.repoToEncrypt.value : null
-    const encryptedConfigFile = this.encryptConfigFile(repo)
+    const {
+      addNewProject,
+      copied,
+      encryptedConfigFile,
+      openPanel,
+    } = this.state
 
     const panels = [
       // web app
@@ -122,22 +208,15 @@ SEVERITY_THRESHOLD=${this.state.severityThreshold}`
               header={<h3>Install the GitHub BugCatcher CI App</h3>}
               content={<div>
                 <ol>
-                  <li>Install the GitHub <a href="#">BugCatcher CI App</a> on the repositories you want tested.</li>
+                  <li>Install the GitHub <a href="https://github.com/apps/ftl-bugcatcher" target="_blank">BugCatcher CI App</a> on the repositories you want tested.</li>
                   <li>
                     Add a file named <code style={{ fontSize: '120%' }}>.bugcatcher</code> to each repository you are testing. <strong>Important:</strong> Each of your repositories needs its own encrypted <code>SID</code>. Please enter the repository &quot;full name&quot; here (ex: <code>faster-than-light/ftl</code>) and then copy the <code>.bugcatcher</code> config data to your repository.
-                    <p><input ref={r => this.repoToEncrypt = r}
-                      style={{ fontSize: 21 }}
-                      onChange={this.changeRepo.bind(this)}
-                      placeholder="<owner>/<repo>" />
-                    &nbsp;Severity Threshold: <select ref={r => this.severityThreshold = r}
-                      onChange={this.changeSeverity.bind(this)}>
-                        <option>low</option>
-                        <option>medium</option>
-                        <option>high</option>
-                    </select></p>
+                    <div style={{ margin: '9px 0' }}>
+                      <this.EncryptTokenForm key="token_form" />
+                    </div>
                   </li>
                 </ol>
-                <p>
+                <div style={{ display: Boolean(encryptedConfigFile) ? 'block' : 'none', margin: '9px 0', marginLeft: '9%' }}>
                   <CopyToClipboard text={encryptedConfigFile}
                     onCopy={() => {
                       this.refs.sid.select()
@@ -148,12 +227,13 @@ SEVERITY_THRESHOLD=${this.state.severityThreshold}`
                     }}>
                       <textarea type="text" ref="sid"
                         value={encryptedConfigFile}
+                        onChange={() => {}}
                         style={{ width: '100%', height: 210 }} />
                   </CopyToClipboard>
                   <div style={{color: 'red', padding: 12}}>
                     {copied.encrypted ? `Copied to clipboard` : null}
                   </div>
-                </p>
+                </div>
               </div>}
             />
           ),
@@ -173,7 +253,7 @@ SEVERITY_THRESHOLD=${this.state.severityThreshold}`
               content={<div>
                 <p>We have a CLI tool you can use to test your code with BugCatcher. Simply follow the instructions found in the <a href="https://github.com/faster-than-light/ftl/blob/master/README.md" target="_blank">README.md file on GitHub</a>.</p>
                 <p>This is your <code style={{ fontSize: '120%' }}>SID</code> to be used with the <a href="https://github.com/faster-than-light/ftl" target="_blank">CLI Tool</a></p>
-                <p>
+                <div style={{ margin: '9px 0' }}>
                   <CopyToClipboard text={getCookie("session")}
                     onCopy={() => {
                       this.refs.sid.select()
@@ -184,12 +264,13 @@ SEVERITY_THRESHOLD=${this.state.severityThreshold}`
                     }}>
                       <input type="text" ref="sid"
                         value={getCookie("session")}
+                        onChange={() => {}}
                         style={{ width: '100%' }} />
                   </CopyToClipboard>
                   <div style={{color: 'red', padding: 12}}>
                     {copied.clear ? `Copied to clipboard` : null}
                   </div>
-                </p>
+                </div>
               </div>}
             />
           ),
