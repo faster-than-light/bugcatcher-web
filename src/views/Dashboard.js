@@ -74,7 +74,11 @@ SEVERITY_THRESHOLD=${severity}`
 
   encryptToken() {
     const severityThreshold = this.checkSeverity()
-    if (!severityThreshold) {
+    if (!this.state.foundRepo) {
+      alert('Please specify a repository')
+      return false
+    }
+    else if (!severityThreshold) {
       alert('Please choose a severity threshold')
       return false
     }
