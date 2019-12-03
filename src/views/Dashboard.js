@@ -263,11 +263,11 @@ SEVERITY_THRESHOLD=${severity}`
 
           <FtlCardDashboard
             header={'Run Tests using the CLI Tool'}
-            cardText={'You can use BugCatcher from your command line. Simply install our Python package.'}
+            cardText={<span>You can use BugCatcher from your command line. Simply install our <a href="https://pypi.org/project/bugcatcher/" target="_blank">Python package</a>.</span>}
           >
             <div>
               <p>We have a CLI tool you can use to test your code with BugCatcher. Simply follow the instructions found in the <a href="https://github.com/faster-than-light/ftl/blob/master/README.md" target="_blank">README.md file on GitHub</a>.</p>
-              <p>This is your <code style={{ fontSize: '120%' }}>SID</code> to be used with the <a href="https://github.com/faster-than-light/ftl" target="_blank">CLI Tool</a></p>
+              <p>This is your <code style={{ fontSize: '120%' }}>SID</code> to be used with the CLI Tool</p>
               <div style={{ margin: '9px 0' }}>
                 <CopyToClipboard text={getCookie("session")}
                   onCopy={() => {
