@@ -298,7 +298,7 @@ export default class Github extends Component {
 
   RepoContents = () => {
     const { branchName, currentRepo, showFiles, tree } = this.state
-    let newProjectPath = `${this.state.currentRepo}/tree/${this.state.branchName}`
+    let newProjectPath = `${this.state.currentRepo}/${this.state.branchName}`
     newProjectPath = '/project/' + newProjectPath.replace(/\//g,'%2F') + '?gh=1'
     if (tree) {
       const contents = tree.tree && tree.tree.length ? tree.tree.map((t, k) => 
@@ -421,7 +421,7 @@ export default class Github extends Component {
                     <StlButton className="big"
                     onClick={
                       () => { this.setState({ working: true }) }
-                    }>Authorize BugCatcher on GitHub</StlButton>
+                    }>Connect BugCatcher to GitHub</StlButton>
                   </a>
                   {/* <GitHubLogin className="big btn"
                     clientId={github.clientId}

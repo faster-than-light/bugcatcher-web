@@ -165,7 +165,7 @@ SEVERITY_THRESHOLD=${severity}`
       {
         key: `panel-1`,
         title: {
-          content: <FtlButton grey onClick={() => this.setOpenPanel(0)}>Run Tests using the Web App</FtlButton>,
+          content: <FtlButton grey onClick={() => this.setOpenPanel(0)}>Run Tests using this Web App</FtlButton>,
         },
         content: {
           content: (
@@ -327,8 +327,16 @@ SEVERITY_THRESHOLD=${severity}`
         </div>
         
         <div className={'white-block'} style={{ padding: 18 }}>
-          <h2>Ways to Use BugCatcher:</h2>
+          <h2>How to Use BugCatcher:</h2>
           <AccordionExampleShorthand />
+          {/* <Link to={'/github'}>
+            <FtlButton className="github-button">
+              Test your&nbsp;
+              <img src={githubLogo} alt="GitHub Logo" />
+              <img src={githubText} alt="GitHub Text" />
+              &nbsp;repositories
+            </FtlButton>
+          </Link> */}
         </div>
 
         <br />
