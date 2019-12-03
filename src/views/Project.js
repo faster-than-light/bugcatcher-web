@@ -90,7 +90,7 @@ export default class Project extends Component {
           <this.Instructions
             state={this.state}
             {...this.props} />
-          <button className={'link'}
+          <StlButton
             onClick={() => {
               let projectName = prompt('What is the name of your project?')
               projectName = cleanProjectName(projectName)
@@ -99,13 +99,14 @@ export default class Project extends Component {
                   projectName.trim().replace(/\s\s+/g, ' ')
                 )
               })
-            }}>add a project</button>
+            }}>Upload a New Project</StlButton>
+            &nbsp;
             <Link to={'/github'}>
               <StlButton className="github-button">
-                Test your&nbsp;
+                Test a&nbsp;&nbsp;
                 <img src={githubLogo} alt="GitHub Logo" />
                 <img src={githubText} alt="GitHub Text" />
-                &nbsp;repositories
+                &nbsp;Repository
               </StlButton>
             </Link>
         </div>

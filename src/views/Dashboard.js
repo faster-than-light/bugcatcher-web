@@ -15,6 +15,7 @@ import {
 
 // components
 import Menu from '../components/Menu'
+import FtlButton from '../components/FtlButton'
 
 // helpers
 import config from '../config'
@@ -25,7 +26,6 @@ import { cleanProjectName } from '../helpers/strings'
 // images & styles
 import githubText from '../assets/images/github-inverted.png'
 import githubLogo from '../assets/images/github-logo-inverted.png'
-import StlButton from '../components/StlButton';
 
 export default class Dashboard extends Component {
   state = {
@@ -146,7 +146,7 @@ SEVERITY_THRESHOLD=${severity}`
       </Form.Field>
       <Divider />
       <Form.Field>
-        <StlButton onClick={this.encryptToken.bind(this)}>Generate Encrypted Config File</StlButton>
+        <FtlButton onClick={this.encryptToken.bind(this)}>Generate Encrypted Config File</FtlButton>
       </Form.Field>
     </Form>
 
@@ -165,7 +165,7 @@ SEVERITY_THRESHOLD=${severity}`
       {
         key: `panel-1`,
         title: {
-          content: <StlButton onClick={() => this.setOpenPanel(0)}>Run Tests using the Web App</StlButton>,
+          content: <FtlButton grey onClick={() => this.setOpenPanel(0)}>Run Tests using the Web App</FtlButton>,
         },
         content: {
           content: (
@@ -176,14 +176,14 @@ SEVERITY_THRESHOLD=${severity}`
                 <p>You can use BugCatcher right here on the web! For best results, we recommend using Google&apos;s Chrome browser. By the way, closing your browser while tests are running won&apos;t affect your tests. The next time that you open BugCatcher, your tests will be either running or completed for you.</p>
                 {/* <LastProjectsAccessed /> */}
                 <Link to={'/github'}>
-                  <StlButton className="github-button">
+                  <FtlButton className="github-button">
                     Test your&nbsp;
                     <img src={githubLogo} alt="GitHub Logo" />
                     <img src={githubText} alt="GitHub Text" />
                     &nbsp;repositories
-                  </StlButton>
+                  </FtlButton>
                 </Link>&nbsp;
-                <Link to={'/projects'}><StlButton>View All Your Projects</StlButton></Link>
+                <Link to={'/projects'}><FtlButton>View All Your Projects</FtlButton></Link>
                 <button className={'link'}
                 onClick={() => {
                   let projectName = prompt('What is the name of your project?')
@@ -203,16 +203,16 @@ SEVERITY_THRESHOLD=${severity}`
       {
         key: `panel-2`,
         title: {
-          content: <StlButton onClick={() => this.setOpenPanel(1)}>Install the GitHub BugCatcher CI App</StlButton>,
+          content: <FtlButton grey onClick={() => this.setOpenPanel(1)}>Install the BugCatcher GitHub App</FtlButton>,
         },
         content: {
           content: (
             <Message
               info
-              header={<h3>Install the GitHub BugCatcher CI App</h3>}
+              header={<h3>Install the BugCatcher GitHub App</h3>}
               content={<div>
                 <ol>
-                  <li>Install the GitHub <a href="https://github.com/apps/ftl-bugcatcher" target="_blank">BugCatcher CI App</a> on the repositories you want tested.</li>
+                  <li>Install the <a href="https://github.com/apps/ftl-bugcatcher" target="_blank">FTL BugCatcher</a> GitHub App on the repositories you want tested.</li>
                   <li>
                     Add a file named <code style={{ fontSize: '120%' }}>.bugcatcher</code> to each repository you are testing. <strong>Important:</strong> Each of your repositories needs its own encrypted <code>SID</code>. Please enter the repository &quot;full name&quot; here (ex: <code>faster-than-light/ftl</code>) and then copy the <code>.bugcatcher</code> config data to your repository.
                     <div style={{ margin: '9px 0' }}>
@@ -247,7 +247,7 @@ SEVERITY_THRESHOLD=${severity}`
       {
         key: `panel-3`,
         title: {
-          content: <StlButton onClick={() => this.setOpenPanel(2)}>Run Tests using the CLI Tool</StlButton>,
+          content: <FtlButton grey onClick={() => this.setOpenPanel(2)}>Run Tests using the CLI Tool</FtlButton>,
         },
         content: {
           content: (
