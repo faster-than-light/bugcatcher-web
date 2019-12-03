@@ -660,8 +660,8 @@ export default class Code extends Component {
       if (token) {
         githubApi.setToken(token)
         this.setState({ working: true })
-        const [ repoName, branchName ] = projectName.split('/tree/')
-        const [ owner, repo ] = repoName.split('/')
+        const [ owner, repo, branchName ] = projectName.split('/')
+        // const [ owner, repo ] = repoName.split('/')
         const { tree } = await this._getTree(
           owner,
           repo,
