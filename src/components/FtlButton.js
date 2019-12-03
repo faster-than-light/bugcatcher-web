@@ -13,7 +13,6 @@ export default class FtlButton extends Component {
     const B = semantic ? Button : htmlButton
     semantic = Boolean(semantic).toString()
     if (grey) className = ('grey ' + className).trim()
-    console.log({className})
     return <B {...this.props}
       semantic={semantic}
       className={

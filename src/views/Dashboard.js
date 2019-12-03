@@ -1,21 +1,19 @@
 import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-// import faker from 'faker'
 import _ from 'lodash'
 import {
-  Accordion,
   Divider,
   Dropdown,
   Form,
   Input,
-  Label,
-  Message
 } from 'semantic-ui-react'
 
 // components
 import Menu from '../components/Menu'
 import FtlButton from '../components/FtlButton'
+import FtlCard from '../components/FtlCard'
+import FtlCardDashboard from '../components/FtlCardDashboard'
 
 // helpers
 import config from '../config'
@@ -33,7 +31,6 @@ export default class Dashboard extends Component {
     copied: {
       clear: false,
       encrypted: false,
-      // severityThreshold: 'medium',
     },
   }
 
@@ -156,135 +153,18 @@ SEVERITY_THRESHOLD=${severity}`
     const {
       addNewProject,
       copied,
-      encryptedConfigFile,
-      openPanel,
     } = this.state
 
-    const panels = [
-      // web app
-      {
-        key: `panel-1`,
-        title: {
-          content: <FtlButton grey onClick={() => this.setOpenPanel(0)}>Run Tests using this Web App</FtlButton>,
-        },
-        content: {
-          content: (
-            <Message
-              info
-              header={<h3>Run Tests using the Web App</h3>}
-              content={<div>
-                <p>You can use BugCatcher right here on the web! For best results, we recommend using Google&apos;s Chrome browser. By the way, closing your browser while tests are running won&apos;t affect your tests. The next time that you open BugCatcher, your tests will be either running or completed for you.</p>
-                {/* <LastProjectsAccessed /> */}
-                <Link to={'/github'}>
-                  <FtlButton className="github-button">
-                    Test your&nbsp;
-                    <img src={githubLogo} alt="GitHub Logo" />
-                    <img src={githubText} alt="GitHub Text" />
-                    &nbsp;repositories
-                  </FtlButton>
-                </Link>&nbsp;
-                <Link to={'/projects'}><FtlButton>View All Your Projects</FtlButton></Link>
-                <button className={'link'}
-                onClick={() => {
-                  let projectName = prompt('What is the name of your project?')
-                  projectName = cleanProjectName(projectName)
-                  if (projectName.length) this.setState({
-                    addNewProject: encodeURIComponent(
-                      projectName.trim().replace(/\s\s+/g, ' ')
-                    )
-                  })
-                }}>add a project</button>
-              </div>}
-            />
-          ),
-        },
-      },
-      // github app
-      {
-        key: `panel-2`,
-        title: {
-          content: <FtlButton grey onClick={() => this.setOpenPanel(1)}>Install the BugCatcher GitHub App</FtlButton>,
-        },
-        content: {
-          content: (
-            <Message
-              info
-              header={<h3>Install the BugCatcher GitHub App</h3>}
-              content={<div>
-                <ol>
-                  <li>Install the <a href="https://github.com/apps/ftl-bugcatcher" target="_blank">FTL BugCatcher</a> GitHub App on the repositories you want tested.</li>
-                  <li>
-                    Add a file named <code style={{ fontSize: '120%' }}>.bugcatcher</code> to each repository you are testing. <strong>Important:</strong> Each of your repositories needs its own encrypted <code>SID</code>. Please enter the repository &quot;full name&quot; here (ex: <code>faster-than-light/ftl</code>) and then copy the <code>.bugcatcher</code> config data to your repository.
-                    <div style={{ margin: '9px 0' }}>
-                      <this.EncryptTokenForm key="token_form" />
-                    </div>
-                  </li>
-                </ol>
-                <div style={{ display: Boolean(encryptedConfigFile) ? 'block' : 'none', margin: '9px 0', marginLeft: '9%' }}>
-                  <CopyToClipboard text={encryptedConfigFile}
-                    onCopy={() => {
-                      this.refs.sid.select()
-                      this.setState({copied: {
-                        ...copied,
-                        encrypted: true
-                      }})
-                    }}>
-                      <textarea type="text" ref="sid"
-                        value={encryptedConfigFile}
-                        onChange={() => {}}
-                        style={{ width: '100%', height: 210 }} />
-                  </CopyToClipboard>
-                  <div style={{color: 'red', padding: 12}}>
-                    {copied.encrypted ? `Copied to clipboard` : null}
-                  </div>
-                </div>
-              </div>}
-            />
-          ),
-        },
-      },
-      // cli tool
-      {
-        key: `panel-3`,
-        title: {
-          content: <FtlButton grey onClick={() => this.setOpenPanel(2)}>Run Tests using the CLI Tool</FtlButton>,
-        },
-        content: {
-          content: (
-            <Message
-              info
-              header={<h3>Run Tests using the CLI Tool</h3>}
-              content={<div>
-                <p>We have a CLI tool you can use to test your code with BugCatcher. Simply follow the instructions found in the <a href="https://github.com/faster-than-light/ftl/blob/master/README.md" target="_blank">README.md file on GitHub</a>.</p>
-                <p>This is your <code style={{ fontSize: '120%' }}>SID</code> to be used with the <a href="https://github.com/faster-than-light/ftl" target="_blank">CLI Tool</a></p>
-                <div style={{ margin: '9px 0' }}>
-                  <CopyToClipboard text={getCookie("session")}
-                    onCopy={() => {
-                      this.refs.sid.select()
-                      this.setState({copied: {
-                        ...copied,
-                        clear: true
-                      }})
-                    }}>
-                      <input type="text" ref="sid"
-                        value={getCookie("session")}
-                        onChange={() => {}}
-                        style={{ width: '100%' }} />
-                  </CopyToClipboard>
-                  <div style={{color: 'red', padding: 12}}>
-                    {copied.clear ? `Copied to clipboard` : null}
-                  </div>
-                </div>
-              </div>}
-            />
-          ),
-        },
-      }
-    ]
-  
-    const AccordionExampleShorthand = () => <Accordion panels={panels}
-      defaultActiveIndex={openPanel} />
-    
+    const newProject = () => {
+      let projectName = prompt('What is the name of your project?')
+      projectName = cleanProjectName(projectName)
+      if (projectName.length) this.setState({
+        addNewProject: encodeURIComponent(
+          projectName.trim().replace(/\s\s+/g, ' ')
+        )
+      })
+    }
+
     // remove "copied" label after short delay
     let removeCopiedLabel = {}
     if (copied['clear'] && !removeCopiedLabel['clear']) {
@@ -319,24 +199,97 @@ SEVERITY_THRESHOLD=${severity}`
       <div style={{
         maxWidth: 720,
         margin: 'auto',
+        paddingTop: 111,
       }}>
 
-        <div className="white-block" style={{ textAlign: 'center', marginTop: 111, padding: 18 }}>
-          <h1 className="secondary-color">Welcome to BugCatcher!</h1>
-          <strong>Feedback or bug reports about the BugCatcher beta? Email <a href={`mailto:${config.helpEmail}`}>{config.helpEmail}</a></strong>
-        </div>
-        
-        <div className={'white-block'} style={{ padding: 18 }}>
-          <h2>How to Use BugCatcher:</h2>
-          <AccordionExampleShorthand />
-          {/* <Link to={'/github'}>
-            <FtlButton className="github-button">
-              Test your&nbsp;
-              <img src={githubLogo} alt="GitHub Logo" />
-              <img src={githubText} alt="GitHub Text" />
-              &nbsp;repositories
-            </FtlButton>
-          </Link> */}
+        <FtlCard>
+          <center>
+            <h1 className="secondary-color">Welcome to BugCatcher!</h1>
+            <strong>Feedback or bug reports about the BugCatcher beta? Email <a href={`mailto:${config.helpEmail}`}>{config.helpEmail}</a></strong>
+          </center>
+        </FtlCard>
+
+        <h2 style={{textAlign: 'center', marginTop: 45}}>A Few Ways to Use BugCatcher:</h2>
+
+        <div>
+          <FtlCardDashboard
+            header={'Run Tests using the Web App'}
+            buttons={[
+              <FtlButton className="github-button"
+                onClick={newProject}>
+                Upload &amp; Test Code
+              </FtlButton>,
+              <Link to={'/github'}>
+                <FtlButton className="github-button">
+                  Fetch and Test a&nbsp;&nbsp;
+                  <img src={githubLogo} alt="GitHub Logo" />
+                  <img src={githubText} alt="GitHub Text" />
+                  &nbsp;Repository
+                </FtlButton>
+              </Link>,
+              <Link to={'/projects'}>
+                <FtlButton className="github-button">
+                  View Your Projects
+                </FtlButton>
+              </Link>,
+            ]}
+            cardText={<div>You can use BugCatcher right here on the web!</div>}
+            >
+            For best results, we recommend using Google&apos;s Chrome browser. By the way, closing your browser while tests are running won&apos;t affect your tests. The next time that you open BugCatcher, your tests will be either running or completed for you.
+          </FtlCardDashboard>
+
+          <FtlCardDashboard
+            header={'Integrate with GitHub'}
+            buttons={[
+              <FtlButton className="github-button"
+                onClick={() => {alert('GitHub Action coming soon!')}}>
+                Set Up the&nbsp;&nbsp;
+                <img src={githubLogo} alt="GitHub Logo" />
+                <img src={githubText} alt="GitHub Text" />
+                &nbsp;Action
+              </FtlButton>,
+              <FtlButton className="github-button"
+                onClick={() => {alert('GitHub App coming soon!')}}>
+                Set Up the&nbsp;&nbsp;
+                <img src={githubLogo} alt="GitHub Logo" />
+                <img src={githubText} alt="GitHub Text" />
+                &nbsp;App
+              </FtlButton>
+            ]}
+            cardText={<div>You can use BugCatcher in your Continuous Integration / Continuous Deployment workflows on GitHub.</div>}
+            >
+            more..
+          </FtlCardDashboard>
+
+          <FtlCardDashboard
+            header={'Run Tests using the CLI Tool'}
+            cardText={'You can use BugCatcher from your command line. Simply install our Python package.'}
+          >
+            <div>
+              <p>We have a CLI tool you can use to test your code with BugCatcher. Simply follow the instructions found in the <a href="https://github.com/faster-than-light/ftl/blob/master/README.md" target="_blank">README.md file on GitHub</a>.</p>
+              <p>This is your <code style={{ fontSize: '120%' }}>SID</code> to be used with the <a href="https://github.com/faster-than-light/ftl" target="_blank">CLI Tool</a></p>
+              <div style={{ margin: '9px 0' }}>
+                <CopyToClipboard text={getCookie("session")}
+                  onCopy={() => {
+                    this.refs.sid.select()
+                    this.setState({copied: {
+                      ...copied,
+                      clear: true
+                    }})
+                  }}>
+                    <input type="text" ref="sid"
+                      value={getCookie("session")}
+                      onChange={() => {}}
+                      style={{ width: '100%' }} />
+                </CopyToClipboard>
+                <div style={{color: 'red', padding: 12}}>
+                  {copied.clear ? `Copied to clipboard` : null}
+                </div>
+              </div>
+            </div>
+          </FtlCardDashboard>
+
+          <br style={{clear:'both'}} />
         </div>
 
         <br />
