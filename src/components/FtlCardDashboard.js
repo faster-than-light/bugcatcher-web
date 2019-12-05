@@ -27,6 +27,7 @@ const useStyles = makeStyles(theme => ({
     color: 'var(--color-primary)'
   },
   actionButton: {
+    display: 'inline-block',
     margin: 3,
   },
 }))
