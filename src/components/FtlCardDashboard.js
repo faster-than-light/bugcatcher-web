@@ -26,10 +26,8 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: 'var(--color-background-offset)',
     color: 'var(--color-primary)'
   },
-  content: {
-    // backgroundColor: 'var(--color-background-offset)',
-    // color: 'var(--color-dark-text)',
-    // width: '100%',
+  actionButton: {
+    margin: 3,
   },
 }))
 
@@ -40,7 +38,7 @@ export default function FtlCardDashboard(props) {
 
   let { buttons } = props
   if (!Array.isArray(buttons)) buttons = [buttons]
-  const actionButtons = buttons.map(b => <IconButton>{b}</IconButton>)
+  const actionButtons = buttons.map(b => <span className={classes.actionButton}>{b}</span>)
 
   const handleExpandClick = () => {
     setExpanded(!expanded)
@@ -72,13 +70,13 @@ export default function FtlCardDashboard(props) {
         {cardText}
       </CardContent>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent className={classes.content}>
+        <CardContent>
           {children}
         </CardContent>
       </Collapse>
-      <CardActions className={[classes.content, classes.cardActions]}>
-        {actionButtons}
-      </CardActions>
+      <CardContent>
+          {actionButtons}
+      </CardContent>
     </Card>
   );
 }
