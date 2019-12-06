@@ -10,6 +10,7 @@ import {
 } from 'semantic-ui-react'
 
 // components
+import GitHubActionModal from '../components/GitHubActionModal'
 import Menu from '../components/Menu'
 import FtlButton from '../components/FtlButton'
 import FtlCard from '../components/FtlCard'
@@ -241,13 +242,7 @@ SEVERITY_THRESHOLD=${severity}`
           <FtlCardDashboard
             header={'Integrate with GitHub'}
             buttons={[
-              <FtlButton className="github-button"
-                onClick={() => {alert('GitHub Action coming soon!')}}>
-                Set Up the&nbsp;&nbsp;
-                <img src={githubLogo} alt="GitHub Logo" />
-                <img src={githubText} alt="GitHub Text" />
-                &nbsp;Action
-              </FtlButton>,
+              <GitHubActionModal />,
               <FtlButton className="github-button"
                 onClick={() => {alert('GitHub App coming soon!')}}>
                 Set Up the&nbsp;&nbsp;
