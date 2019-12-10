@@ -210,7 +210,7 @@ SEVERITY_THRESHOLD=${severity}`
           </center>
         </FtlCard>
 
-        <h2 style={{textAlign: 'center', marginTop: 45}}>A Few Ways to Use BugCatcher:</h2>
+        <h3 style={{textAlign: 'center', marginTop: 36}}>A Few Ways to Use BugCatcher:</h3>
 
         <div>
           <FtlCardDashboard
@@ -243,13 +243,15 @@ SEVERITY_THRESHOLD=${severity}`
             header={'Integrate with GitHub'}
             buttons={[
               <GitHubActionModal />,
-              <FtlButton className="github-button"
-                onClick={() => {alert('GitHub App coming soon!')}}>
-                Set Up the&nbsp;&nbsp;
-                <img src={githubLogo} alt="GitHub Logo" />
-                <img src={githubText} alt="GitHub Text" />
-                &nbsp;App
-              </FtlButton>
+              // <a href="https://github.com/apps/ftl-bugcatcher"
+              //   target="_blank">
+              //   <FtlButton className="github-button">
+              //     Set Up the&nbsp;&nbsp;
+              //     <img src={githubLogo} alt="GitHub Logo" />
+              //     <img src={githubText} alt="GitHub Text" />
+              //     &nbsp;App
+              //   </FtlButton>
+              // </a>
             ]}
             cardText={<div>You can use BugCatcher in your Continuous Integration / Continuous Deployment workflows on GitHub.</div>}
             >

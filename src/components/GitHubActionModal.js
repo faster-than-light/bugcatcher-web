@@ -67,7 +67,7 @@ export default class GitHubActionModal extends Component {
         &nbsp;Action
       </FtlButton>}
       size={'lg'}>
-        <p>The BugCatcher GitHub Action allows you to add static analysis testing to your continuous integration workflows.</p>
+        <p>The <strong><a href="https://github.com/marketplace/actions/ftl-bugcatcher" target="_blank">BugCatcher GitHub Action</a></strong> allows you to add static analysis testing to your continuous integration workflows.</p>
         <p>In order to set up the Action, you will need to copy this token to your Repository Secrets as described in the <a href="https://github.com/faster-than-light/github-action/blob/master/README.md" target="_blank">Action instructions</a>.</p>
         <div style={{ margin: '9px 0' }}>
           <CopyToClipboard text={getCookie("session")}
@@ -79,7 +79,7 @@ export default class GitHubActionModal extends Component {
               }})
             }}>
               <input type="text" ref="sid"
-                value={getCookie("session")}
+                value={'L5siMwPjEaxtRLTTpVAIEct0Q0MhsN1mJSGMKw1g'}
                 onChange={() => {}}
                 style={{ width: '100%' }} />
           </CopyToClipboard>
@@ -106,15 +106,15 @@ export default class GitHubActionModal extends Component {
             &nbsp;&nbsp;steps:<br />
             &nbsp;&nbsp;&nbsp;- uses: actions/checkout@v1<br />
             &nbsp;&nbsp;&nbsp;- name: Use Node.js 12<br />
-            &nbsp;&nbsp;&nbsp;uses: actions/setup-node@v1<br />
-            &nbsp;&nbsp;&nbsp;with:<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;node-version: 12<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;uses: actions/setup-node@v1<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;with:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node-version: 12<br />
             &nbsp;&nbsp;&nbsp;- name: BugCatcher Static Analysis<br />
-            &nbsp;&nbsp;&nbsp;uses: faster-than-light/github-action@master<br />
-            &nbsp;&nbsp;&nbsp;with:<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;GITHUB_TOKEN: $&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125;<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;FTL_SID: $&#123;&#123; secrets.FTL_SID &#125;&#125;<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;SEVERITY_THRESHOLD: medium</code>  
+            &nbsp;&nbsp;&nbsp;&nbsp;uses: faster-than-light/github-action@master<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;with:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GITHUB_TOKEN: $&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FTL_SID: $&#123;&#123; secrets.FTL_SID &#125;&#125;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEVERITY_THRESHOLD: medium</code>  
           </div>
         </p>
     </FtlModal>
