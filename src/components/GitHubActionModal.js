@@ -86,7 +86,6 @@ export default class GitHubActionModal extends Component {
                 value={getCookie("session")}
                 iconPosition={'left'}
                 style={{
-                  // marginLeft: -12,
                   fontSize: '18px',
                   width: '100%',
                 }}
@@ -98,7 +97,7 @@ export default class GitHubActionModal extends Component {
         </div>
         <p>After adding your <code>BUGCATCHER_TOKEN</code> token to your repository&apos;s Secrets, all you need to do is configure your repo to use the Action by adding it to your workflow <code>yaml</code> file.</p>
         <p>
-          Example:<br />
+          Example <code>.github/workflows/bugcatcher.yml</code> file:<br />
           <div style={{
             backgroundColor: 'var(--color-light-grey)',
             padding: 12,
