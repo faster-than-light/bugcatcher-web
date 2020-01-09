@@ -328,11 +328,11 @@ export default class Code extends Component {
         clearInterval(interval)
         if (errorCount === 0) this._runTests()
         else this.setState({ step: -1 })
-        window.mixpanel.track('Files Uploaded', {
-          project,
-          fileCount: binaryFilesToUpload.length,
-          version,
-        })
+        // window.mixpanel.track('Files Uploaded', {
+        //   project,
+        //   fileCount: binaryFilesToUpload.length,
+        //   version,
+        // })
       }
     }
     const apiError = (err, file) => {
@@ -439,15 +439,15 @@ export default class Code extends Component {
     const runTests = await api.postTestProject({ projectName }).catch(runTestsError)
     if (runTests) {
       const { stlid } = runTests.data
-      window.mixpanel.track('Test Run',
-        {
-          project: projectName,
-          stlid,
-          fileCount: this.state.codeOnServer.length,
-          version,
-          timeElapsed: testTimeElapsed,
-        }
-      )
+      // window.mixpanel.track('Test Run',
+      //   {
+      //     project: projectName,
+      //     stlid,
+      //     fileCount: this.state.codeOnServer.length,
+      //     version,
+      //     timeElapsed: testTimeElapsed,
+      //   }
+      // )
       LocalStorage.ProjectTestResults.setIds(projectName, [stlid])
       this._initCheckTestStatus(stlid)
     }
@@ -554,13 +554,13 @@ export default class Code extends Component {
       if (response && response.status_msg === 'COMPLETE') {
         response.percent_complete = 100
         this.setState({ results: response, reconnecting: false })
-          window.mixpanel.track('Test Completed', {
-          project: projectName,
-          stlid,
-          fileCount: this.state.codeOnServer ? this.state.codeOnServer.length : 0,
-          version,
-          timeElapsed: testTimeElapsed,
-        })
+        // window.mixpanel.track('Test Completed', {
+        //   project: projectName,
+        //   stlid,
+        //   fileCount: this.state.codeOnServer ? this.state.codeOnServer.length : 0,
+        //   version,
+        //   timeElapsed: testTimeElapsed,
+        // })
         resolve(response)
       }
 
@@ -705,11 +705,11 @@ export default class Code extends Component {
         if (!uploadErrors.length) {
           clearInterval(interval)
           this._fetchProductCode()
-          window.mixpanel.track('GitHub Files Uploaded', {
-            project: projectName,
-            fileCount: toUpload.length,
-            version,
-          })
+          // window.mixpanel.track('GitHub Files Uploaded', {
+          //   project: projectName,
+          //   fileCount: toUpload.length,
+          //   version,
+          // })
           this._runTests()
         }
         else if (retryFailedUploadsAttempt < 3) {

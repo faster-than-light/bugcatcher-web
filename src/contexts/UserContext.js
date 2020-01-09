@@ -29,14 +29,14 @@ export class UserProvider extends Component {
     ) this.actions.setUser(null)
     else {
       this.actions.setUser(user)
-      window.mixpanel.identify(user.email)
-      window.mixpanel.people.set(
-        {
-          "$email": user.email,
-          "$name": user.name,
-          version,
-        }
-      )
+      // window.mixpanel.identify(user.email)
+      // window.mixpanel.people.set(
+      //   {
+      //     "$email": user.email,
+      //     "$name": user.name,
+      //     version,
+      //   }
+      // )
     }
   }
 

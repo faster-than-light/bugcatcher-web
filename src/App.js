@@ -31,7 +31,7 @@ class App extends Component {
   static contextType = UserContext
 
   async componentWillMount() {
-    window.mixpanel.init(mixpanelToken)
+    // window.mixpanel.init(mixpanelToken)
     window.version = version
     console.log(`Running BugCatcher v${version} in the ${String(process.env.REACT_APP_FTL_ENV).toUpperCase()} environment`)
     
@@ -76,11 +76,11 @@ class App extends Component {
             message: err
           }
           props.version = version
-          window.mixpanel.track('Error', props)
+          // window.mixpanel.track('Error', props)
       }
     })()
 
-    window.mixpanel.track('App Loaded', { version })
+    // window.mixpanel.track('App Loaded', { version })
 
     const props = {
       ...this.state,

@@ -62,11 +62,13 @@ export default class Results extends Component {
     let { test_run: testRun = {} } = results || {}
     const { codes = [{}] } = testRun
     const { project } = codes[0]
-    if (results && project) window.mixpanel.track('Fetched Results', {
-      stlid: this.props.match.params.id,
-      project,
-      version,
-    })
+    if (results && project) {
+      // window.mixpanel.track('Fetched Results', {
+      //   stlid: this.props.match.params.id,
+      //   project,
+      //   version,
+      // })
+    }
     else this._failedToFetch(project || null)
     
     return({ project, results })

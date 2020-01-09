@@ -88,7 +88,7 @@ export default class Menu extends Component {
                   }}
                   className="link"
                   onClick={() =>{
-                    window.mixpanel.track('Log Out', { version })
+                    // window.mixpanel.track('Log Out', { version })
                     setUser(null)
                     this.logoutButton.signOut()
                     setTimeout(

@@ -50,18 +50,18 @@ export default class Pricing extends Component {
             sid: fetchedUser.sid
           })
           setUser({ ...fetchedUserData, sid: fetchedUser.sid })
-          window.mixpanel.identify(fetchedUser.email)
-          window.mixpanel.people.set(
-            {
-              "$email": fetchedUser.email,
-              "$name": fetchedUser.name,
-              version,
-            }
-          )
-          window.mixpanel.track(actionName, {
-            "$email": fetchedUser.email,
-            version,
-          })
+          // window.mixpanel.identify(fetchedUser.email)
+          // window.mixpanel.people.set(
+          //   {
+          //     "$email": fetchedUser.email,
+          //     "$name": fetchedUser.name,
+          //     version,
+          //   }
+          // )
+          // window.mixpanel.track(actionName, {
+          //   "$email": fetchedUser.email,
+          //   version,
+          // })
           fetchUser()
           callback()
         }}

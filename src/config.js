@@ -64,10 +64,10 @@ module.exports = {
         process.env.REACT_APP_BAT_API_URI :
           process.env.REACT_APP_STAGING_API_URI,
 
-  // mixpanel
-  mixpanelToken: process.env.REACT_APP_FTL_ENV === 'production' ?
-    process.env.REACT_APP_PROD_MIXPANEL_TOKEN :
-      process.env.REACT_APP_STAGING_MIXPANEL_TOKEN,
+  // // mixpanel
+  // mixpanelToken: process.env.REACT_APP_FTL_ENV === 'production' ?
+  //   process.env.REACT_APP_PROD_MIXPANEL_TOKEN :
+  //     process.env.REACT_APP_STAGING_MIXPANEL_TOKEN,
 
   // github oauth
   github: {

@@ -49,18 +49,18 @@ export default class Landing extends Component {
             sid: fetchedUser.sid
           })
           setUser({ ...fetchedUserData, sid: fetchedUser.sid })
-          window.mixpanel.identify(fetchedUser.email)
-          window.mixpanel.people.set(
-            {
-              "$email": fetchedUser.email,
-              "$name": fetchedUser.name,
-              version,
-            }
-          )
-          window.mixpanel.track(actionName, {
-            "$email": fetchedUser.email,
-            version,
-          })
+          // window.mixpanel.identify(fetchedUser.email)
+          // window.mixpanel.people.set(
+          //   {
+          //     "$email": fetchedUser.email,
+          //     "$name": fetchedUser.name,
+          //     version,
+          //   }
+          // )
+          // window.mixpanel.track(actionName, {
+          //   "$email": fetchedUser.email,
+          //   version,
+          // })
           fetchUser()
         }}
         onFailure={e => {
@@ -142,7 +142,7 @@ export default class Landing extends Component {
                   {`BugCatcher is ${config.monthlyProductPrice}/month. Your first month is free. Cancel anytime, get a refund for any reason.`}
                 </p>
                 <a onClick={async () => {
-                    window.mixpanel.track('Log Out', { version })          
+                    // window.mixpanel.track('Log Out', { version })          
                     await setUser(null)
                     window.location.href = '/'
                   }}>log out</a>
