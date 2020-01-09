@@ -31,12 +31,14 @@ export default class DownloadResultsModal extends Component {
   
   render() {
     const { copied, openModal, productCode } = this.state
-    const { format, markdownPayload } = this.props
+    const { format, markdownPayload, ghTreeSha } = this.props
     const { groupedResults, languagesUsed, project, results, testId, testToolsUsed } = markdownPayload
     const badgeUrl = `${appUrl}/img/bugcatcher-approved.png`
     const badge = `<img src="${badgeUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />`
     const badgeAndText = `### Passing All Tests!\n${badge}`
+    const approvedBadgeUrl = `${appUrl}/img/bugcatcher-approved.png`
     const logoUrl = `${appUrl}/img/ftl-bugcatcher.png`
+    const treeSha = ghTreeSha ? `\n**GitHub Tree SHA**: \`${ghTreeSha}\`` : ''
 
     const markdown = (() => {
       return `<img src="${logoUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />
@@ -46,6 +48,7 @@ export default class DownloadResultsModal extends Component {
 **Project Name**: \`${project}\`
 
 **Test ID**: \`${testId}\`
+${treeSha}
 
 #### Languages found: 
 ${languagesUsed.map(l => `\`${l}\``).join(' ')}
@@ -60,8 +63,10 @@ ${results.test_run.codes.map(c => c.name).join('\n')}
 
 ## RESULTS:
 ${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMarkdownRow(r)}`).join('\n')}
+##
 
-&nbsp;<hr />&nbsp;`
+<img src="${approvedBadgeUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />
+`
     })()
 
     // remove "copied" label after short delay

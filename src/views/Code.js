@@ -83,7 +83,8 @@ let retryAttempts = 0,
   startCounting,
   testTimeElapsed = 0,
   successfulUploads = 0,
-  concurrentUploads = 0
+  concurrentUploads = 0,
+  ghTreeSha
 
 export default class Code extends Component {
   static contextType = UserContext
@@ -654,8 +655,8 @@ export default class Code extends Component {
     const { projectName } = this.state
 
     /** @dev Fetch GitHub repo if querystring param is found */
-    const gh = queryString.parse(document.location.search)['gh']
-    if (gh) {
+    ghTreeSha = queryString.parse(document.location.search)['gh']
+    if (ghTreeSha) {
       const token = getCookie(tokenCookieName)
       if (token) {
         githubApi.setToken(token)
@@ -820,16 +821,17 @@ export default class Code extends Component {
 
   ShowResults = () => {
     const { results = {}, step } = this.state
+    const resultsUrl = `/results/${results ? results.stlid : ''}/?gh=${ghTreeSha}`
     return step && step === 7 ? 
     <Redirect
-      to={`/results/${results ? results.stlid : ''}`}
+      to={resultsUrl}
     /> :
     <Link className="btn full-width center-text primary"
       style={{
         display: results && results.status_msg === 'COMPLETE' ? 'inline-block' : 'none',
         verticalAlign: 'middle',
       }}
-      to={`/results/${results ? results.stlid : ''}`}
+      to={resultsUrl}
     >{`View Test Results`}</Link>
   }
 

@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { Label, Table } from 'semantic-ui-react'
 import moment from 'moment'
+import queryString from 'query-string'
 
 // components
 import CopyResultsModal from '../components/CopyResultsModal'
@@ -113,7 +114,7 @@ export default class Results extends Component {
 
   render() {
     const { loading, results, showFiles } = this.state
-
+    const ghTreeSha = queryString.parse(document.location.search)['gh']
     const groupedResultsJson = (testRunResult, project) => {
       /**
        * @dev Arrange results into Grouped Rows
@@ -329,6 +330,7 @@ export default class Results extends Component {
                             process.env.REACT_APP_FTL_ENV !== 'production' ?
                               <span>
                                 <CopyResultsModal {...this.props}
+                                  ghTreeSha={ghTreeSha}
                                   markdownPayload={markdownPayload}
                                   format={'Markdown'} />
                                 &nbsp;&nbsp;

@@ -299,7 +299,8 @@ export default class Github extends Component {
   RepoContents = () => {
     const { branchName, currentRepo, showFiles, tree } = this.state
     let newProjectPath = `${this.state.currentRepo}/${this.state.branchName}`
-    newProjectPath = '/project/' + newProjectPath.replace(/\//g,'%2F') + '?gh=1'
+    newProjectPath = '/project/' + newProjectPath.replace(/\//g,'%2F')
+    if (tree) newProjectPath += '?gh=' + tree.sha
     if (tree) {
       const contents = tree.tree && tree.tree.length ? tree.tree.map((t, k) => 
       <Table.Row key={k}>
