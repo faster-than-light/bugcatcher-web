@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 // components
 import Account from './views/Account'
+import BulkGithub from './views/BulkGithub'
 import Code from './views/Code'
 import CookiesAlert from './components/CookiesAlert'
 import FAQ from './views/FAQ/FAQ'
@@ -19,7 +20,7 @@ import Tour from './views/Tour'
 import { UserContext } from './contexts/UserContext'
 
 // helpers
-import { mixpanelToken } from './config'
+// import { mixpanelToken } from './config'
 import { init as intercom } from './helpers/intercom'
 import { version } from '../package.json'
 
@@ -95,6 +96,7 @@ class App extends Component {
           <Switch>
             <Route path="/" component={() => <Home {...props} />} exact />
             <Route path="/account" component={() => <Account {...props} />} exact />
+            <Route path="/bulkgithub" component={() => <BulkGithub {...props} />} exact />
             <Route path="/faq" component={() => <FAQ {...props} />} exact />
             <Route path="/gh_auth" component={() => <Github {...props} />} exact />
             <Route path="/github" component={() => <Github {...props} />} exact />
