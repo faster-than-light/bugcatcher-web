@@ -326,7 +326,7 @@ export default class Code extends Component {
     const checkUploadsComplete = () => {
       if (uploaded.length + errorCount === binaryFilesToUpload.length) { 
         clearInterval(interval)
-        if (errorCount === 0) this.setState({ step: 5 })
+        if (errorCount === 0) this.setState({ step: 5, showCodeList: false })
         else this.setState({ step: -1 })
         // window.mixpanel.track('Files Uploaded', {
         //   project,
@@ -399,7 +399,7 @@ export default class Code extends Component {
     else if (toUpload.length) {
       toUpload.forEach(f => sendFile(f))
     }
-    else this.setState({ step: 5 })
+    else this.setState({ step: 5, showCodeList: false })
 
   }
 
