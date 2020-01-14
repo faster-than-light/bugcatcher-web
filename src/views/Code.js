@@ -198,8 +198,8 @@ export default class Code extends Component {
       showDropzone: false,
       statusRows: [],
     })
-    files = files.filter(f => !f.path.includes('/.'))
-    const binaryFilesToUpload = (await this._assessFiles(files)).filter(f => f)
+    files = this.state.files.concat(files.filter(f => !f.path.includes('/.')))
+    const binaryFilesToUpload = this.state.binaryFilesToUpload.concat(await this._assessFiles(files)).filter(f => f)
     this.setState({
       files,
       uploadButtonClassname: 'btn primary full-width center-text',
@@ -274,7 +274,7 @@ export default class Code extends Component {
         else {
           // local hash matches one from server
           const thisCodeOnServer = filesOnServer.find(s => s.name === fileToUpload.name)
-          if (codeOnServer.length && thisCodeOnServer) codeOnServer = codeOnServer.map(c => 
+          if (codeOnServer.length && thisCodeOnServer && thisCodeOnServer.status != 'upload') codeOnServer = codeOnServer.map(c => 
             c.sha256 !== thisCodeOnServer.sha256 ? c
               :({ ...c, status: 'sync' })
           )
