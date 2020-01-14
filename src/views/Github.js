@@ -34,8 +34,7 @@ const initialState = {
   user: null,
   working: false,
 }
-const automateCookieName = 'automate-gh_auth'
-const tokenCookieName = 'github-ftl-token'
+const { automateCookieName, tokenCookieName } = github
 
 export default class Github extends Component {
   constructor(props) {
@@ -367,8 +366,7 @@ export default class Github extends Component {
     }
     const onFailure = response => console.error(response)
 
-    if (!this.props.user) return <Redirect to={'/'} />
-    else if (redirect) return <Redirect to={redirect} />
+    if (redirect) return <Redirect to={redirect} />
     else return <div id="github">
       <Menu />
       <FtlLoader show={working} text="working" />

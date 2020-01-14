@@ -83,6 +83,8 @@ module.exports = {
       development: '37647c8bd2536e298348',
       local: 'c7208e5474b2d9d81af3',
     })[process.env.REACT_APP_FTL_ENV],
+    automateCookieName: 'automate-gh_auth',
+    tokenCookieName: 'github-ftl-token',
   },
   
   // google oauth

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 // helpers
-import { usePaywall } from '../config'
+import { github, usePaywall } from '../config'
 import { getCookie, setCookie } from '../helpers/cookies'
 import api from '../helpers/api'
 import { version } from '../../package.json'
@@ -101,6 +101,7 @@ export class UserProvider extends Component {
       else {
         setCookie('session', '')
         setCookie('tokenId', '')
+        setCookie(github.tokenCookieName, '')
         api.setSid(null)
       }
     },
