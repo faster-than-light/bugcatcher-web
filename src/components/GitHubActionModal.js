@@ -65,7 +65,7 @@ export default class GitHubActionModal extends Component {
         Set Up the&nbsp;&nbsp;
         <img src={githubLogo} alt="GitHub Logo" />
         <img src={githubText} alt="GitHub Text" />
-        &nbsp;Action
+        &nbsp;Action for your Repository
       </FtlButton>}
       size={'lg'}>
         <p>The <strong><a href="https://github.com/marketplace/actions/ftl-bugcatcher" target="_blank">BugCatcher GitHub Action</a></strong> allows you to add static analysis testing to your continuous integration workflows.</p>

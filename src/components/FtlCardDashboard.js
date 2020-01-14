@@ -10,6 +10,7 @@ import Avatar from '@material-ui/core/Avatar'
 import IconButton from '@material-ui/core/IconButton'
 import CheckIcon from '@material-ui/icons/Check'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import InfoIcon from '@material-ui/icons/Info'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 
 const useStyles = makeStyles(theme => ({
@@ -66,7 +67,7 @@ export default function FtlCardDashboard(props) {
           aria-expanded={expanded}
           aria-label="show more"
         >
-          <MoreHorizIcon />
+          <InfoIcon color="gray" style={{ fontSize: '2.1rem' }} />
         </IconButton>
         {cardText}
       </CardContent>

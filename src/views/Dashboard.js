@@ -218,7 +218,7 @@ SEVERITY_THRESHOLD=${severity}`
             buttons={[
               <FtlButton className="github-button"
                 onClick={newProject}>
-                Upload &amp; Test Code
+                Upload &amp; Test A Project
               </FtlButton>,
               <Link to={'/github'}>
                 <FtlButton className="github-button">
@@ -229,7 +229,7 @@ SEVERITY_THRESHOLD=${severity}`
                 </FtlButton>
               </Link>,
               <Link to={'/projects'}>
-                <FtlButton className="github-button">
+                <FtlButton className="github-button" grey>
                   View Your Projects
                 </FtlButton>
               </Link>,
