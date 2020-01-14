@@ -5,9 +5,9 @@
  * @dev UI Steps
  * @step 1 : Show dropzone and file upload button
  * @step 2 : Determine which files need to be uploaded
- * @step 3 : Show "upload & test" button
+ * @step 3 : Show "upload" button
  * @step 4 : Uploading files
- * @step 5 : Files uploaded, initiate `/test_project`
+ * @step 5 : Files uploaded, Show "test" button
  * @step 6 : Running tests
  * @step 7 : Results ready
  * @step -1 : Error
@@ -326,7 +326,7 @@ export default class Code extends Component {
     const checkUploadsComplete = () => {
       if (uploaded.length + errorCount === binaryFilesToUpload.length) { 
         clearInterval(interval)
-        if (errorCount === 0) this._runTests()
+        if (errorCount === 0) this.setState({ step: 5 })
         else this.setState({ step: -1 })
         // window.mixpanel.track('Files Uploaded', {
         //   project,
@@ -399,7 +399,7 @@ export default class Code extends Component {
     else if (toUpload.length) {
       toUpload.forEach(f => sendFile(f))
     }
-    else this._runTests()
+    else this.setState({ step: 5 })
 
   }
 
@@ -999,7 +999,7 @@ export default class Code extends Component {
                       marginRight: 12,
                     }}
                     onClick={() => { this._uploadFiles(projectName) }}>
-                    { binaryFilesToUpload.length ? `Upload ${binaryFilesToUpload.length} File${appendS(binaryFilesToUpload.length)} & Start Tests` : 'Start Tests' }
+                    { binaryFilesToUpload.length ? `Upload ${binaryFilesToUpload.length} File${appendS(binaryFilesToUpload.length)}` : 'Upload Files' }
                   </StlButton>
                 </div>
                 <p><br /></p>
@@ -1020,7 +1020,7 @@ export default class Code extends Component {
                   {`${numFailedUploads} file${appendS(numFailedUploads)} failed to upload`}
                 </StlButton>
                 <StlButton style={{
-                    display: ![3,4,5,6].includes(step) &&
+                    display: ![3,4,6].includes(step) &&
                       !testResultSid && !numFailedUploads &&
                       codeOnServer &&
                       codeOnServer.length &&
@@ -1048,11 +1048,11 @@ export default class Code extends Component {
                 </div>
 
                 {/* setup */}
-                <StlButton className="btn working secondary full-width center-text"
+                {/* <StlButton className="btn working secondary full-width center-text"
                   style={{
                     display: step === 5 ? 'inline-block' : 'none',
                     verticalAlign: 'middle',
-                  }}>Setting Up Tests...</StlButton>
+                  }}>Setting Up Tests...</StlButton> */}
 
                 {/** @title Results Status Table */}
                 {/** @todo Refactor to its own component */}
