@@ -367,7 +367,8 @@ export default class Github extends Component {
     }
     const onFailure = response => console.error(response)
 
-    if (redirect) return <Redirect to={redirect} />
+    if (!this.props.user) return <Redirect to={'/'} />
+    else if (redirect) return <Redirect to={redirect} />
     else return <div id="github">
       <Menu />
       <FtlLoader show={working} text="working" />
