@@ -298,7 +298,7 @@ export default class Results extends Component {
 
                     <Table.Body>
                       <Table.Row>
-                        <Table.Cell className="grey-color light-grey-bg-color">Security Identifier</Table.Cell>
+                        <Table.Cell className="grey-color light-grey-bg-color">Test ID</Table.Cell>
                         <Table.Cell colSpan={2}><code>{this.props.match.params.id}</code></Table.Cell>
                       </Table.Row>
                       <Table.Row>

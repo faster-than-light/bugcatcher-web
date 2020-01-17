@@ -192,10 +192,10 @@ export default class BulkGithub extends Component {
       }}>Test Multiple GitHub Repositories</h2>
       <p>One <code>:owner/:repo</code> per line <i>(ex: <code>faster-than-light/bugcatcher-ci</code>)</i></p>
       <Form>
-        <TextArea id='custom_repo' type="text"
+        <TextArea id='repo_list' type="text"
           placeholder=":owner/:repo&#xa;:owner/:repo&#xa;:owner/:repo"
           style={{ height: 222 }} />
-        <StlButton onClick={this.fetchCustomRepo}>fetch</StlButton>
+        <StlButton onClick={this.fetchRepoList}>fetch</StlButton>
       </Form>
     </React.Fragment>
 
@@ -261,13 +261,13 @@ export default class BulkGithub extends Component {
     })
   }
 
-  getBranches = async currentRepo => {
+  getBranches = async repoList => {
     window.scrollTo({ top: 0 })
     this.setState({ working: true })
-    const [ owner, repo ] = currentRepo.split('/')
+    const [ owner, repo ] = repoList.split('/')
     let branches = await githubApi.getBranches(owner, repo)
     branches = branches.map(b => b.name)
-    this.setState({ branches, currentRepo, working: false })
+    this.setState({ branches, working: false })
   }
 
   BranchList = () => {
@@ -342,14 +342,17 @@ export default class BulkGithub extends Component {
     else return null
   }
 
-  fetchCustomRepo = async () => {
-    const currentRepo = document.getElementById("custom_repo").value
-    const [ owner, repo ] = currentRepo.split('/')
+  fetchRepoList = async () => {
+    let repoList = document.getElementById("repo_list").value
+    repoList = repoList.split('\n').filter(r => r.length)
+    /** @todo: Build a data table with branch options, etc. */
+    const [ owner, repo ] = repoList[0].split('/')
     let branches = await githubApi.getBranches(owner, repo)
     branches = branches.map(b => b.name)
     this.setState({
       branches,
-      currentRepo,
+      currentRepo: repoList[0],
+      repoList,
       working: false
     })
   }
@@ -361,18 +364,11 @@ export default class BulkGithub extends Component {
 
   render() {
     const {
-      automateAuth,
       code,
       redirect,
       token,
-      user,
       working,
     } = this.state
-    // const onSuccess = response => {
-    //   const { code } = response
-    //   this.setState({ code, working: false })
-    // }
-    // const onFailure = response => console.error(response)
 
     if (redirect) return <Redirect to={redirect} />
     else return <div id="github">
@@ -385,43 +381,6 @@ export default class BulkGithub extends Component {
         <div className="white-block" style={{ textAlign: 'center', padding: 18 }}>
           <div className="block-content">
 
-            {/* {
-              !code && !token ? null :
-                <Link to={'/github'}
-                  onClick={this.resetState}
-                  style={{float: 'left'}}>&laquo; start over</Link>
-            } */}
-
-            {/* <h2>Test Multiple GitHub Repos</h2>
-
-            <p className="oauth-images">
-              <img src={bugcatcherShield} alt="BugCatcher" />
-              <div className="center-check">
-                <div className="icon-box">
-                  <Icon name="chevron circle right" size="big" style={{ color: 'green' }} />
-                </div>
-              </div>
-              <img src={githubLogo} alt="GitHub" />
-            </p> */}
-
-            {/* <div style={{ display: automateAuth ? 'none' : 'block'}}>
-            { 
-              code && !token ? <React.Fragment>
-                <div className={'well'}>TEMPORARY CODE: {code}</div>
-              </React.Fragment> : null
-            }
-            { 
-              token && !user ? <React.Fragment>
-                <div className={'well'}>ACCESS TOKEN: {token}</div>
-              </React.Fragment> : null
-            }
-            { 
-              user ? <React.Fragment>
-                <div className={'well'}>USER LOGIN: {user.login}</div>
-              </React.Fragment> : null
-            }
-            </div> */}
-
             {
               code || token ? <this.ApiFunctions /> : <React.Fragment>
                 <p>
@@ -431,13 +390,6 @@ export default class BulkGithub extends Component {
                       () => { this.setState({ working: true }) }
                     }>Connect BugCatcher to GitHub</StlButton>
                   </a>
-                  {/* <GitHubLogin className="big btn"
-                    clientId={github.clientId}
-                    redirectUri=''
-                    scope="user repo"
-                    buttonText="Option 2&raquo;In New Tab"
-                    onSuccess={onSuccess}
-                    onFailure={onFailure}/> */}
                 </p>
 
                 <label htmlFor="automate" style={{ zoom: 1.2, display: 'none' }} className="well">
@@ -446,11 +398,6 @@ export default class BulkGithub extends Component {
                   &nbsp;Automate all steps of the authentication process
                 </label>
 
-                {/* <ul style={{textAlign: 'left', margin: 18}}>
-                  <li>Option 1 is redirecting you straight to Github in this window.</li>
-                  <li>Option 2 is using a React JS component library to use a new window/tab to log in.</li>
-                </ul>
-                <p>Both options result in a temporary <code>code</code> being returned from GitHub. This code can be used with the GitHub API for 10 minutes to retrieve an <code>Access Token</code>. The access token can then be used to interact with GitHub on behalf of the user for 1 hour or until the user logs out of GitHub.</p> */}
               </React.Fragment>
             }
 
