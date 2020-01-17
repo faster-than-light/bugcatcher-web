@@ -255,7 +255,7 @@ SEVERITY_THRESHOLD=${severity}`
             ]}
             cardText={<div>You can use BugCatcher in your Continuous Integration / Continuous Deployment workflows on GitHub.</div>}
             >
-            more..
+            <p>Using the <strong><a href="https://github.com/marketplace/actions/ftl-bugcatcher" target="_blank">BugCatcher GitHub Action</a></strong> is as easy as following the instructions found in the <a href="https://github.com/faster-than-light/github-action/blob/master/README.md" target="_blank">Action README instructions</a>.</p>
           </FtlCardDashboard>
 
           <FtlCardDashboard
