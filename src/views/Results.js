@@ -39,7 +39,7 @@ export default class Results extends Component {
   async componentWillMount() {
     await api.setSid( getCookie("STL-SID") )
     const fetchedUser = await this.context.actions.fetchUser()
-    this.setState({ theme: getCookie("theme"), fetchedUser })
+    this.setState({ theme: getCookie("theme"), fetchedUser, failedToFetchError: null })
   }
   
   async componentDidMount() {
@@ -56,9 +56,10 @@ export default class Results extends Component {
 
   /** @dev Component methods */
   _fetchResults = async () => {
+    this.setState({ failedToFetchError: null })
     let { data: results } = await api.getTestResult({
       stlid: this.props.match.params.id,
-    }).catch(c => c)
+    }).catch(this._failedToFetch)
     let { test_run: testRun = {} } = results || {}
     const { codes = [{}] } = testRun
     const { project } = codes[0]
@@ -69,19 +70,21 @@ export default class Results extends Component {
       //   version,
       // })
     }
-    else this._failedToFetch(project || null)
+    else this._failedToFetch()
     
     return({ project, results })
   }
 
-  _failedToFetch = async (project) => {
-    const errObj = {
-      userSID: await api.getStlSid(),
-      testSID: this.props.match.params.id,
-      project
+  _failedToFetch = error => {
+    if (error) {
+      console.error(error)
+      if (error.message.match('404')) error = new Error(`Results not found for your User / Test ID combination.`)
+      this.setState({ failedToFetchError: error })
     }
-    const errMsg = `Fetch Results failed! ${JSON.stringify(errObj)}`
-    console.error(new Error(errMsg))
+    else if (!this.state.failedToFetchError) {
+      this.setState({ failedToFetchError: new Error(`Fetch Results failed.`) })
+    }
+    return {}
   }
 
   _fetchPDF = async () => {
@@ -115,7 +118,7 @@ export default class Results extends Component {
   }
 
   render() {
-    const { loading, results, showFiles } = this.state
+    const { failedToFetchError, loading, results, showFiles } = this.state
     const ghTreeSha = queryString.parse(document.location.search)['gh']
     const groupedResultsJson = (testRunResult, project) => {
       /**
@@ -361,6 +364,10 @@ export default class Results extends Component {
 
             // results not found
             else if ((results && !results.length) || results === null) return <h1>Test results not found.</h1>
+
+            // results not found: custom error message
+            else if (failedToFetchError) return <h3>{failedToFetchError.message}</h3>
+
             else return <Loader />
           }}
         </UserContext.Consumer>
