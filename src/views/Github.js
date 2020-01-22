@@ -336,6 +336,7 @@ export default class Github extends Component {
 
   fetchCustomRepo = async () => {
     this.setState({ fetchCustomRepoError: null })
+    const badPatternError = new Error('The :owner/:repo pattern is not valid.')
     const currentRepo = document.getElementById("custom_repo").value
     const throwError = err => {
       err = err || new Error(`There was an error fetching branches for \`${currentRepo}\``)
@@ -346,8 +347,9 @@ export default class Github extends Component {
     }
     if (!currentRepo) return throwError(new Error('No :owner/:repo pattern was entered.'))
 
-    const [ owner, repo, invalid ] = currentRepo.split('/')
-    if (!owner || !repo || invalid) return throwError(new Error('The :owner/:repo pattern is not valid.'))
+    if ((currentRepo.match(/\//g) || []).length !== 1) return throwError(badPatternError)
+    const [ owner, repo ] = currentRepo.split('/')
+    if (!owner || !repo) return throwError(badPatternError)
     
     let branches = await githubApi.getBranches(owner, repo).catch(e => { return throwError(e) })
     if (!branches) return throwError(new Error(`No branches were found for \`${currentRepo}\``))
