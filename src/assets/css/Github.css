@@ -53,3 +53,15 @@
   max-height: 18px;
   margin-top: -3px;
 }
+
+
+
+/**
+ * Responsive / Mobile styles
+ */
+@media (max-width: 468px) {
+  .oauth-images img {
+    height: 60px;
+    width: 60px;
+  }
+}
