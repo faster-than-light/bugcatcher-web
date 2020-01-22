@@ -439,12 +439,13 @@ export default class Code extends Component {
 
     // tell the server to run tests
     const runTestsError = (err) => {
-      alert("There was an error.")
+      err = err || new Error('POST /run_tests returned a bad response')
+      alert(err.message)
       this.setState({
         step: -1,
         statusRows: []
       })
-      console.error(err || new Error('POST /run_tests returned a bad response'))
+      console.error(err)
       return null
     }
     const runTests = await api.postTestProject({ projectName }).catch(runTestsError)
