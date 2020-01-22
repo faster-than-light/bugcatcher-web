@@ -8,8 +8,9 @@
  * @step 3 : Show "upload" button
  * @step 4 : Uploading files
  * @step 5 : Files uploaded, Show "test" button
- * @step 6 : Running tests
- * @step 7 : Results ready
+ * @step 6 : Setting up project
+ * @step 7 : Running tests
+ * @step 8 : Results ready
  * @step -1 : Error
  * 
  * @dev API sequence
@@ -411,7 +412,7 @@ export default class Code extends Component {
     testTimeElapsed = 0
     successfulUploads = 0
     this.setState({
-      step: 5,
+      step: 6,
       filesToUpload: [],
       binaryFilesToUpload: [],
       results: null,
@@ -462,7 +463,7 @@ export default class Code extends Component {
       testTimeElapsed = Math.floor((now.getTime() - start.getTime()) / 1000)
     }
     this.setState({
-      step: 6,
+      step: 7,
       showResults: true,
       statusRows: null,
       testResultSid: stlid,
@@ -482,7 +483,7 @@ export default class Code extends Component {
       if (results.status_msg === 'COMPLETE') {
         clearInterval( startCounting )
         testTimeElapsed = 0
-        this.setState({ step: 7 })
+        this.setState({ step: 8 })
       }
       else this._initCheckTestStatus(stlid)
     }    
@@ -822,7 +823,7 @@ export default class Code extends Component {
   ShowResults = () => {
     const { results = {}, step } = this.state
     const resultsUrl = `/results/${results ? results.stlid : ''}/?gh=${ghTreeSha}`
-    return step && step === 7 ? 
+    return step && step === 8 ? 
     <Redirect
       to={resultsUrl}
     /> :
@@ -1008,29 +1009,6 @@ export default class Code extends Component {
               {/** @title Code Testing  */}
               <section>
 
-                {/* run tests */}
-                <StlButton style={{
-                    display: ![3,4,5,6].includes(step) &&
-                      !testResultSid && numFailedUploads ? 
-                        'block' : 'none',
-                  }}
-                  className={'link red'}
-                  onClick={this._showCodeList}>
-                  <Icon name="warning sign" />
-                  {`${numFailedUploads} file${appendS(numFailedUploads)} failed to upload`}
-                </StlButton>
-                <StlButton style={{
-                    display: ![3,4,6].includes(step) &&
-                      !testResultSid && !numFailedUploads &&
-                      codeOnServer &&
-                      codeOnServer.length &&
-                      codeOnServer.find(c => c.status === 'code') ? 
-                        'block' : 'none',
-                  }}
-                  className={'full-width'}
-                  onClick={this._runTests}>Run Tests</StlButton>
-
-
                 {/* uploading */}
                 <div style={{
                   width: '100%',
@@ -1047,17 +1025,39 @@ export default class Code extends Component {
                       }}>Uploading...</StlButton>
                 </div>
 
+                {/* run tests */}
+                <StlButton style={{
+                    display: ![3,4,5,6,7].includes(step) &&
+                      !testResultSid && numFailedUploads ? 
+                        'block' : 'none',
+                  }}
+                  className={'link red'}
+                  onClick={this._showCodeList}>
+                  <Icon name="warning sign" />
+                  {`${numFailedUploads} file${appendS(numFailedUploads)} failed to upload`}
+                </StlButton>
+                <StlButton style={{
+                    display: ![3,4,6,7].includes(step) &&
+                      !testResultSid && !numFailedUploads &&
+                      codeOnServer &&
+                      codeOnServer.length &&
+                      codeOnServer.find(c => c.status === 'code') ? 
+                        'block' : 'none',
+                  }}
+                  className={'full-width'}
+                  onClick={this._runTests}>Run Tests</StlButton>
+
                 {/* setup */}
-                {/* <StlButton className="btn working secondary full-width center-text"
+                <StlButton className="btn working secondary full-width center-text"
                   style={{
-                    display: step === 5 ? 'inline-block' : 'none',
+                    display: step === 6 ? 'inline-block' : 'none',
                     verticalAlign: 'middle',
-                  }}>Setting Up Tests...</StlButton> */}
+                  }}>Setting Up Tests...</StlButton>
 
                 {/** @title Results Status Table */}
                 {/** @todo Refactor to its own component */}
                 <div id="last_test" className="results-container" style={{
-                    display: showResults && testResultSid && [1,5,6,7].includes(step) ? 'inline-block' : 'none',
+                    display: showResults && testResultSid && [1,5,6,7,8].includes(step) ? 'inline-block' : 'none',
                     width: '100%',
                   }}>
                   <a onClick={this._runTests} style={{ float: 'right' }}>
@@ -1096,7 +1096,7 @@ export default class Code extends Component {
                           <StlButton id="running_tests_button"
                             className="btn working secondary full-width center-text"
                             style={{
-                              display: [5,6].includes(step) ? 'inline-block' : 'none',
+                              display: [5,6,7].includes(step) ? 'inline-block' : 'none',
                               verticalAlign: 'middle',
                             }}>Running Tests... ({testDuration})</StlButton>
                           <this.ShowResults />
