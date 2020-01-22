@@ -68,13 +68,23 @@ const initialState = {
   uploadButtonClassname: 'hide',
   uploadErrors: [],
 }
-const uploadsPerSecond = 0, // 0 = unlimited
+const constStatus = {
+    'COMPLETE': 'COMPLETE',
+    'RUNNING': 'RUNNING',
+    'SETUP': 'SETUP'
+  },
   maxConcurrentUploads = 99,
   millisecondTimeout = Math.floor(1000 / uploadsPerSecond),
   uiUploadThreshold = 1000,
   retryAttemptsAllowed = 300,
   retryIntervalMilliseconds = 9000,
-  tokenCookieName = 'github-ftl-token'
+  strStatus = {
+    [constStatus.COMPLETE]: 'Test Complete!',
+    [constStatus.RUNNING]: 'Running Tests...',
+    [constStatus.SETUP]: 'Setting up Tests...',
+  },
+  tokenCookieName = 'github-ftl-token',
+  uploadsPerSecond = 0 // 0 = unlimited
 
 let retryAttempts = 0,
   lastPercentComplete = 0,
@@ -530,6 +540,18 @@ export default class Code extends Component {
         reject()
       }
 
+      // setting up the tests
+      if (response.status_msg === 'SETUP') {
+        if (this.state.statusMessage !== 'SETUP') this.setState({
+          statusMessage: 'SETUP'
+        }) 
+      }
+      else if (this.state.statusMessage === 'SETUP') {
+        this.setState({
+          statusMessage: response.status_msg
+        })  
+      }
+
       // update result data in `state`
       if (
         response && 
@@ -586,11 +608,15 @@ export default class Code extends Component {
   }
 
   _countUp() {
+    const { statusMessage, step } = this.state
     testTimeElapsed++
     let testDuration = (testTimeElapsed % 60).toString() + ' second' + appendS(testTimeElapsed % 60)
     if (Math.floor(testTimeElapsed / 60)) testDuration = Math.floor(testTimeElapsed / 60) + ' minute' + appendS(Math.floor(testTimeElapsed / 60)) + ', ' + testDuration
     const button = document.getElementById('running_tests_button')
-    if (button) button.innerHTML = `Running Tests... (${testDuration})`
+    if (button) button.innerHTML = (
+      statusMessage === 'RUNNING' &&
+      step !== 6
+    ) ? `${strStatus[constStatus.RUNNING]} (${testDuration})` : strStatus[constStatus.SETUP]
   }
 
   _updateCode = (row, status) => {
@@ -639,11 +665,12 @@ export default class Code extends Component {
   }
 
   _updateCodeRowStatus = (file, status) => {
+    const { codeOnServer = [], filesToUpload = [] } = this.state
     const filePath = noLeadingSlash(file.path)
-    let thisCodeOnClient = this.state.filesToUpload.find(f => this._restoreDirName(f.name) === filePath)
+    let thisCodeOnClient = filesToUpload.find(f => this._restoreDirName(f.name) === filePath) || {}
     thisCodeOnClient.status = status
     this.setState({
-      codeOnServer: (this.state.codeOnServer || [])
+      codeOnServer: (codeOnServer || [])
         .filter(c => this._restoreDirName(c.name) !== filePath)
         .concat(thisCodeOnClient)
     })
@@ -1098,7 +1125,12 @@ export default class Code extends Component {
                             style={{
                               display: [5,6,7].includes(step) ? 'inline-block' : 'none',
                               verticalAlign: 'middle',
-                            }}>Running Tests... ({testDuration})</StlButton>
+                          }}>{
+                            (
+                              results.status_msg !== 'SETUP' &&
+                              step !== 6
+                            ) ? `${strStatus[constStatus.RUNNING]} (${testDuration})` : strStatus[constStatus.SETUP]
+                          }</StlButton>
                           <this.ShowResults />
                         </Table.Cell>
                       </Table.Row>
