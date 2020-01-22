@@ -74,6 +74,22 @@ export default class Github extends Component {
     })
   }
 
+  componentDidMount() {
+    document.addEventListener("keydown", this.fetchRepoKeydownEvent)
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.fetchRepoKeydownEvent)
+  }
+
+  fetchRepoKeydownEvent = event => {
+    if (
+      event.target["id"] === 'custom_repo' && (
+        event.code === 'Enter' || event.keyCode === 13
+      )
+    ) this.fetchCustomRepo()
+  }
+  
   async toggleAutomateOption(event) {
     const automate = event.target.checked
     await setCookie(automateCookieName, automate)
@@ -201,6 +217,8 @@ export default class Github extends Component {
         <Table.Cell>Not found.</Table.Cell>
       </Table.Row>
       return <div className="repo-list">
+        {specifyRepo}
+        <hr />
         <div style={{
           width: 'auto',
           float: 'right',
@@ -230,8 +248,6 @@ export default class Github extends Component {
             { repos }
           </Table.Body>
         </Table>
-
-        {specifyRepo}
       </div>
     }
     else return null
