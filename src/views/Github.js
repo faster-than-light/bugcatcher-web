@@ -188,7 +188,8 @@ export default class Github extends Component {
     const specifyRepo = <React.Fragment>
       <h3>Specify a Repo</h3>
       <Input id='custom_repo' type="text" placeholder=":owner/:repo" />
-      <StlButton onClick={this.fetchCustomRepo}>fetch</StlButton>
+      <StlButton onClick={this.fetchCustomRepo}>Fetch Branches</StlButton>
+      <div className="error">{this.state.fetchCustomRepoError}</div>
     </React.Fragment>
 
     if (this.state.repos && !this.state.branches) {
@@ -334,9 +335,23 @@ export default class Github extends Component {
   }
 
   fetchCustomRepo = async () => {
+    this.setState({ fetchCustomRepoError: null })
     const currentRepo = document.getElementById("custom_repo").value
-    const [ owner, repo ] = currentRepo.split('/')
-    let branches = await githubApi.getBranches(owner, repo)
+    const throwError = err => {
+      err = err || new Error(`There was an error fetching branches for \`${currentRepo}\``)
+      console.error(err)
+      this.setState({
+        fetchCustomRepoError: err.message
+      })
+    }
+    if (!currentRepo) return throwError(new Error('No :owner/:repo pattern was entered.'))
+
+    const [ owner, repo, invalid ] = currentRepo.split('/')
+    if (!owner || !repo || invalid) return throwError(new Error('The :owner/:repo pattern is not valid.'))
+    
+    let branches = await githubApi.getBranches(owner, repo).catch(e => { return throwError(e) })
+    if (!branches) return throwError(new Error(`No branches were found for \`${currentRepo}\``))
+    
     branches = branches.map(b => b.name)
     this.setState({
       branches,

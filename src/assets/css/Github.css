@@ -1,3 +1,9 @@
+#github .error {
+  color: Red;
+  padding: 9px;
+}
+
+/** OAuth & Repo crawler */
 .oauth-images {
   clear: both;
   margin-bottom: 21px;
