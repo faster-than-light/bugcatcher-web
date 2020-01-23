@@ -49,7 +49,6 @@ import { getCookie, setCookie } from '../helpers/cookies'
 import config from '../config'
 import LocalStorage from '../helpers/LocalStorage'
 import { scrollTo } from '../helpers/scrollTo'
-import { version } from '../../package.json'
 import githubApi from '../helpers/githubApi'
 
 // images and styles
@@ -126,6 +125,9 @@ export default class Code extends Component {
     setCookie("lastProjectsAccessed", JSON.stringify(newList))
 
     const fetchedUser = await this.context.actions.fetchUser()
+    if (fetchedUser && api.getStlSid()) await this._fetchProductCode()
+    else setTimeout(this._fetchProductCode, 1000)
+
     let testResultSid = LocalStorage.ProjectTestResults.getIds(projectName)
     testResultSid = testResultSid[0]
 
@@ -138,8 +140,6 @@ export default class Code extends Component {
     }
   
     let results = testResultSid ? await getLastTest( testResultSid ) : null
-    if (fetchedUser && api.getStlSid()) await this._fetchProductCode()
-    else setTimeout(this._fetchProductCode, 1000)
 
     if (results && results.status_msg === 'COMPLETE') results.percent_complete = 100
     this.setState({
