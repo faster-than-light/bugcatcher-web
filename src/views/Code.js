@@ -716,6 +716,7 @@ export default class Code extends Component {
     const { owner, repo, ghTree } = this.state
     const thisUploadQueue = currentUploadQueue = new Date().getTime()
     projectName = cleanProjectName(projectName)
+    await this._fetchProductCode()
 
     // clear then show status messages
     let uploadErrors = [],
@@ -757,7 +758,13 @@ export default class Code extends Component {
         ghUploaded: uploaded.length,
       })
     }
+    const fetchBlobError = (err, file) => {
+      console.error(err)
+      console.log(`Failed: ${file.sha}`, file.path)
+      return null
+    }
     const apiError = (err, file) => {
+      err = err || new Error(`Failed to push file: ${file.path}`)
       console.error(err)
       uploadErrors.push(file)
       checkUploadsComplete()
@@ -765,28 +772,55 @@ export default class Code extends Component {
     const sendFile = async (file) => {
       concurrentUploads++
       const blob = await githubApi.getBlob(owner, repo, file.sha)
-        .catch(c => {
-          console.error(c)
-          console.log(`Failed: ${file.sha}`, file.path)
-          return null
-        })
-      if (!blob) {}
-      else api.putCode({
-        name: file.path,
-        code: 'data:application/octet-stream;base64,' + blob['content'],
-        project: encodeURIComponent(projectName),
-      })
-      .then(apiResponse => {
-        successfulUploads++
-        concurrentUploads--
-        if (!apiResponse) apiError(null, file)
-        else {
-          // this._updateCodeRowStatus(file, 'code')
-          uploaded.push(file)
-          checkUploadsComplete()
+        .catch(() => null)
+      if (!blob) { fetchBlobError(new Error('Failed to fetch blob.'), file) }
+      else {
+        // check the sha256 hash to skip any synchronized files
+        const code = 'data:application/octet-stream;base64,' + blob['content']
+        let binStringToHash = sha256(atob(blob['content']))
+        const synchronized = Boolean(this.state.codeOnServer.find(f => f.sha256 === binStringToHash))
+
+        const putCodeCallback = (apiResponse, file) => {
+          successfulUploads++
+          concurrentUploads--
+          if (!apiResponse) apiError(null, file)
+          else {
+            uploaded.push(file)
+            checkUploadsComplete()
+          }
         }
-      })
-      .catch(err => apiError(err, file))
+
+        if (synchronized) {
+          console.log(`\tSkipping synchronized file ${file.path}`)
+          putCodeCallback(true, file)
+        }
+        else {
+          console.log(`\tUploading file ${file.path}`)
+          api.putCode({
+            name: file.path,
+            code,
+            project: encodeURIComponent(projectName),
+          })
+          .then(res => {putCodeCallback(res, file)})
+          .catch(err => apiError(err, file))
+        }
+        // api.putCode({
+        //   name: file.path,
+        //   code: 'data:application/octet-stream;base64,' + blob['content'],
+        //   project: encodeURIComponent(projectName),
+        // })
+        // .then(apiResponse => {
+        //   successfulUploads++
+        //   concurrentUploads--
+        //   if (!apiResponse) apiError(null, file)
+        //   else {
+        //     // this._updateCodeRowStatus(file, 'code')
+        //     uploaded.push(file)
+        //     checkUploadsComplete()
+        //   }
+        // })
+        // .catch(err => apiError(err, file))
+      }
     }
 
     // send the files
