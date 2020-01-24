@@ -103,11 +103,11 @@ export default class Landing extends Component {
                     actionName={'User Login'}
                     style={{ float:'left' }}
                     setUser={setUser} />
-                  <Link to={'/pricing'}>
-                    <StlButton
-                      className="btn big"
-                      style={{ marginLeft: 15 }}>sign up</StlButton>
-                  </Link>
+                  <this.Login
+                    buttonText={'sign up'}
+                    actionName={'User Signup'}
+                    style={{ marginLeft: 15 }}
+                    setUser={setUser} />
                 </div>
                 <p className="lead product-description" style={{color: '#ddd', marginBottom: 18}}>
                   BugCatcher is a fast, easy static analysis tool for your Python and Java code.

@@ -93,7 +93,7 @@ export default class Account extends Component {
           </Table.Body>
         </Table>
 
-        <div style={{ display: config.usePaywall && user.isSubscriber ? 'block' : 'none' }}>
+        {/* <div style={{ display: config.usePaywall && user.isSubscriber ? 'block' : 'none' }}>
           <h3>Subscription</h3>
           <Table>
             <Table.Body>
@@ -124,9 +124,9 @@ export default class Account extends Component {
               </Table.Row>
             </Table.Body>
           </Table>
-        </div>
+        </div> */}
 
-        <br />
+        {/* <br />
         <div style={{ display: config.usePaywall && !user.isSubscriber ? 'block' : 'none' }}>
           <h3>Subscription</h3>
           <Table>
@@ -135,7 +135,7 @@ export default class Account extends Component {
                 <Table.Cell>
                   <p>
                     You are currently using BugCatcher Developer.
-                    {/* <br /><StlButton semantic disabled className="default">Developer Level User</StlButton> */}
+                    <br /><StlButton semantic disabled className="default">Developer Level User</StlButton>
                   </p>
                   <hr />
                   <p>
@@ -146,7 +146,7 @@ export default class Account extends Component {
               </Table.Row>
             </Table.Body>
           </Table>
-        </div>
+        </div> */}
 
         <br />
         <div style={{ display: this.state.cookiesAccepted ? 'block' : 'none' }}>

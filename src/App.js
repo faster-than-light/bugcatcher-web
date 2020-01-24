@@ -9,7 +9,7 @@ import CookiesAlert from './components/CookiesAlert'
 import FAQ from './views/FAQ/FAQ'
 import Github from './views/Github'
 import Home from './views/Home'
-import Pricing from './views/Pricing'
+// import Pricing from './views/Pricing'
 import Project from './views/Project'
 import Results from './views/Results'
 import Tests from './views/Tests'
@@ -100,7 +100,7 @@ class App extends Component {
             <Route path="/faq" component={() => <FAQ {...props} />} exact />
             <Route path="/gh_auth" component={() => <Github {...props} />} exact />
             <Route path="/github" component={() => <Github {...props} />} exact />
-            <Route path="/pricing" component={() => <Pricing {...props} />} exact />
+            {/* <Route path="/pricing" component={() => <Pricing {...props} />} exact /> */}
             <Route path="/projects" component={() => <Project {...props} />} exact />
             <Route path="/tests" component={() => <Tests {...props} />} exact />
             <Route path="/thankyou" component={() => <ThankYou {...props} />} exact />
