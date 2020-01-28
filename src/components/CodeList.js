@@ -145,7 +145,7 @@ export default class CodeList extends Component {
       codeOnServer = [],
       showDropzone,
     } = state
-    codeOnServer.sort((a, b) => a.name.localeCompare(b.name))
+    codeOnServer.sort((a, b) => !a.name || !b.name ? null : a.name.localeCompare(b.name))
 
     const Items = () => codeOnServer.length ?
       codeOnServer.map((r, i) => <CodeRow key={r.name + i}
