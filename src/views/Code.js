@@ -618,7 +618,7 @@ export default class Code extends Component {
     if (button) button.innerHTML = (
       statusMessage === 'RUNNING' &&
       step !== 6
-    ) ? `${strStatus[constStatus.RUNNING]} (${testDuration})` : strStatus[constStatus.SETUP]
+    ) ? `${strStatus[constStatus.RUNNING]} (${testDuration})` : `${strStatus[constStatus.SETUP]} (${testDuration})`
   }
 
   _updateCode = (row, status) => {
@@ -1165,7 +1165,7 @@ export default class Code extends Component {
                             (
                               results.status_msg !== 'SETUP' &&
                               step !== 6
-                            ) ? `${strStatus[constStatus.RUNNING]} (${testDuration})` : strStatus[constStatus.SETUP]
+                            ) ? `${strStatus[constStatus.RUNNING]} (${testDuration})` : `${strStatus[constStatus.SETUP]} (${testDuration})`
                           }</StlButton>
                           <this.ShowResults />
                         </Table.Cell>
