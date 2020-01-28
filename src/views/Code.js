@@ -209,8 +209,13 @@ export default class Code extends Component {
       showDropzone: false,
       statusRows: [],
     })
-    files = this.state.files.concat(files.filter(f => !f.path.includes('/.')))
-    const binaryFilesToUpload = this.state.binaryFilesToUpload.concat(await this._assessFiles(files)).filter(f => f)
+
+    // remove git directory files
+    files = this.state.files.concat(files.filter(f => !f.path.includes('.git/')))
+    const binaryFilesToUpload = this.state.binaryFilesToUpload.concat(
+      await this._assessFiles(files)
+    ).filter(f => f)
+    
     this.setState({
       files,
       uploadButtonClassname: 'btn primary full-width center-text',
