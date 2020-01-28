@@ -482,9 +482,10 @@ export default class Code extends Component {
     scrollTo('bottom', true)
     // check the status of the test
     const checkStatusError = (err) => {
-      alert("There was an error.")
+      err = err || new Error('GET /run_tests returned a bad response')
+      alert(err.message)
       this.setState({ step: 1 })
-      console.error(err || new Error('GET /run_tests returned a bad response'))
+      console.error(err)
       return null
     }
     this.setState({ fetchingTest: true })
