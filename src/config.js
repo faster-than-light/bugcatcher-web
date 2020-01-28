@@ -118,7 +118,12 @@ module.exports = {
 
   // project management
   ignoreUploadDirectories: [
+    '.git',
     'node_modules'
+  ],
+  prioritizedFiles: [
+    'package.json',
+    'requirements.txt'
   ],
 
 }

@@ -210,8 +210,6 @@ export default class Code extends Component {
       statusRows: [],
     })
 
-    // remove git directory files
-    files = this.state.files.concat(files.filter(f => !f.path.includes('.git/')))
     const binaryFilesToUpload = this.state.binaryFilesToUpload.concat(
       await this._assessFiles(files)
     ).filter(f => f)
@@ -232,11 +230,21 @@ export default class Code extends Component {
         f.path.substring(0, dirName.length) === dirName
       ).length === files.length
 
+    // remove common base directory name and all ingorable directory contents
     files = files.filter(f => {
       const name = noLeadingSlash(removeDirName ? f.path.replace(dirName, '') : f.path)
       const dir = name.substring(0, name.indexOf('/'))
       return !config.ignoreUploadDirectories.includes(dir)
     })
+
+    // sort files to prioritize and installation files
+    let prioritizedFiles = new Array()
+    let nonPriorityFiles = new Array()
+    files.forEach(f => {
+      if (config.prioritizedFiles.includes(f.name)) prioritizedFiles.push(f)
+      else nonPriorityFiles.push(f)
+    })
+    files = [...prioritizedFiles, ...nonPriorityFiles]
 
     this.setState({
       step: 2,
