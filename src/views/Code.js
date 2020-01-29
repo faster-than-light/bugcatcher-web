@@ -951,8 +951,18 @@ export default class Code extends Component {
     if (Math.floor(testTimeElapsed / 60)) testDuration = Math.floor(testTimeElapsed / 60) + ' minute' + appendS(Math.floor(testTimeElapsed / 60)) + ', ' + testDuration
     const numFailedUploads = codeOnServer && codeOnServer.length ?
       codeOnServer.filter(c => c.status === 'failed').length : 0
+    
+    const evaluatingFilesLoaderText = <span>
+      Evaluating {numFilesDropped} Files
+      <br />&nbsp;
+      <p>
+        <StlButton default semantic
+          onClick={() => { document.location.reload() }}
+        >cancel</StlButton>
+      </p>
+    </span>
 
-    if (droppingFiles) return <Loader text={`Evaluating ${numFilesDropped} Files`} />
+    if (droppingFiles) return <Loader text={evaluatingFilesLoaderText} />
     else if (deletingFiles) return <Loader text={`Deleting ${numFilesToDelete} Files`} />
     else if (redirect) return <Redirect to={`/github`} />
     else if (working) return <Loader text={`working`} />
