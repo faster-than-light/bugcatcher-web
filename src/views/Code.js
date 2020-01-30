@@ -115,22 +115,38 @@ export default class Code extends Component {
   /** @dev Lifecycle methods */
   async componentWillMount() {
     projectName = this.props.match ? decodeURIComponent(this.props.match.params.id) : null
-    // projectName = cleanProjectName(projectName)
-    let lastProjectsAccessed = JSON.parse(getCookie("lastProjectsAccessed") || '[]')
-    lastProjectsAccessed = lastProjectsAccessed.filter(p => p !== cleanProjectName(projectName))
-    let newList = [ cleanProjectName(projectName) ]
-    for (let i = 0; i < 5; i++) {
-      if (lastProjectsAccessed[i]) newList.push( lastProjectsAccessed[i] )
-    }
-    setCookie("lastProjectsAccessed", JSON.stringify(newList))
+    this.setState({ projectName })
+
+    // let lastProjectsAccessed = JSON.parse(getCookie("lastProjectsAccessed") || '[]')
+    // lastProjectsAccessed = lastProjectsAccessed.filter(p => p !== cleanProjectName(projectName))
+    // let newList = [ cleanProjectName(projectName) ]
+    // for (let i = 0; i < 5; i++) {
+    //   if (lastProjectsAccessed[i]) newList.push( lastProjectsAccessed[i] )
+    // }
+    // setCookie("lastProjectsAccessed", JSON.stringify(newList))
 
     const fetchedUser = await this.context.actions.fetchUser()
-    if (fetchedUser && api.getStlSid()) await this._fetchProductCode()
+    if (fetchedUser && api.getStlSid()) this._fetchProductCode()
     else setTimeout(this._fetchProductCode, 1000)
 
     let testResultSid = LocalStorage.ProjectTestResults.getIds(projectName)
     testResultSid = testResultSid[0]
 
+    this.fetchLastTest( testResultSid )
+    this._fetchGithubRepo()
+  }
+
+  componentWillUnmount() {
+    clearTimeout( statusCheck )
+    clearInterval( startCounting )
+    statusCheck = null
+    startCounting = null
+    testTimeElapsed = 0
+    currentUploadQueue = null
+  }
+
+  async fetchLastTest(testResultSid) {
+    this.setState({ fetchingLastTest: true })
     const getLastTest = async (stlid) => {
       if (!stlid) return null
       const getRunTests = await api.getRunTests({ stlid }).catch(() => null)
@@ -138,15 +154,17 @@ export default class Code extends Component {
       const { response } = data || {}
       return response
     }
-  
+
     let results = testResultSid ? await getLastTest( testResultSid ) : null
 
     if (results && results.status_msg === 'COMPLETE') results.percent_complete = 100
+    
     this.setState({
-      projectName,
+      fetchingLastTest: false,
       results,
       testResultSid,
     })
+    
     if (!results) {
       results = testResultSid = null
       this.setState({
@@ -160,17 +178,6 @@ export default class Code extends Component {
       startCounting = setInterval(this._countUp, 1000)
       this._initCheckTestStatus(testResultSid)
     }
-
-    this._fetchGithubRepo()
-  }
-
-  componentWillUnmount() {
-    clearTimeout( statusCheck )
-    clearInterval( startCounting )
-    statusCheck = null
-    startCounting = null
-    testTimeElapsed = 0
-    currentUploadQueue = null
   }
 
   /** @dev Component methods */
