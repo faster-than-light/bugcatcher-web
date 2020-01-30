@@ -33,17 +33,17 @@ export default class DownloadResultsModal extends Component {
     const { copied, openModal, productCode } = this.state
     const { format, markdownPayload, ghTreeSha } = this.props
     const { groupedResults, languagesUsed, project, results, testId, testToolsUsed } = markdownPayload
-    const badgeUrl = `${appUrl}/img/bugcatcher-approved.png`
+    const badgeUrl = `${appUrl}/img/badge.png`
     const badge = `<img src="${badgeUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />`
     const badgeAndText = `### Passing All Tests!\n${badge}`
-    const approvedBadgeUrl = `${appUrl}/img/bugcatcher-approved.png`
-    const logoUrl = `${appUrl}/img/ftl-bugcatcher.png`
+    const approvedBadgeUrl = `${appUrl}/img/badge.png`
+    const logoUrl = `${appUrl}/img/logo.png`
     const treeSha = ghTreeSha ? `\n**GitHub Tree SHA**: \`${ghTreeSha}\`` : ''
 
     const markdown = (() => {
       return `<img src="${logoUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />
 
-# BugCatcher Test Results\n
+# Code Quality Certification\n
 
 **Project Name**: \`${project}\`
 
