@@ -42,6 +42,13 @@ export default class DownloadResultsModal extends Component {
     const treeSha = ghTreeSha ? `\n**GitHub Tree SHA**: \`${ghTreeSha}\`` : ''
     const startTime = moment(results.test_run.start)
     const endTime = moment(results.test_run.end)
+    const duration = moment.duration(endTime.diff(startTime))
+    const hours = duration.hours()
+    const minutes = duration.minutes()
+    const seconds = duration.seconds()
+    let elapsed = `${seconds} seconds`
+    if (minutes) elapsed = `${minutes} minutes, ` + elapsed
+    if (hours) elapsed = `${hours} hours, ` + elapsed
 
     const markdown = (() => {
       return `<img src="${logoUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />
@@ -65,7 +72,7 @@ ${testToolsUsed.map(t => `\`${t}\``).join(' ')}
 #### Test Duration:
 Testing started: \`${startTime}\`<br />
 Testing ended: \`${endTime}\`<br />
-Test elapsed: \`${endTime.to(startTime, true)}\`
+Test elapsed: \`${elapsed}\`
 
 ## RESULTS:
 ${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMarkdownRow(r)}`).join('\n')}
