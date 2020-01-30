@@ -146,7 +146,8 @@ export default class Code extends Component {
   }
 
   async fetchLastTest(testResultSid) {
-    this.setState({ fetchingLastTest: true })
+    this.setState({ fetchingLastTest: true, testResultSid })
+
     const getLastTest = async (stlid) => {
       if (!stlid) return null
       const getRunTests = await api.getRunTests({ stlid }).catch(() => null)
@@ -159,11 +160,7 @@ export default class Code extends Component {
 
     if (results && results.status_msg === 'COMPLETE') results.percent_complete = 100
     
-    this.setState({
-      fetchingLastTest: false,
-      results,
-      testResultSid,
-    })
+    this.setState({ fetchingLastTest: false, results })
     
     if (!results) {
       results = testResultSid = null
@@ -927,6 +924,7 @@ export default class Code extends Component {
       codeOnServer,
       deletingFiles,
       droppingFiles,
+      fetchingLastTest,
       numFilesDropped = 0,
       numFilesToDelete,
       owner,
@@ -1131,7 +1129,7 @@ export default class Code extends Component {
                 </StlButton>
                 <StlButton style={{
                     display: ![3,4,6,7].includes(step) &&
-                      !testResultSid && !numFailedUploads &&
+                      !testResultSid && !fetchingLastTest && !numFailedUploads &&
                       codeOnServer &&
                       codeOnServer.length &&
                       codeOnServer.find(c => c.status === 'code') ? 
