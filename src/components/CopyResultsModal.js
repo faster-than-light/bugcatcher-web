@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Modal } from 'semantic-ui-react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import moment from 'moment'
 
 // components
 import ResultsMarkdownRow from './ResultsMarkdownRow'
@@ -39,6 +40,8 @@ export default class DownloadResultsModal extends Component {
     const approvedBadgeUrl = `${appUrl}/img/badge.png`
     const logoUrl = `${appUrl}/img/logo.png`
     const treeSha = ghTreeSha ? `\n**GitHub Tree SHA**: \`${ghTreeSha}\`` : ''
+    const startTime = moment(results.test_run.start)
+    const endTime = moment(results.test_run.end)
 
     const markdown = (() => {
       return `<img src="${logoUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />
@@ -57,9 +60,12 @@ ${languagesUsed.map(l => `\`${l}\``).join(' ')}
 ${testToolsUsed.map(t => `\`${t}\``).join(' ')}
 
 #### Files Tested: 
-\`\`\`
-${results.test_run.codes.map(c => c.name).join('\n')}
-\`\`\`
+\`${results.test_run.total_files}\` files tested
+
+#### Test Duration:
+Testing started: \`${startTime}\`<br />
+Testing ended: \`${endTime}\`<br />
+Test elapsed: \`${endTime.to(startTime, true)}\`
 
 ## RESULTS:
 ${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMarkdownRow(r)}`).join('\n')}
