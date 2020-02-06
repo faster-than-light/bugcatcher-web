@@ -18,7 +18,7 @@ import api from '../helpers/api'
 import { getCookie } from '../helpers/cookies'
 import { severities, testStatusToColor } from '../helpers/strings'
 import { helpEmail } from '../config'
-import { version } from '../../package.json'
+import { durationBreakdown } from '../helpers/moment'
 
 // images and styles
 import '../assets/css/Results.css'
@@ -307,7 +307,7 @@ export default class Results extends Component {
                       <Table.Row>
                         <Table.Cell className="grey-color light-grey-bg-color">Test initiated</Table.Cell>
                         <Table.Cell>{startTest.format('llll')}</Table.Cell>
-                        <Table.Cell>(completed in {endTest.diff(startTest, 'seconds')} seconds)</Table.Cell>
+                        <Table.Cell>(completed in {durationBreakdown(startTest, endTest)})</Table.Cell>
                       </Table.Row>
                       <Table.Row>
                         <Table.Cell className="grey-color light-grey-bg-color">Languages found</Table.Cell>
