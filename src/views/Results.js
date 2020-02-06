@@ -262,6 +262,7 @@ export default class Results extends Component {
                 testToolsUsed
               }
 
+              const fileCount = results.test_run.codes.length
               const filesTested = () => results.test_run.codes.map(c => <span>{c.name}<br /></span>)
 
               // return the styled test results
@@ -320,9 +321,11 @@ export default class Results extends Component {
                       <Table.Row>
                         <Table.Cell className="grey-color light-grey-bg-color">Files tested</Table.Cell>
                         <Table.Cell colSpan={2}>
+                          <a onClick={() => {this.setState({showFiles: false})}}
+                            style={{display: showFiles ? 'block' : 'none'}}>(hide files)</a>
                           {showFiles ? filesTested() : ''}
                           <a onClick={() => {this.setState({showFiles: !showFiles})}}>
-                            {showFiles ? 'hide files' : 'show files'}
+                            {showFiles ? '(hide files)' : `show ${fileCount} files`}
                           </a>
                         </Table.Cell>
                       </Table.Row>
