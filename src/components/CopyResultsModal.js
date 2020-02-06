@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Modal } from 'semantic-ui-react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import moment from 'moment'
 
 // components
 import ResultsMarkdownRow from './ResultsMarkdownRow'
@@ -9,6 +8,7 @@ import StlButton from './StlButton'
 
 // helpers
 import { appUrl } from '../config'
+import { durationBreakdown } from '../helpers/moment'
 
 // styles & images
 import '../assets/css/components/Modal.css'
@@ -40,15 +40,7 @@ export default class DownloadResultsModal extends Component {
     const approvedBadgeUrl = `${appUrl}/img/badge.png`
     const logoUrl = `${appUrl}/img/logo.png`
     const treeSha = ghTreeSha ? `\n**GitHub Tree SHA**: \`${ghTreeSha}\`` : ''
-    const startTime = moment(results.test_run.start)
-    const endTime = moment(results.test_run.end)
-    const duration = moment.duration(endTime.diff(startTime))
-    const hours = duration.hours()
-    const minutes = duration.minutes()
-    const seconds = duration.seconds()
-    let elapsed = `${seconds} seconds`
-    if (minutes) elapsed = `${minutes} minutes, ` + elapsed
-    if (hours) elapsed = `${hours} hours, ` + elapsed
+    const elapsed = durationBreakdown(results.test_run.start, results.test_run.end)
 
     const markdown = (() => {
       return `<img src="${logoUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />
@@ -70,8 +62,8 @@ ${testToolsUsed.map(t => `\`${t}\``).join(' ')}
 \`${results.test_run.total_files}\` files tested
 
 #### Test Duration:
-Testing started: \`${startTime}\`<br />
-Testing ended: \`${endTime}\`<br />
+Testing started: \`${results.test_run.start}\`<br />
+Testing ended: \`${results.test_run.end}\`<br />
 Test elapsed: \`${elapsed}\`
 
 ## RESULTS:

@@ -560,7 +560,7 @@ export default class Code extends Component {
       }
 
       // setting up the tests
-      if (response.status_msg === 'SETUP') {
+      if (response && response.status_msg === 'SETUP') {
         if (this.state.statusMessage !== 'SETUP') this.setState({
           statusMessage: 'SETUP'
         }) 
