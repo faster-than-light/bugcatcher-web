@@ -152,6 +152,15 @@ div.stl-hr.accented.secondary-bg-color {
   border-bottom: none;
   padding: 18px 0;
 }
+.block {
+  background: var(--color-background-offset);
+  color: var(--color-dark-text);
+  box-shadow: 1px 1px 4.5px #bbb;
+  border-radius: 9px;
+  margin: 12px auto;
+  padding: 12px;
+  width: 100%;
+}
 /** Alignment */
 .bottom {
   clear: right;

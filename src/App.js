@@ -6,6 +6,7 @@ import Account from './views/Account'
 import BulkGithub from './views/BulkGithub'
 import Code from './views/Code'
 import CookiesAlert from './components/CookiesAlert'
+import CQC from './views/CQC'
 import FAQ from './views/FAQ/FAQ'
 import Github from './views/Github'
 import Home from './views/Home'
@@ -97,6 +98,7 @@ class App extends Component {
             <Route path="/" component={() => <Home {...props} />} exact />
             <Route path="/account" component={() => <Account {...props} />} exact />
             <Route path="/bulkgithub" component={() => <BulkGithub {...props} />} exact />
+            <Route path="/cqc" component={() => <CQC {...props} />} exact />
             <Route path="/faq" component={() => <FAQ {...props} />} exact />
             <Route path="/gh_auth" component={() => <Github {...props} />} exact />
             <Route path="/github" component={() => <Github {...props} />} exact />

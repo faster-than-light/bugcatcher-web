@@ -59,19 +59,23 @@ export default class Github extends Component {
   async componentWillMount() {
     this.setState({ working: true })
     const code = queryString.parse(document.location.search)['code']
-    let { token, user } = this.state
-    if (!token && code) {
-      token = await this.fetchToken()
+    const cqc = queryString.parse(document.location.search)['cqc']
+    if (cqc) this.setState({ redirect: `/cqc?code=${code}`})
+    else {
+      let { token, user } = this.state
+      if (!token && code) {
+        token = await this.fetchToken()
+      }
+      if (token) {
+        await githubApi.setToken(token)
+        user = await this.fetchUser()
+      }
+      this.setState({
+        code: !user && code ? code : null,
+        user,
+        working: false,
+      })
     }
-    if (token) {
-      await githubApi.setToken(token)
-      user = await this.fetchUser()
-    }
-    this.setState({
-      code: !user && code ? code : null,
-      user,
-      working: false,
-    })
   }
 
   componentDidMount() {
