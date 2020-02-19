@@ -334,16 +334,11 @@ export default class Results extends Component {
                         <Table.Cell colSpan={2}>
                           <StlButton semantic primary onClick={this._fetchPDF}>PDF</StlButton>
                           &nbsp;&nbsp;
-                          {
-                            process.env.REACT_APP_FTL_ENV !== 'production' ?
-                              <span>
-                                <CopyResultsModal {...this.props}
-                                  ghTreeSha={ghTreeSha}
-                                  markdownPayload={markdownPayload}
-                                  format={'Markdown'} />
-                                &nbsp;&nbsp;
-                              </span> : null
-                          }
+                          <CopyResultsModal {...this.props}
+                            ghTreeSha={ghTreeSha}
+                            markdownPayload={markdownPayload}
+                            format={'Markdown'} />
+                          &nbsp;&nbsp;
                           <StlButton semantic onClick={this._fetchJSON}>JSON</StlButton>
                        </Table.Cell>
                       </Table.Row>
