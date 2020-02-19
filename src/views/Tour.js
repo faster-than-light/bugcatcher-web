@@ -31,7 +31,7 @@ export default class Tour extends Component {
           <hr />
           
           <h3>See BugCatcher In Action!</h3>
-          <p><iframe width="100%" height="420" src="https://www.youtube.com/embed/5iocVVWZ4G0?rel=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe></p>
+          <p><iframe width="100%" height="420" src="https://www.youtube.com/embed/ScU5AKZp7_Q?rel=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe></p>
           <hr />
 
           <h3>Additional Information</h3>
