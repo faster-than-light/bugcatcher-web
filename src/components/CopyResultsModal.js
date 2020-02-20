@@ -85,7 +85,7 @@ ${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMa
     )
 
     return <React.Fragment>
-      <StlButton onClick={()=>this.setState({openModal:true})} semantic>{format}</StlButton>
+      <StlButton primary onClick={()=>this.setState({openModal:true})} semantic>{format}</StlButton>
       <Modal
         closeIcon
         onClose={() => this.setState({openModal:false})}
@@ -94,14 +94,14 @@ ${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMa
           backgroundColor: 'Black',
           width: '81%',
           height: '81%',
-          maxWidth: 600,
+          // maxWidth: 600,
           color: 'White',
           margin: 'auto',
           marginTop: '9%'
         }}
       >
         <div className={`copy-results theme-modal ${productCode}-theme`}>
-          <h2 className="primary-color">Copy Your Test Results as {format}</h2>
+          <h2 className="primary-color">Publish Your Test Results as Certified Code on GitHub or Bitbucket</h2>
           <CopyToClipboard text={markdown}
               onCopy={() => {
                 this.refs.markdown.select()
@@ -115,7 +115,7 @@ ${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMa
           <div style={{ height: 15 }} />
           <StlButton className={'link close-markdown-modal'}
             onClick={() => this.setState({openModal:false})}
-            style={{ float: 'right' }}>
+            style={{ float: 'right', fontSize: '150%' }}>
             close
           </StlButton>
           <CopyToClipboard text={markdown}

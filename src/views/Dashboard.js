@@ -202,7 +202,7 @@ SEVERITY_THRESHOLD=${severity}`
         margin: 'auto',
         paddingTop: 111,
       }}>
-        {/* <Link to="/cqc"><h1>CQC</h1></Link> */}
+        <Link to="/cqc"><h1>CQC</h1></Link>
 
         <FtlCard>
           <center>

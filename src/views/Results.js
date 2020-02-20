@@ -120,6 +120,7 @@ export default class Results extends Component {
   render() {
     const { failedToFetchError, loading, results, showFiles } = this.state
     const ghTreeSha = queryString.parse(document.location.search)['gh']
+    let certified = true
     const groupedResultsJson = (testRunResult, project) => {
       /**
        * @dev Arrange results into Grouped Rows
@@ -128,6 +129,7 @@ export default class Results extends Component {
       const reducedResults = testRunResult.reduce((acc, item) => {
         const { test_suite_test: test } = item
         const { ftl_severity: severity } = test
+        if (severity === 'high') certified = false
         acc[severity] = acc[severity] || []
         acc[severity].push(item)
         return acc
@@ -295,7 +297,7 @@ export default class Results extends Component {
                           <span style={{fontSize:'150%'}} className={'dont-break-out'}>{project}</span>
                         </Table.HeaderCell>
                         <Table.HeaderCell>
-                          <Label ribbon={'right'} color={color} style={{fontSize: '120%'}}>Status: {status}</Label>
+                          <Label ribbon={'right'} color={color} style={{fontSize: '120%'}}>Testing: {status}</Label>
                         </Table.HeaderCell>
                       </Table.Row>
                     </Table.Header>
@@ -334,16 +336,44 @@ export default class Results extends Component {
                         <Table.Cell colSpan={2}>
                           <StlButton semantic primary onClick={this._fetchPDF}>PDF</StlButton>
                           &nbsp;&nbsp;
-                          <CopyResultsModal {...this.props}
-                            ghTreeSha={ghTreeSha}
-                            markdownPayload={markdownPayload}
-                            format={'Markdown'} />
-                          &nbsp;&nbsp;
                           <StlButton semantic onClick={this._fetchJSON}>JSON</StlButton>
                        </Table.Cell>
                       </Table.Row>
                     </Table.Body>
                   </Table>
+
+                  {
+                    (process.env.REACT_APP_FTL_ENV === 'production' || !certified) ? null : <div>
+                      <Table color={'green'}>
+                        <Table.Header>
+                          <Table.Row>
+                            <Table.HeaderCell colSpan={2} style={{ width: '66%' }}>
+                              <span style={{fontSize:'150%'}} className={'dont-break-out'}>Code Quality Certification</span>
+                            </Table.HeaderCell>
+                            <Table.HeaderCell>
+                              <Label ribbon={'right'} color={'green'} style={{fontSize: '120%'}}>Certification: PASSED</Label>
+                            </Table.HeaderCell>
+                          </Table.Row>
+                        </Table.Header>
+
+                        <Table.Body>
+                          <Table.Row>
+                            <Table.Cell className="grey-color light-grey-bg-color"
+                              style={{ width: '33%' }}>
+                              Publish Your Certification
+                            </Table.Cell>
+                            <Table.Cell colSpan={2}>
+                              <CopyResultsModal {...this.props}
+                                ghTreeSha={ghTreeSha}
+                                markdownPayload={markdownPayload}
+                                format={'Copy Markdown'} />
+                              &nbsp;Publish this markdown to your repository.
+                          </Table.Cell>
+                          </Table.Row>
+                        </Table.Body>
+                      </Table>
+                    </div>
+                  }
 
                   <GroupedResults />
 

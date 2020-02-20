@@ -27,6 +27,9 @@
 .copy-results {
   height: 100%;
 }
+.close-markdown-modal {
+  color: var(--color-secondary) !important;
+}
 @media (max-width: 768px) {
   .close-markdown-modal {
     display: none;

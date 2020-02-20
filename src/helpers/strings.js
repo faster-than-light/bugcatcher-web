@@ -19,7 +19,7 @@ module.exports = {
   },
   testStatusToColor: (status) => {
     switch (String(status).toLowerCase()) {
-      case "complete": return 'green'
+      case "complete": return 'blue'
       case "setup": return 'orange'
       case "running": return 'yellow'
       default: case "error": return 'red'
