@@ -49,7 +49,7 @@ export default class Results extends Component {
       let pdfReady = false
       try {
         let status = state['results']['test_run']['status_msg']
-        if (status === 'xCOMPLETE') pdfReady = true
+        if (status === 'COMPLETE') pdfReady = true
         else this._retryPdf()
       } catch(e) {}
       this.setState({
@@ -75,7 +75,6 @@ export default class Results extends Component {
       if (results && !results.results) results.results = false
       if (results && results.results && results.project) {
         const status = results['results']['test_run']['status_msg']
-        console.log({status, results})
         if (status === 'COMPLETE') {
           const pdfReady = true
           clearInterval(i)
