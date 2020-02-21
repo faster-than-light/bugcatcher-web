@@ -104,25 +104,25 @@ export default class GitHubActionModal extends Component {
             fontSize: '81%',
             lineHeight: '1rem',
           }}>
-            <code>name: BugCatcher<br />
+            <code>name:&nbsp;BugCatcher<br />
             <br />
-            on: [push]<br />
+            on:&nbsp;[push]<br />
             <br />
             jobs:<br />
             &nbsp;&nbsp;CI:<br />
-            &nbsp;&nbsp;runs-on: ubuntu-latest<br />
-            &nbsp;&nbsp;steps:<br />
-            &nbsp;&nbsp;&nbsp;- uses: actions/checkout@v1<br />
-            &nbsp;&nbsp;&nbsp;- name: Use Node.js 12<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;uses: actions/setup-node@v1<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;with:<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node-version: 12<br />
-            &nbsp;&nbsp;&nbsp;- name: BugCatcher Static Analysis<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;uses: faster-than-light/github-action@master<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;with:<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GITHUB_TOKEN: $&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125;<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUGCATCHER_TOKEN: $&#123;&#123; secrets.BUGCATCHER_TOKEN &#125;&#125;<br />
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEVERITY_THRESHOLD: medium</code>  
+            &nbsp;&nbsp;&nbsp;&nbsp;runs-on: ubuntu-latest<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;steps:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- uses: actions/checkout@v1<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: Use NodeJS 12<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;uses: actions/setup-node@v1<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node-version: 12<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;uses: faster-than-light/github-action@master<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: BugCatcher Static Analysis<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with:<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GITHUB_TOKEN: $&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BUGCATCHER_TOKEN: $&#123;&#123; secrets.BUGCATCHER_TOKEN &#125;&#125;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEVERITY_THRESHOLD: medium</code>
           </div>
         </p>
     </FtlModal>
