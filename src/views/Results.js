@@ -45,7 +45,18 @@ export default class Results extends Component {
   async componentDidMount() {
     let state = await this._fetchResults()
     if (state && !state.results) state.results = false
-    if (state && state.results && state.project) this.setState(state)
+    if (state && state.results && state.project) {
+      let pdfReady = false
+      try {
+        let status = state['results']['test_run']['status_msg']
+        if (status === 'xCOMPLETE') pdfReady = true
+        else this._retryPdf()
+      } catch(e) {}
+      this.setState({
+        ...state,
+        pdfReady
+      })
+    }
     else {
       // log the failure
       this._failedToFetch(state ? state.project : null)
@@ -55,6 +66,25 @@ export default class Results extends Component {
   }
 
   /** @dev Component methods */
+  _retryPdf = async () => {
+    /** @todo set interval to keep fetching until status is COMPLETE */
+    
+    let i 
+    i = setInterval(async () => {
+      const results = await this._fetchResults()
+      if (results && !results.results) results.results = false
+      if (results && results.results && results.project) {
+        const status = results['results']['test_run']['status_msg']
+        console.log({status, results})
+        if (status === 'COMPLETE') {
+          const pdfReady = true
+          clearInterval(i)
+          this.setState({pdfReady})
+        }
+      }
+    }, 4500)
+    
+  }
   _fetchResults = async () => {
     this.setState({ failedToFetchError: null })
     let { data: results } = await api.getTestResult({
@@ -118,7 +148,13 @@ export default class Results extends Component {
   }
 
   render() {
-    const { failedToFetchError, loading, results, showFiles } = this.state
+    const {
+      failedToFetchError,
+      loading,
+      pdfReady,
+      results,
+      showFiles
+    } = this.state
     const ghTreeSha = queryString.parse(document.location.search)['gh']
     let certified = true
     const groupedResultsJson = (testRunResult, project) => {
@@ -334,7 +370,9 @@ export default class Results extends Component {
                       <Table.Row>
                         <Table.Cell className="grey-color light-grey-bg-color">Download Results</Table.Cell>
                         <Table.Cell colSpan={2}>
-                          <StlButton semantic primary onClick={this._fetchPDF}>PDF</StlButton>
+                          <StlButton semantic primary
+                            disabled={!pdfReady}
+                            onClick={this._fetchPDF}>PDF</StlButton>
                           &nbsp;&nbsp;
                           <StlButton semantic onClick={this._fetchJSON}>JSON</StlButton>
                        </Table.Cell>

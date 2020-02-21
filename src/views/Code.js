@@ -17,7 +17,7 @@
  * @call 1 : `POST` `code` to `/project/<project_name>`
  * @call 2 : `POST` to `/test_project/<project_name>` (returns a `stlid`)
  * @call 3 : `GET` from `/run_tests/<stlid>` (returns % complete & status)
- * @call 4 : `GET` from `/test_result/<stlid>` (when status="COMPLETE")
+ * @call 4 : `GET` from `/test_result/<stlid>` (when status="COMPUTING_PDF" or status="COMPLETE")
  */
 
 import React, { Component } from 'react'
@@ -69,6 +69,7 @@ const initialState = {
 }
 const constStatus = {
     'COMPLETE': 'COMPLETE',
+    'COMPUTING_PDF': 'COMPUTING_PDF',
     'RUNNING': 'RUNNING',
     'SETUP': 'SETUP'
   },
@@ -78,7 +79,7 @@ const constStatus = {
   retryAttemptsAllowed = 300,
   retryIntervalMilliseconds = 9000,
   strStatus = {
-    [constStatus.COMPLETE]: 'Test Complete!',
+    [constStatus.COMPUTING_PDF]: 'Test Complete!',
     [constStatus.RUNNING]: 'Running Tests...',
     [constStatus.SETUP]: 'Setting up Tests...',
   },
@@ -158,7 +159,7 @@ export default class Code extends Component {
 
     let results = testResultSid ? await getLastTest( testResultSid ) : null
 
-    if (results && results.status_msg === 'COMPLETE') results.percent_complete = 100
+    if (results && (results.status_msg === 'COMPUTING_PDF' || results.status_msg === 'COMPLETE')) results.percent_complete = 100
     
     this.setState({ fetchingLastTest: false, results })
     
@@ -170,7 +171,7 @@ export default class Code extends Component {
       })
       LocalStorage.ProjectTestResults.setIds(projectName)
     }
-    else if (results.status_msg !== 'COMPLETE') {
+    else if (results.status_msg !== 'COMPUTING_PDF' && results.status_msg !== 'COMPLETE') {
       // resume GET /tests_run
       startCounting = setInterval(this._countUp, 1000)
       this._initCheckTestStatus(testResultSid)
@@ -509,7 +510,7 @@ export default class Code extends Component {
     const results = await this._checkTestStatus(stlid).catch(checkStatusError)
     this.setState({ fetchingTest: false })
     if (results) {
-      if (results.status_msg === 'COMPLETE') {
+      if (results.status_msg === 'COMPUTING_PDF' || results.status_msg === 'COMPLETE') {
         clearInterval( startCounting )
         testTimeElapsed = 0
         this.setState({ step: 8 })
@@ -593,7 +594,7 @@ export default class Code extends Component {
       }
 
       // results are ready
-      if (response && response.status_msg === 'COMPLETE') {
+      if (response && (response.status_msg === 'COMPUTING_PDF' || response.status_msg === 'COMPLETE')) {
         response.percent_complete = 100
         this.setState({ results: response, reconnecting: false })
         // window.mixpanel.track('Test Completed', {
@@ -809,11 +810,11 @@ export default class Code extends Component {
         }
 
         if (synchronized) {
-          console.log(`\tSkipping synchronized file ${file.path}`)
+          // console.log(`\tSkipping synchronized file ${file.path}`)
           putCodeCallback(true, file)
         }
         else {
-          console.log(`\tUploading file ${file.path}`)
+          // console.log(`\tUploading file ${file.path}`)
           api.putCode({
             name: file.path,
             code,
@@ -909,7 +910,7 @@ export default class Code extends Component {
     /> :
     <Link className="btn full-width center-text primary"
       style={{
-        display: results && results.status_msg === 'COMPLETE' ? 'inline-block' : 'none',
+        display: results && (results.status_msg === 'COMPUTING_PDF' || results.status_msg === 'COMPLETE') ? 'inline-block' : 'none',
         verticalAlign: 'middle',
       }}
       to={resultsUrl}
@@ -1178,7 +1179,7 @@ export default class Code extends Component {
                           <Progress percent={results.percent_complete || 0} style={{
                               marginTop: 6,
                             }}
-                            color={results.status_msg === 'COMPLETE' ? 'green' : 'yellow'}
+                            color={results.status_msg === 'COMPUTING_PDF' || results.status_msg === 'COMPLETE' ? 'green' : 'yellow'}
                             progress />
                         </Table.Cell>
                       </Table.Row>
