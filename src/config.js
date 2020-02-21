@@ -57,12 +57,15 @@ module.exports = {
   monthlyProductPrice: '$19.99',
   subscriberEntitlementName: 'bug_catcher_subscriber',
 
-  // backend
+  // bugcatcher backend
   apiUrl: process.env.REACT_APP_FTL_ENV === 'production' ?
     process.env.REACT_APP_PROD_API_URI :
       process.env.REACT_APP_FTL_ENV === 'bat' ?
         process.env.REACT_APP_BAT_API_URI :
           process.env.REACT_APP_STAGING_API_URI,
+
+  // cqc backend
+  cqcApiUrl: "http://localhost:3001",
 
   // // mixpanel
   // mixpanelToken: process.env.REACT_APP_FTL_ENV === 'production' ?

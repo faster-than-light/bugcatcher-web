@@ -164,7 +164,7 @@ export default class Results extends Component {
       const reducedResults = testRunResult.reduce((acc, item) => {
         const { test_suite_test: test } = item
         const { ftl_severity: severity } = test
-        if (severity === 'high') certified = false
+        if (severity === 'medium' || severity === 'high') certified = false
         acc[severity] = acc[severity] || []
         acc[severity].push(item)
         return acc
@@ -403,7 +403,7 @@ export default class Results extends Component {
                               <CopyResultsModal {...this.props}
                                 ghTreeSha={ghTreeSha}
                                 markdownPayload={markdownPayload}
-                                format={'Copy Markdown'} />
+                                format={'Publish Results'} />
                               &nbsp;Publish this markdown to your repository.
                           </Table.Cell>
                           </Table.Row>

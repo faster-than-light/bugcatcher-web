@@ -29,6 +29,10 @@ export default class DownloadResultsModal extends Component {
       productCode: this.props.productCode
     })
   }
+
+  publishResults() {
+    this.setState({copied: true})    
+  }
   
   render() {
     const { copied, openModal, productCode } = this.state
@@ -104,14 +108,20 @@ ${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMa
           <h2 className="primary-color">Publish Your Test Results as Certified Code on GitHub or Bitbucket</h2>
           <CopyToClipboard text={markdown}
               onCopy={() => {
-                this.refs.markdown.select()
-                this.setState({copied: true})
+                if (!this.agree.checked) alert('You must agree by checking the box')
+                else {
+                  this.refs.markdown.select()
+                  this.publishResults()
+                }
               }}>
                 <textarea ref="markdown" style={{
                   width: '100%',
                   height: '72%',
+                  marginBottom: 18,
                 }}>{markdown}</textarea>
           </CopyToClipboard>
+          <input type="checkbox" name="agree" ref={r => this.agree = r} />
+          <label for="agree">&nbsp; I want to publish these results publicly for all to see.</label>
           <div style={{ height: 15 }} />
           <StlButton className={'link close-markdown-modal'}
             onClick={() => this.setState({openModal:false})}
@@ -119,9 +129,12 @@ ${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMa
             close
           </StlButton>
           <CopyToClipboard text={markdown}
-              onCopy={() => this.setState({copied: true})}>
+            onCopy={() => {
+              if (!this.agree.checked) alert('You must agree by checking the box')
+              else this.publishResults()
+            }}>
             <StlButton semantic>
-              {`Copy ${format} Results`}
+              {`Copy and Publish Results`}
             </StlButton>
           </CopyToClipboard>
           {copied ? <span style={{color: 'red'}}>&nbsp;Copied to clipboard.</span> : null}
