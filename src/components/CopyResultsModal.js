@@ -7,8 +7,10 @@ import ResultsMarkdownRow from './ResultsMarkdownRow'
 import StlButton from './StlButton'
 
 // helpers
+import api from '../helpers/api'
 import { appUrl } from '../config'
 import { durationBreakdown } from '../helpers/moment'
+import cqcApi from '../helpers/cqcApi'
 
 // styles & images
 import '../assets/css/components/Modal.css'
@@ -30,20 +32,80 @@ export default class DownloadResultsModal extends Component {
     })
   }
 
-  publishResults() {
+  publishResults = async () => {
     this.setState({copied: true})    
+
+    const { markdownPayload, user } = this.props
+    let { results } = markdownPayload
+
+    // append user object to results
+    results.user = user
+
+    // push results to cqc server
+    const putResults = await cqcApi.putResults(results).catch(() => null)
+    
+    // push PDF data to cqc server
+    const putPDF = await this.putPDF(results.test_run.stlid).catch(() => null)
+
+    if (!putResults || !putPDF) console.error(
+      new Error('error pushing results to proxy server')
+    )
+  }
+  
+  fetchPDF = (stlid) => {
+    return new Promise((resolve, reject) => {
+
+      const fail = () => {
+        console.error(new Error("Error fetching results PDF"))
+        reject()
+      }
+      api.getTestResult({
+        stlid,
+        format: 'pdf',
+        options: {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/pdf'
+          },
+          responseType: "blob"
+        }
+      })
+      .then(response => {
+        if (response && response.data && response.data.size > 5) {
+          const blob = new Blob([response.data], { type: 'application/pdf' })
+          const reader = new FileReader()
+          reader.readAsDataURL(blob)
+          reader.onloadend = () => {
+            resolve(reader.result)               
+          }
+        }
+        else fail()
+      })
+      .catch(fail)
+
+    })
+  }
+
+  putPDF = async (stlid) => {
+    const blob = await this.fetchPDF(stlid).catch(() => null)
+    if (!blob) return
+    const data = {
+      blob,
+      stlid,
+      user: this.props.user
+    }
+    return cqcApi.putPDF(data).catch(() => null)
   }
   
   render() {
     const { copied, openModal, productCode } = this.state
-    const { format, markdownPayload, ghTreeSha } = this.props
+    const { certified, disabled, format, ghTreeSha, markdownPayload } = this.props
     const { groupedResults, languagesUsed, project, results, testId, testToolsUsed } = markdownPayload
-    const badgeUrl = `${appUrl}/img/badge.png`
-    const badge = `<img src="${badgeUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />`
-    const badgeAndText = `### Passing All Tests!\n${badge}`
     const approvedBadgeUrl = `${appUrl}/img/badge.png`
+    const badge = `<a href="${appUrl + '/results/' + testId}?published=1" target="_blank"><img src="${approvedBadgeUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" /></a>`
+    const badgeAndText = `### Passing All Tests!\n${badge}`
     const logoUrl = `${appUrl}/img/logo.png`
-    const treeSha = ghTreeSha ? `\n**GitHub Tree SHA**: \`${ghTreeSha}\`` : ''
+    const treeSha = ghTreeSha && ghTreeSha != 'undefined' ? `\n**GitHub Tree SHA**: \`${ghTreeSha}\`` : ''
     const elapsed = durationBreakdown(results.test_run.start, results.test_run.end)
 
     const markdown = (() => {
@@ -63,7 +125,7 @@ ${languagesUsed.map(l => `\`${l}\``).join(' ')}
 ${testToolsUsed.map(t => `\`${t}\``).join(' ')}
 
 #### Files Tested: 
-\`${results.test_run.total_files}\` files tested
+\`${results.test_run.codes.length}\` files tested
 
 #### Test Duration:
 Testing started: \`${results.test_run.start}\`<br />
@@ -74,7 +136,7 @@ Test elapsed: \`${elapsed}\`
 ${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMarkdownRow(r)}`).join('\n')}
 ##
 
-<img src="${approvedBadgeUrl}" alt="Faster Than Light BugCatcher" title="Faster Than Light BugCatcher" width="300" />
+${certified ? badge : null}
 `
     })()
 
@@ -89,7 +151,8 @@ ${!groupedResults.length ? badgeAndText : groupedResults.map(r => `- ${ResultsMa
     )
 
     return <React.Fragment>
-      <StlButton primary onClick={()=>this.setState({openModal:true})} semantic>{format}</StlButton>
+      <StlButton primary disabled={disabled}
+        onClick={()=>this.setState({openModal:true})} semantic>{format}</StlButton>
       <Modal
         closeIcon
         onClose={() => this.setState({openModal:false})}

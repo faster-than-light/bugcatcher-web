@@ -15,8 +15,9 @@ import { UserContext } from '../contexts/UserContext'
 
 // helpers
 import api from '../helpers/api'
+import cqcApi from '../helpers/cqcApi'
 import { getCookie } from '../helpers/cookies'
-import { severities, testStatusToColor } from '../helpers/strings'
+import { base64ToBlob, severities, testStatusToColor } from '../helpers/strings'
 import { helpEmail } from '../config'
 import { durationBreakdown } from '../helpers/moment'
 
@@ -43,18 +44,20 @@ export default class Results extends Component {
   }
   
   async componentDidMount() {
-    let state = await this._fetchResults()
+    const published = queryString.parse(document.location.search)['published']
+    let state = await this._fetchResults(published)
     if (state && !state.results) state.results = false
     if (state && state.results && state.project) {
       let pdfReady = false
       try {
         let status = state['results']['test_run']['status_msg']
         if (status === 'COMPLETE') pdfReady = true
-        else this._retryPdf()
+        else if (!published) this._retryPdf()
       } catch(e) {}
       this.setState({
         ...state,
-        pdfReady
+        pdfReady,
+        published
       })
     }
     else {
@@ -84,11 +87,22 @@ export default class Results extends Component {
     }, 4500)
     
   }
-  _fetchResults = async () => {
+  _fetchResults = async (published) => {
     this.setState({ failedToFetchError: null })
-    let { data: results } = await api.getTestResult({
-      stlid: this.props.match.params.id,
-    }).catch(this._failedToFetch)
+    let results
+    if (!published) {
+      const { data: bugcatcherResults } = await api.getTestResult({
+        stlid: this.props.match.params.id,
+      }).catch(this._failedToFetch)
+      results = bugcatcherResults
+    }
+    else {
+      const { data: publishedResults } = await cqcApi.getResults(
+        this.props.match.params.id
+      ).catch(this._failedToFetch)
+      results = publishedResults
+    }
+
     let { test_run: testRun = {} } = results || {}
     const { codes = [{}] } = testRun
     const { project } = codes[0]
@@ -116,29 +130,37 @@ export default class Results extends Component {
     return {}
   }
 
-  _fetchPDF = async () => {
+  _fetchPDF = async (e) => {
+    const { published } = this.state
     this.setState({ loading: true })
     const fail = () => { alert("Error fetching results") }
-    const response = await api.getTestResult({
-      stlid: this.props.match.params.id,
-      format: 'pdf',
-      options: {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/pdf'
-        },
-        responseType: "blob"
+    let blob, response
+    if (published) {
+      response = await cqcApi.getPDF(this.props.match.params.id).catch(fail)
+      blob = base64ToBlob(response.data)
+    }
+    else {
+      response = await api.getTestResult({
+        stlid: this.props.match.params.id,
+        format: 'pdf',
+        options: {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/pdf'
+          },
+          responseType: "blob"
+        }
+      }).catch(fail)
+      if (response && response.data && response.data.size > 5) {
+        blob = new Blob([response.data], { type: 'application/pdf' })
       }
-    }).catch(fail)
+      else fail()
+    }
 
     this.setState({ loading: false })
-    if (response && response.data && response.data.size > 5) {
-      const blob = new Blob([response.data], { type: 'application/pdf' })
-      const objectUrl = window.URL.createObjectURL(blob)
-      window.open(objectUrl, "_self")
-    }
-    else fail()
-  }
+    const objectUrl = window.URL.createObjectURL(blob)
+    window.open(objectUrl, "_self")
+}
 
   _fetchJSON = () => {
     const blob = new Blob([JSON.stringify(this.state.results)], { type: 'application/json' })
@@ -164,7 +186,7 @@ export default class Results extends Component {
       const reducedResults = testRunResult.reduce((acc, item) => {
         const { test_suite_test: test } = item
         const { ftl_severity: severity } = test
-        if (severity === 'medium' || severity === 'high') certified = false
+        if (severity === 'high') certified = false
         acc[severity] = acc[severity] || []
         acc[severity].push(item)
         return acc
@@ -403,7 +425,10 @@ export default class Results extends Component {
                               <CopyResultsModal {...this.props}
                                 ghTreeSha={ghTreeSha}
                                 markdownPayload={markdownPayload}
-                                format={'Publish Results'} />
+                                disabled={!pdfReady}
+                                certified={certified}
+                                format={'Publish Results'}
+                                user={user} />
                               &nbsp;Publish this markdown to your repository.
                           </Table.Cell>
                           </Table.Row>

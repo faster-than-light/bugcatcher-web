@@ -413,7 +413,7 @@ export default class Code extends Component {
         else {
           const file = toUpload[0]
           toUpload = toUpload.filter(f => f !== file)
-          console.log(`upload ${file.name} after pausing ${millisecondTimeout} milliseconds with ${concurrentUploads} files in queue and ${successfulUploads} successful uploads`)
+          // console.log(`upload ${file.name} after pausing ${millisecondTimeout} milliseconds with ${concurrentUploads} files in queue and ${successfulUploads} successful uploads`)
           sendFile(file)
         }
       }

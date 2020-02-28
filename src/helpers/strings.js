@@ -1,5 +1,15 @@
 module.exports = {
   appendS: (count) => count === 1 ? '' : 's',
+  base64ToBlob: (data) => {
+    const b64Data = data.replace('data:application/pdf;base64,','')
+    const byteCharacters = atob(b64Data)
+    const byteNumbers = new Array(byteCharacters.length)
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i)
+    }
+    const byteArray = new Uint8Array(byteNumbers)
+    return new Blob([byteArray], {type: 'application/pdf'})
+  },
   severities: ["high", "medium", "low", "info"],
   severityToColor: (severity) => {
     switch (severity) {

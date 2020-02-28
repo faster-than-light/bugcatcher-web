@@ -65,7 +65,11 @@ module.exports = {
           process.env.REACT_APP_STAGING_API_URI,
 
   // cqc backend
-  cqcApiUrl: "http://localhost:3001",
+  cqcApiUrl: ({
+    production: 'https://certification-api.fasterthanlight.dev',
+    development: 'https://certification-api.fasterthanlight.dev',
+    local: 'http://localhost:3001',
+  })[process.env.REACT_APP_FTL_ENV],
 
   // // mixpanel
   // mixpanelToken: process.env.REACT_APP_FTL_ENV === 'production' ?
