@@ -38,14 +38,12 @@ export default class Results extends Component {
 
   /** @dev Lifecycle methods */
   async componentWillMount() {
-    const published = queryString.parse(document.location.search)['published']
     await api.setSid( getCookie("STL-SID") )
     const fetchedUser = await this.context.actions.fetchUser()
     this.setState({
       theme: getCookie("theme"),
       fetchedUser,
       failedToFetchError: null,
-      published,
     })
   }
   
@@ -136,7 +134,7 @@ export default class Results extends Component {
   }
 
   _fetchPDF = async (e) => {
-    const { published } = this.state
+    const published = queryString.parse(document.location.search)['published']
     this.setState({ loading: true })
     const fail = () => { alert("Error fetching results") }
     let blob, response
@@ -178,10 +176,10 @@ export default class Results extends Component {
       failedToFetchError,
       loading,
       pdfReady,
-      published,
       results,
       showFiles
     } = this.state
+    const published = queryString.parse(document.location.search)['published']
     const ghTreeSha = queryString.parse(document.location.search)['gh']
     let certified = true
     const groupedResultsJson = (testRunResult, project) => {
