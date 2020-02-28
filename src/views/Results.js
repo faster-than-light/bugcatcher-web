@@ -38,9 +38,15 @@ export default class Results extends Component {
 
   /** @dev Lifecycle methods */
   async componentWillMount() {
+    const published = queryString.parse(document.location.search)['published']
     await api.setSid( getCookie("STL-SID") )
     const fetchedUser = await this.context.actions.fetchUser()
-    this.setState({ theme: getCookie("theme"), fetchedUser, failedToFetchError: null })
+    this.setState({
+      theme: getCookie("theme"),
+      fetchedUser,
+      failedToFetchError: null,
+      published,
+    })
   }
   
   async componentDidMount() {
@@ -56,15 +62,14 @@ export default class Results extends Component {
       } catch(e) {}
       this.setState({
         ...state,
-        pdfReady,
-        published
+        pdfReady
       })
     }
     else {
       // log the failure
       this._failedToFetch(state ? state.project : null)
       // and try again
-      this.setState(await this._fetchResults())
+      this.setState(await this._fetchResults(published))
     }
   }
 
@@ -173,6 +178,7 @@ export default class Results extends Component {
       failedToFetchError,
       loading,
       pdfReady,
+      published,
       results,
       showFiles
     } = this.state
@@ -271,8 +277,11 @@ export default class Results extends Component {
           {(userContext) => {
             const { user, userDataLoaded } = userContext ? userContext.state : {}
 
+            // show results not found
+            if (published && results && results.error) return <h1>Not found.</h1>
+
             // show results
-            if (user && results && !loading) {
+            else if ((user || published) && results && !loading) {
               // parse out some data we want to display
               let { test_run: testRun, test_run_result: testRunResult } = results
               const status = testRun.status_msg
