@@ -158,6 +158,49 @@ export default class CQC extends Component {
     return user
   }
 
+  fetchRepoList = async () => {
+    this.setState({ fetchCustomRepoError: null })
+    let fetchCustomRepoError = ''
+    const reposText = this.repoListTextInput.value || ''
+    const appendPrintedErrors = errMsg => {
+      fetchCustomRepoError = fetchCustomRepoError + '\n' + errMsg
+      this.setState({ fetchCustomRepoError })
+    }
+    if (!reposText) {
+      appendPrintedErrors('Please enter at least one owner/repo combo.')
+      return
+    }
+    let repos = new Array()
+    const validateRepoText = r => {
+      if (!r.length) return
+      const [ owner, repo ] = r.split('/')
+      if (!owner || !repo) appendPrintedErrors(`Check format of "${r}"`)
+      else repos.push([owner, repo])
+    }
+    if (reposText.includes('\n')) {
+      reposText.split('\n').forEach(r => { validateRepoText(r.trim()) })
+    }
+    else validateRepoText(reposText)
+    if (!repos.length) appendPrintedErrors('No repos parsed from input.')
+    else {
+      if (repos.length && fetchCustomRepoError === '') {
+        this.setState({ repoListInputDisabled: true })
+        appendPrintedErrors(
+          `Fetching branches of ${repos.length} repos...`
+        )
+
+        /** @todo Fetch GitHub branches for each repo */
+        for(let i = 0;i < repos.length;i++) {
+          const branchesForRepo = await this.fetchBranches(repos[i])
+          appendPrintedErrors(`${repos[i][0]}/${repos[i][1]} has ${branchesForRepo.length} branches: ${branchesForRepo.join(', ')}`)
+        }
+
+        this.setState({ repoListInputDisabled: null })
+
+      }
+    }
+  }
+
   fetchRepos = async alertError => {
     let repos
     try {
@@ -200,19 +243,26 @@ export default class CQC extends Component {
     }}>&laquo; Back to Repository List</StlButton>
 
   RepoList = () => {
+    const { fetchCustomRepoError = '', repoListInputDisabled } = this.state
     const specifyRepo = <React.Fragment>
       <h3>Specify Repositories</h3>
       {/* <Input id='custom_repo' type="text" placeholder=":owner/:repo" value="retzion/sampleproject" />
       <StlButton onClick={this.fetchCustomRepo}>Fetch Branches</StlButton> */}
       <Form>
         <TextArea id='repo_list' type="text"
+          ref={r => this.repoListTextInput = r}
+          onChange={ev => {
+            this.repoListTextInput.value = ev.target.value
+          }}
+          disabled={repoListInputDisabled}
           placeholder=":owner/:repo&#xa;:owner/:repo&#xa;:owner/:repo"
-          style={{ height: 150 }} />
+          style={{ height: 99 }} />
         <p>
-          <StlButton onClick={this.fetchRepoList}>fetch repos</StlButton>
+          <StlButton onClick={this.fetchRepoList}
+            disabled={repoListInputDisabled}>fetch repos</StlButton>
         </p>
       </Form>
-      <div className="error">{this.state.fetchCustomRepoError}</div>
+      <pre className="error">{fetchCustomRepoError}</pre>
     </React.Fragment>
 
     if (this.state.token && !this.state.branches) {
@@ -220,11 +270,10 @@ export default class CQC extends Component {
         <Table.Cell><a onClick={() => this.getBranches(repo)}>
           {repo}
         </a></Table.Cell>
-      </Table.Row>) : <Table.Row key={0}>
-        <Table.Cell>Not found.</Table.Cell>
-      </Table.Row>
+      </Table.Row>) : null
       return <div className="repo-list">
         {specifyRepo}
+        {repos}
       </div>
     }
     else return null
@@ -246,12 +295,16 @@ export default class CQC extends Component {
     })
   }
 
+  fetchBranches = async ownerRepoArray => {
+    const [ owner, repo ] = ownerRepoArray
+    let branches = await githubApi.getBranches(owner, repo)
+    return branches.map(b => b.name)
+  }
+
   getBranches = async currentRepo => {
     window.scrollTo({ top: 0 })
     this.setState({ working: true })
-    const [ owner, repo ] = currentRepo.split('/')
-    let branches = await githubApi.getBranches(owner, repo)
-    branches = branches.map(b => b.name)
+    let branches = this.fetchBranches(currentRepo.split('/'))
     this.setState({ branches, currentRepo, working: false })
   }
 
@@ -423,11 +476,11 @@ export default class CQC extends Component {
                     onFailure={onFailure}/> */}
                 </p>
 
-                <label htmlFor="automate" style={{ zoom: 1.2, display: 'none' }} className="well">
+                {/* <label htmlFor="automate" style={{ zoom: 1.2, display: 'none' }} className="well">
                   <input id="automate" type="checkbox" onChange={this.toggleAutomateOption}
                     checked={this.state.automateAuth} />
                   &nbsp;Automate all steps of the authentication process
-                </label>
+                </label> */}
 
                 {/* <ul style={{textAlign: 'left', margin: 18}}>
                   <li>Option 1 is redirecting you straight to Github in this window.</li>
