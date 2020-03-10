@@ -165,13 +165,15 @@ export default class CQC extends Component {
           const repoPath = `${r[0][0]}/${r[0][1]}`
           const repo = this.state.branches.find(b => b.repoPath === repoPath)
           const selectedBranch = repo ? repo.selectedBranch : 'master'
+          const checked = repo && repo.checked === false ? false : true
           return ({
             owner: r[0][0],
             repo: r[0][1],
             repoPath,
             branches: r[1],
             selectedBranch,
-            jobStatus: ''
+            jobStatus: '',
+            checked
           })
         })
         if (!branches.length) branches = null
@@ -224,8 +226,17 @@ export default class CQC extends Component {
       <Table celled>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.8, verticalAlign: 'middle'}} defaultChecked
-                  onChange={e => {}} /></Table.HeaderCell>
+            <Table.HeaderCell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.8, verticalAlign: 'middle'}}
+              checked={
+                !branches.find(b => !b.checked)
+              }
+              onChange={e => {
+                branches = branches.map(b => {
+                  // console.log(b.checked, e.target.checked)
+                  return ({...b, checked: e.target.checked})
+                })
+                this.setState({ branches })
+              }} /></Table.HeaderCell>
             <Table.HeaderCell>Repo Path</Table.HeaderCell>
             <Table.HeaderCell>Branch</Table.HeaderCell>
             <Table.HeaderCell>Status</Table.HeaderCell>
@@ -235,14 +246,14 @@ export default class CQC extends Component {
         <Table.Body>
           {
             branches.map(r => {
-              console.log(r)
               const rowKey = `row_${r.owner}_${r.path}`
               return <Table.Row key={rowKey} positive={r.jobStatus === 'COMPLETE'}>
-                <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.8, verticalAlign: 'middle'}} defaultChecked
+                <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.8, verticalAlign: 'middle'}}
+                  checked={r.checked}
                   onChange={e => {
                     let row = branches.find(_r => _r.repoPath === r.repoPath)
-                    row.selectedBranch = 'this'
-                    console.log(branches)
+                    row.checked = !row.checked
+                    this.setState({ branches })
                   }} /></Table.Cell>
                 <Table.Cell>{r.repoPath}</Table.Cell>
                 <Table.Cell>
@@ -251,7 +262,6 @@ export default class CQC extends Component {
                     onChange={e => {
                       let row = branches.find(_r => _r.repoPath === r.repoPath)
                       row.selectedBranch = e.target.innerHTML
-                      console.log(branches)
                     }}
                     placeholder={'Select a branch'}>
                   
