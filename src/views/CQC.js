@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import queryString from 'query-string'
-import { Icon, Input, Table } from 'semantic-ui-react'
+import { Icon, Table } from 'semantic-ui-react'
 import { Form, TextArea } from 'semantic-ui-react'
 
 // components
@@ -49,7 +49,7 @@ export default class CQC extends Component {
       token,
     }
 
-    this.toggleAutomateOption = this.toggleAutomateOption.bind(this)
+    this._toggleAutomateOption = this._toggleAutomateOption.bind(this)
     this.ApiFunctions = this.ApiFunctions.bind(this)
     this.RepoList = this.RepoList.bind(this)
     this._getTree = githubApi.getTree.bind(this)
@@ -74,14 +74,15 @@ export default class CQC extends Component {
   }
 
   componentDidMount() {
-    document.addEventListener("keydown", this.fetchRepoKeydownEvent)
+    document.addEventListener("keydown", this._fetchRepoKeydownEvent)
   }
 
   componentWillUnmount() {
-    document.removeEventListener("keydown", this.fetchRepoKeydownEvent)
+    document.removeEventListener("keydown", this._fetchRepoKeydownEvent)
   }
 
-  fetchRepoKeydownEvent = event => {
+  /** @dev Functions *******************************/
+  _fetchRepoKeydownEvent = event => {
     if (
       event.target["id"] === 'custom_repo' && (
         event.code === 'Enter' || event.keyCode === 13
@@ -89,82 +90,36 @@ export default class CQC extends Component {
     ) this.fetchCustomRepo()
   }
   
-  async toggleAutomateOption(event) {
+  async _toggleAutomateOption(event) {
     const automate = event.target.checked
     await setCookie(automateCookieName, automate)
     await this.setState({ automateAuth: automate })
   }
   
-  resetState = () => {
+  _resetState = () => {
     setCookie(tokenCookieName, '')
     this.setState(initialState)
   }
 
-  runApiFunctions = async () => {
-    const { code, repos, token, user } = this.state
+  _runApiFunctions = async () => {
+    const { code, token, user } = this.state
     if (code && !token) await this.fetchToken()
     if (!user) await this.fetchUser()
-    // if (!repos) await this.fetchRepos()
   }
   
-  ApiFunctions = () => {
-    const { automateAuth } = this.state
-    if (automateAuth) {
-      this.runApiFunctions()
-    }
-    return this.ApiButtons()
-  }
-  
-  ApiButtons = () => {
-    const { automateAuth } = this.state
-    const show = { display: !automateAuth ? 'inline-block' : 'none' }
-
-    return <div style={{padding: '21px 0', textAlign: 'left'}}>
-
-      <this.FetchAccessToken style={show} />
-
-      <this.FetchUserProfile style={show} />
-
-      <this.FetchUserRepos />
-
-    </div>
-  }
-
-  fetchToken = async alertError => {
-    let token
-    try {
-      token = await githubApi.getAccessToken(this.state.code)
-    } catch(e) { console.error(e) }
-    if (!token) {
-      if (alertError) alert('There was a problem fetching a token. Please try again.')
-      this.resetState()
-    }
-    else {
-      setCookie(tokenCookieName, token)
-      this.setState({ token })
-    }
-    return token
-  }
-
-  fetchUser = async alertError => {
-    let user
-    try { user = await githubApi.getAuthenticated() }
-    catch(e) { console.error(e) }
-    if (!user) {
-      if (alertError) alert("There was a problem fetching your Profile. Please start over and try again.")
-      this.resetState()
-    }
-    else this.setState({ user })
-    return user
-  }
-
-  fetchRepoList = async () => {
-    this.setState({ fetchCustomRepoError: null })
-    let fetchCustomRepoError = ''
+  _fetchRepoList = async () => {
+    this.setState({ fetchCustomRepoErrors: null })
+    let fetchCustomRepoErrors = new Array()
     const reposText = this.repoListTextInput.value || ''
     const appendPrintedErrors = errMsg => {
-      fetchCustomRepoError = fetchCustomRepoError + '\n' + errMsg
-      this.setState({ fetchCustomRepoError })
+      fetchCustomRepoErrors.push(errMsg)
+      this.setState({ fetchCustomRepoErrors })
+    }
+    const removePrintedError = errMsg => {
+      const fetchCustomRepoErrors = this.state.fetchCustomRepoErrors.filter(
+        e => !!e.search(errMsg)
+      )
+      this.setState({ fetchCustomRepoErrors })
     }
     if (!reposText) {
       appendPrintedErrors('Please enter at least one owner/repo combo.')
@@ -183,7 +138,7 @@ export default class CQC extends Component {
     else validateRepoText(reposText)
     if (!repos.length) appendPrintedErrors('No repos parsed from input.')
     else {
-      if (repos.length && fetchCustomRepoError === '') {
+      if (repos.length && !fetchCustomRepoErrors.length) {
         this.setState({ repoListInputDisabled: true })
         appendPrintedErrors(
           `Fetching branches of ${repos.length} repos...`
@@ -192,8 +147,14 @@ export default class CQC extends Component {
         /** @todo Fetch GitHub branches for each repo */
         for(let i = 0;i < repos.length;i++) {
           const branchesForRepo = await this.fetchBranches(repos[i])
-          appendPrintedErrors(`${repos[i][0]}/${repos[i][1]} has ${branchesForRepo.length} branches: ${branchesForRepo.join(', ')}`)
+            .catch(() => null)
+          if (!Array.isArray(branchesForRepo))
+            appendPrintedErrors(`${repos[i][0]}/${repos[i][1]} was not found.`)
+          else
+            appendPrintedErrors(`${repos[i][0]}/${repos[i][1]} has ${branchesForRepo.length} branches: ${branchesForRepo.join(', ')}`)
         }
+
+        removePrintedError('Fetching branches of')
 
         this.setState({ repoListInputDisabled: null })
 
@@ -201,18 +162,35 @@ export default class CQC extends Component {
     }
   }
 
-  fetchRepos = async alertError => {
-    let repos
-    try {
-      repos = await githubApi.getRepos(
-        this.state.sortReposBy,
-        this.state.sortReposDirection
-      )
+  _getBranches = async currentRepo => {
+    window.scrollTo({ top: 0 })
+    this.setState({ working: true })
+    let branches = this.fetchBranches(currentRepo.split('/'))
+    this.setState({ branches, currentRepo, working: false })
+  }
+
+  /** @dev Components ******************************/
+  ApiFunctions = () => {
+    const { automateAuth } = this.state
+    if (automateAuth) {
+      this._runApiFunctions()
     }
-    catch(e) { console.error(e) }
-    if (!repos && alertError) alert("There was a problem fetching your Repository List. Please start over and try again.")
-    else this.setState({ repos, contents: null })
-    return repos
+    return this.ApiButtons()
+  }
+  
+  ApiButtons = () => {
+    const { automateAuth } = this.state
+    const show = { display: !automateAuth ? 'inline-block' : 'none' }
+
+    return <div style={{padding: '21px 0', textAlign: 'left'}}>
+
+      <this.FetchAccessToken style={show} />
+
+      <this.FetchUserProfile style={show} />
+
+      <this.FetchUserRepos />
+
+    </div>
   }
 
   FetchAccessToken = (props) => <StlButton primary semantic disabled={Boolean(this.state.token)}
@@ -243,7 +221,7 @@ export default class CQC extends Component {
     }}>&laquo; Back to Repository List</StlButton>
 
   RepoList = () => {
-    const { fetchCustomRepoError = '', repoListInputDisabled } = this.state
+    const { fetchCustomRepoError = '', fetchCustomRepoErrors = [], repoListInputDisabled } = this.state
     const specifyRepo = <React.Fragment>
       <h3>Specify Repositories</h3>
       {/* <Input id='custom_repo' type="text" placeholder=":owner/:repo" value="retzion/sampleproject" />
@@ -258,16 +236,17 @@ export default class CQC extends Component {
           placeholder=":owner/:repo&#xa;:owner/:repo&#xa;:owner/:repo"
           style={{ height: 99 }} />
         <p>
-          <StlButton onClick={this.fetchRepoList}
+          <StlButton onClick={this._fetchRepoList}
             disabled={repoListInputDisabled}>fetch repos</StlButton>
         </p>
       </Form>
       <pre className="error">{fetchCustomRepoError}</pre>
+      <div className="error">{fetchCustomRepoErrors.map(e => <div>{e}</div>)}</div>
     </React.Fragment>
 
     if (this.state.token && !this.state.branches) {
       const repos = this.state.repos ? this.state.repos.map((repo, k) => <Table.Row key={k}>
-        <Table.Cell><a onClick={() => this.getBranches(repo)}>
+        <Table.Cell><a onClick={() => this._getBranches(repo)}>
           {repo}
         </a></Table.Cell>
       </Table.Row>) : null
@@ -293,19 +272,6 @@ export default class CQC extends Component {
       sortReposDirection,
       repos: null,
     })
-  }
-
-  fetchBranches = async ownerRepoArray => {
-    const [ owner, repo ] = ownerRepoArray
-    let branches = await githubApi.getBranches(owner, repo)
-    return branches.map(b => b.name)
-  }
-
-  getBranches = async currentRepo => {
-    window.scrollTo({ top: 0 })
-    this.setState({ working: true })
-    let branches = this.fetchBranches(currentRepo.split('/'))
-    this.setState({ branches, currentRepo, working: false })
   }
 
   BranchList = () => {
@@ -380,6 +346,55 @@ export default class CQC extends Component {
     else return null
   }
 
+  /** @dev Network Data ******************************/
+  fetchToken = async alertError => {
+    let token
+    try {
+      token = await githubApi.getAccessToken(this.state.code)
+    } catch(e) { console.error(e) }
+    if (!token) {
+      if (alertError) alert('There was a problem fetching a token. Please try again.')
+      this._resetState()
+    }
+    else {
+      setCookie(tokenCookieName, token)
+      this.setState({ token })
+    }
+    return token
+  }
+
+  fetchRepos = async alertError => {
+    let repos
+    try {
+      repos = await githubApi.getRepos(
+        this.state.sortReposBy,
+        this.state.sortReposDirection
+      )
+    }
+    catch(e) { console.error(e) }
+    if (!repos && alertError) alert("There was a problem fetching your Repository List. Please start over and try again.")
+    else this.setState({ repos, contents: null })
+    return repos
+  }
+
+  fetchBranches = async ownerRepoArray => {
+    const [ owner, repo ] = ownerRepoArray
+    let branches = await githubApi.getBranches(owner, repo)
+    return branches.map(b => b.name)
+  }
+
+  fetchUser = async alertError => {
+    let user
+    try { user = await githubApi.getAuthenticated() }
+    catch(e) { console.error(e) }
+    if (!user) {
+      if (alertError) alert("There was a problem fetching your Profile. Please start over and try again.")
+      this._resetState()
+    }
+    else this.setState({ user })
+    return user
+  }
+
   fetchCustomRepo = async () => {
     this.setState({ fetchCustomRepoError: null })
     const badPatternError = new Error('The :owner/:repo pattern is not valid.')
@@ -408,6 +423,7 @@ export default class CQC extends Component {
     })
   }
 
+  /** @dev Render this component ******************************/
   render() {
     const {
       automateAuth,
@@ -428,17 +444,15 @@ export default class CQC extends Component {
     else return <div id="github">
       <Menu />
       <FtlLoader show={working} text="working" />
-      <div id="cqc" style={{
-        maxWidth: 720,
-        margin: 'auto',
-      }}>
-        <div className="white-block" style={{ textAlign: 'center', marginTop: 111, padding: 18 }}>
+      <div id="cqc">
+        {/* <div className="white-block" style={{ textAlign: 'center', marginTop: 111, padding: 18 }}> */}
+        <div style={{ textAlign: 'center', marginTop: 111, padding: 18 }}>
           <div className="block-content">
 
             {
               !code && !token ? null :
                 <Link to={'/cqc'}
-                  onClick={this.resetState}
+                  onClick={this._resetState}
                   style={{float: 'left'}}>&laquo; log out of GitHub</Link>
             }
 
@@ -477,7 +491,7 @@ export default class CQC extends Component {
                 </p>
 
                 {/* <label htmlFor="automate" style={{ zoom: 1.2, display: 'none' }} className="well">
-                  <input id="automate" type="checkbox" onChange={this.toggleAutomateOption}
+                  <input id="automate" type="checkbox" onChange={this._toggleAutomateOption}
                     checked={this.state.automateAuth} />
                   &nbsp;Automate all steps of the authentication process
                 </label> */}
