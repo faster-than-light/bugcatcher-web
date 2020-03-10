@@ -111,7 +111,7 @@ export default class CQC extends Component {
   }
   
   _fetchRepoList = async () => {
-    this.setState({ fetchCustomRepoErrors: null })
+    this.setState({ fetchCustomRepoErrors: null, showRepoInput: false })
     let fetchCustomRepoErrors = new Array()
     const reposText = this.repoListTextInput.value || ''
     const appendPrintedErrors = errMsg => {
