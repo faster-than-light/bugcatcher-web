@@ -59,14 +59,17 @@ export default class CQC extends Component {
     this.setState({ working: true })
     const code = queryString.parse(document.location.search)['code']
     let { token, user } = this.state
+    let redirect
     if (!token && code) {
       token = await this.fetchToken()
+      redirect = true
     }
     if (token) {
       await githubApi.setToken(token)
       user = await this.fetchUser()
     }
-    this.setState({
+    if (redirect) document.location.href = '/cqc'
+    else this.setState({
       code: !user && code ? code : null,
       user,
       working: false,
@@ -97,7 +100,7 @@ export default class CQC extends Component {
   }
   
   _resetState = () => {
-    setCookie(tokenCookieName, '')
+    // setCookie(tokenCookieName, '')
     this.setState(initialState)
   }
 
@@ -295,6 +298,7 @@ export default class CQC extends Component {
       fetchCustomRepoError = '',
       fetchCustomRepoErrors = [],
       repoListInputDisabled,
+      showRepoInput,
       token
     } = this.state
     const parsedCookieValue = (getCookie(FETCH_REPO_LIST_COOKIENAME).length ? getCookie(FETCH_REPO_LIST_COOKIENAME).split(',').join('\n') : null)
@@ -326,7 +330,7 @@ export default class CQC extends Component {
       </div>
     </React.Fragment>
 
-    if (token && (!branches.length || fetchCustomRepoErrors.length)) {
+    if (token && (showRepoInput || !branches.length || fetchCustomRepoErrors.length)) {
       const repos = this.state.repos ? this.state.repos.map((repo, k) => <Table.Row key={k}>
         <Table.Cell><a onClick={() => this._getBranches(repo)}>
           {repo}
@@ -337,15 +341,16 @@ export default class CQC extends Component {
         {repos}
       </div>
     }
-    else return <StlButton semantic default 
+    else if (token) return <StlButton semantic default 
       style={{float: 'right'}}
       onClick={() => {this.setState({
-        branches: [],
+        showRepoInput: true,
         fetchCustomRepoErrors: [],
       })}}>
       <Icon name='add' />
       Add Repositories
     </StlButton>
+    else return null
   }
 
   sortOptionChange = e => {
@@ -439,16 +444,19 @@ export default class CQC extends Component {
   /** @dev Network Data ******************************/
   fetchToken = async alertError => {
     let token
+    const code = queryString.parse(document.location.search)['code']
     try {
-      token = await githubApi.getAccessToken(this.state.code)
+      token = await githubApi.getAccessToken(code)
     } catch(e) { console.error(e) }
     if (!token) {
       if (alertError) alert('There was a problem fetching a token. Please try again.')
       this._resetState()
     }
     else {
-      setCookie(tokenCookieName, token)
-      this.setState({ token })
+      if (token.length) {
+        setCookie(tokenCookieName, token)
+        this.setState({ token })
+      }
     }
     return token
   }
