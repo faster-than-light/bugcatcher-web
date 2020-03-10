@@ -9,14 +9,16 @@ class htmlButton extends Component {
 
 export default class StlButton extends Component {
   render() {
-    let { className, disabled, style, semantic } = this.props
+    let { className, grey, disabled, link, style, semantic } = this.props
     const B = semantic ? Button : htmlButton
     semantic = Boolean(semantic).toString()
     return <B {...this.props}
       semantic={semantic}
       className={
         (className ? className + ' btn' : 'btn') +
-        (disabled ? ' disabled' : '')
+        (disabled ? ' disabled' : '') +
+        (grey ? ' grey' : '') +
+        (link ? ' link' : '')
       }
       style={{ ...style, opacity: disabled ? '0.33' : '1' }}
        />

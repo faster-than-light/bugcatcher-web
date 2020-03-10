@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import queryString from 'query-string'
-import { Icon, Table } from 'semantic-ui-react'
-import { Form, TextArea } from 'semantic-ui-react'
+import { Form, Icon, Select, Table, TextArea } from 'semantic-ui-react'
 
 // components
 import FtlLoader from '../components/Loader'
@@ -20,10 +19,11 @@ import StlButton from '../components/StlButton'
 import '../assets/css/CQC.css'
 
 /** Constants */
+const FETCH_REPO_LIST_COOKIENAME = "fetchRepoList"
 const initialState = {
   code: null,
   currentRepo: null,
-  branches: null,
+  branches: [],
   branchName: null,
   redirect: null,
   repos: null,
@@ -145,18 +145,39 @@ export default class CQC extends Component {
         )
 
         /** @todo Fetch GitHub branches for each repo */
+        let fetchCustomRepoRows = new Array()
         for(let i = 0;i < repos.length;i++) {
           const branchesForRepo = await this.fetchBranches(repos[i])
             .catch(() => null)
           if (!Array.isArray(branchesForRepo))
             appendPrintedErrors(`${repos[i][0]}/${repos[i][1]} was not found.`)
-          else
-            appendPrintedErrors(`${repos[i][0]}/${repos[i][1]} has ${branchesForRepo.length} branches: ${branchesForRepo.join(', ')}`)
+          else {
+            fetchCustomRepoRows.push([repos[i],branchesForRepo])
+          }
         }
 
         removePrintedError('Fetching branches of')
 
-        this.setState({ repoListInputDisabled: null })
+        let branches = fetchCustomRepoRows.map(r => {
+          const repoPath = `${r[0][0]}/${r[0][1]}`
+          const repo = this.state.branches.find(b => b.repoPath === repoPath)
+          const selectedBranch = repo ? repo.selectedBranch : 'master'
+          return ({
+            owner: r[0][0],
+            repo: r[0][1],
+            repoPath,
+            branches: r[1],
+            selectedBranch,
+            jobStatus: ''
+          })
+        })
+        if (!branches.length) branches = null
+    
+
+        this.setState({
+          branches,
+          repoListInputDisabled: null
+        })
 
       }
     }
@@ -175,13 +196,13 @@ export default class CQC extends Component {
     if (automateAuth) {
       this._runApiFunctions()
     }
-    return this.ApiButtons()
+    return null//<this.ApiButtons />
   }
   
   ApiButtons = () => {
     const { automateAuth } = this.state
     const show = { display: !automateAuth ? 'inline-block' : 'none' }
-
+    
     return <div style={{padding: '21px 0', textAlign: 'left'}}>
 
       <this.FetchAccessToken style={show} />
@@ -190,6 +211,56 @@ export default class CQC extends Component {
 
       <this.FetchUserRepos />
 
+    </div>
+  }
+
+  TableExamplePositiveNegative = ({branches}) => {
+    if (!branches || !branches.length) return null
+    else return <div>
+      <h2>Run Static Analysis Tests</h2>
+      <Table celled>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.8, verticalAlign: 'middle'}} defaultChecked
+                  onChange={e => {}} /></Table.HeaderCell>
+            <Table.HeaderCell>Repo Path</Table.HeaderCell>
+            <Table.HeaderCell>Branch</Table.HeaderCell>
+            <Table.HeaderCell>Status</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+
+        <Table.Body>
+          {
+            branches.map(r => {
+              console.log(r)
+              const rowKey = `row_${r.owner}_${r.path}`
+              return <Table.Row key={rowKey} positive={r.jobStatus === 'COMPLETE'}>
+                <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.8, verticalAlign: 'middle'}} defaultChecked
+                  onChange={e => {
+                    let row = branches.find(_r => _r.repoPath === r.repoPath)
+                    row.selectedBranch = 'this'
+                    console.log(branches)
+                  }} /></Table.Cell>
+                <Table.Cell>{r.repoPath}</Table.Cell>
+                <Table.Cell>
+                  <Select options={r.branches.map(b => ({ key: b, value: b, text: b }))}
+                    defaultValue={r.selectedBranch}
+                    onChange={e => {
+                      let row = branches.find(_r => _r.repoPath === r.repoPath)
+                      row.selectedBranch = e.target.innerHTML
+                      console.log(branches)
+                    }}
+                    placeholder={'Select a branch'}>
+                  
+                  </Select>
+                </Table.Cell>
+                <Table.Cell>{r.jobStatus}</Table.Cell>
+              </Table.Row>
+            })
+          }
+        </Table.Body>
+      </Table>
+      <StlButton>Run Tests on Checked Repos</StlButton>
     </div>
   }
 
@@ -210,26 +281,35 @@ export default class CQC extends Component {
       this.setState({ working: false })
     }}>Fetch User Profile &raquo;</StlButton>
 
-  FetchUserRepos = () => <StlButton className="link"
-    style={{ fontSize: 21, padding: 0,
+  FetchUserRepos = () => <StlButton default
+    style={{
       display: Boolean(!this.state.user || !this.state.branches) ?
       'none' : 'block' }}
     onClick={ async () => {
-      this.setState({ branches: null, tree: null, working: true })
-      await this.fetchRepos()
-      this.setState({ working: false })
-    }}>&laquo; Back to Repository List</StlButton>
+      this.setState({ branches: [] })
+    }}>Add Repositories</StlButton>
 
   RepoList = () => {
-    const { fetchCustomRepoError = '', fetchCustomRepoErrors = [], repoListInputDisabled } = this.state
+    const {
+      branches = [],
+      fetchCustomRepoError = '',
+      fetchCustomRepoErrors = [],
+      repoListInputDisabled,
+      token
+    } = this.state
+    const parsedCookieValue = (getCookie(FETCH_REPO_LIST_COOKIENAME).length ? getCookie(FETCH_REPO_LIST_COOKIENAME).split(',').join('\n') : null)
     const specifyRepo = <React.Fragment>
-      <h3>Specify Repositories</h3>
-      {/* <Input id='custom_repo' type="text" placeholder=":owner/:repo" value="retzion/sampleproject" />
-      <StlButton onClick={this.fetchCustomRepo}>Fetch Branches</StlButton> */}
+      <h3>Test Multiple Repositories</h3>
+      <p>Add 1 <code>owner/repo</code> combo per line. <i>(ex: <code>faster-than-light/ftl</code>)</i></p>
       <Form>
         <TextArea id='repo_list' type="text"
-          ref={r => this.repoListTextInput = r}
+          ref={r => {
+            if (r) r.value = parsedCookieValue
+            this.repoListTextInput = r
+          }}
+          defaultValue={parsedCookieValue}
           onChange={ev => {
+            setCookie(FETCH_REPO_LIST_COOKIENAME, ev.target.value.split('\n').join(','))
             this.repoListTextInput.value = ev.target.value
           }}
           disabled={repoListInputDisabled}
@@ -240,11 +320,13 @@ export default class CQC extends Component {
             disabled={repoListInputDisabled}>fetch repos</StlButton>
         </p>
       </Form>
-      <pre className="error">{fetchCustomRepoError}</pre>
-      <div className="error">{fetchCustomRepoErrors.map(e => <div>{e}</div>)}</div>
+      <div className="error">
+        {fetchCustomRepoErrors.map(e => <div>{e}</div>)}
+        <pre>{fetchCustomRepoError}</pre>
+      </div>
     </React.Fragment>
 
-    if (this.state.token && !this.state.branches) {
+    if (token && (!branches.length || fetchCustomRepoErrors.length)) {
       const repos = this.state.repos ? this.state.repos.map((repo, k) => <Table.Row key={k}>
         <Table.Cell><a onClick={() => this._getBranches(repo)}>
           {repo}
@@ -255,7 +337,15 @@ export default class CQC extends Component {
         {repos}
       </div>
     }
-    else return null
+    else return <StlButton semantic default 
+      style={{float: 'right'}}
+      onClick={() => {this.setState({
+        branches: [],
+        fetchCustomRepoErrors: [],
+      })}}>
+      <Icon name='add' />
+      Add Repositories
+    </StlButton>
   }
 
   sortOptionChange = e => {
@@ -427,6 +517,7 @@ export default class CQC extends Component {
   render() {
     const {
       automateAuth,
+      branches,
       code,
       redirect,
       repos,
@@ -449,12 +540,12 @@ export default class CQC extends Component {
         <div style={{ textAlign: 'center', marginTop: 111, padding: 18 }}>
           <div className="block-content">
 
-            {
+            {/* {
               !code && !token ? null :
                 <Link to={'/cqc'}
                   onClick={this._resetState}
                   style={{float: 'left'}}>&laquo; log out of GitHub</Link>
-            }
+            } */}
 
             {
               token ? null : <div>
@@ -504,11 +595,17 @@ export default class CQC extends Component {
               </React.Fragment>
             }
 
-            <this.RepoList />
+            <div style={{textAlign: 'left'}}>
 
-            <this.BranchList />
+              <this.RepoList />
 
-            <this.RepoContents />
+              <this.TableExamplePositiveNegative branches={branches} />
+
+              {/* <this.BranchList /> */}
+
+              {/* <this.RepoContents /> */}
+
+            </div>
 
           </div>
         </div>
