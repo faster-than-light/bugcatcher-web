@@ -1,13 +1,23 @@
 import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import queryString from 'query-string'
-import { Form, Icon, Select, Table, TextArea } from 'semantic-ui-react'
+import {
+  Form,
+  Icon,
+  Loader,
+  Radio,
+  Select,
+  Table,
+  TextArea
+} from 'semantic-ui-react'
+import { sha256 } from 'js-sha256'
 
 // components
 import FtlLoader from '../components/Loader'
 import Menu from '../components/Menu'
 
 // helpers
+import api from '../helpers/api'
 import { appUrl, github } from '../config'
 import { getCookie, setCookie } from '../helpers/cookies'
 import githubApi from '../helpers/githubApi'
@@ -20,7 +30,39 @@ import StlButton from '../components/StlButton'
 import '../assets/css/CQC.css'
 
 /** Constants */
+const uploadsPerSecond = 0 // 0 = unlimited
+const constStatus = {
+    'COMPLETE': 'COMPLETE',
+    'COMPUTING': 'COMPUTING',
+    'COMPUTING_PDF': 'COMPUTING_PDF',
+    'FETCHING': 'FETCHING',
+    'INIT': 'INIT',
+    'QUEUED': 'QUEUED',
+    'RUNNING': 'RUNNING',
+    'SETUP': 'SETUP',
+    'UPLOADED': 'UPLOADED',
+    'UPLOADING': 'UPLOADING'
+  },
+  maxConcurrentUploads = 99,
+  millisecondTimeout = Math.floor(1000 / uploadsPerSecond),
+  uiUploadThreshold = 1000,
+  retryAttemptsAllowed = 300,
+  retryIntervalMilliseconds = 9000,
+  strStatus = {
+    [constStatus.COMPUTING_PDF]: 'Test Complete!',
+    [constStatus.RUNNING]: 'Running Tests...',
+    [constStatus.SETUP]: 'Setting up Tests...',
+  }
+const ACTIVE_TESTING_STATUSES = [
+  constStatus.COMPUTING,
+  constStatus.INIT,
+  constStatus.RUNNING,
+  constStatus.SETUP,
+  constStatus.UPLOADED,
+  constStatus.UPLOADING
+]
 const FETCH_REPO_LIST_COOKIENAME = "fetchRepoList"
+const MILISECOND_INTERVAL_FOR_STATUS_POLING = 9000
 const initialState = {
   code: null,
   currentRepo: null,
@@ -36,6 +78,18 @@ const initialState = {
   working: false,
 }
 const { automateCookieName, tokenCookieName } = github
+
+/** Global Variables */
+let retryAttempts = 0,
+  lastPercentComplete = 0,
+  // projectName,
+  currentUploadQueue,
+  statusCheck,
+  startCounting,
+  testTimeElapsed = 0,
+  successfulUploads = 0,
+  concurrentUploads = 0,
+  ghTreeSha
 
 export default class CQC extends Component {
   constructor(props) {
@@ -96,6 +150,7 @@ export default class CQC extends Component {
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this._fetchRepoKeydownEvent)
+    this._stopTestingQueue()
   }
 
   /** @dev Functions *******************************/
@@ -222,32 +277,365 @@ export default class CQC extends Component {
     }
   }
 
+  _updateTestingQueueItem(updatedItem) {
+    let { branches } = this.state
+    let itemToUpdate = branches.find(
+      b => b.repoPath === updatedItem.repoPath
+    )
+    itemToUpdate = { ...updatedItem }
+    this._persistTestingQueue(branches)
+  }
+
   _persistTestingQueue(branches) {
     this.setState({ branches })
     LocalStorage.BulkTestingQueue.setTestingQueue(branches)
   }
 
-  _startTestingQueue() {
-    const { branches } = this.state
-    let queue = branches.filter(b => b.status === 'QUEUED')
-    let running = branches.filter(b => ['SETUP','RUNNING'].includes(b.status))
-    if (queue.length && !running.length) {
-      queue[0]['status'] = 'SETUP'
-      this._persistTestingQueue(branches)
+  async _startTestOnQueueItem(queueItem) {
+    const tree = await this._getTree(
+      queueItem.owner,
+      queueItem.repo,
+      queueItem.selectedBranch,
+    )
+    console.log({tree})
+    this._persistTestingQueue(this.state.branches.map(b => {
+      if (b.repoPath === queueItem.repoPath) return ({...b, status: 'INIT'})
+      else return b
+    }))
+  }
+
+  _checkTestStatus(queueItem) {
+    const { testId: stlid } = queueItem
+    let { reconnecting } = this.state
+    if (!stlid) return
+    else return new Promise(async (resolve, reject) => {
+      const noConnection = (err) => {
+        reconnecting = true
+        this.setState({ reconnecting })
+        console.error(err || new Error('GET /run_tests connection timed out. Retrying...'))
+      }
+      const failed = (err) => {
+        alert("There was an error running the tests.")
+        console.error(err || new Error('GET /run_tests returned a 502 Bad Gateway response'))
+        reject()
+      }
+
+      let fetchingTest = this.state.fetchingTest || []
+      fetchingTest = fetchingTest.filter(t => t.testId !== stlid)
+      this.setState({ fetchingTest: [...fetchingTest, stlid] })
+      const getRunTests = await api.getRunTests({ stlid }).catch(noConnection)
+      this.setState({ fetchingTest })
+      const { data } = getRunTests || {}
+      const { response } = data || {}
+
+      // Fail for any status in the 400's
+      if (getRunTests && response && response.status >= 400 && response.status <= 499) failed()
+      
+      // Retry failed connections
+      if (!getRunTests || !response) noConnection()
+      else {
+        reconnecting = false
+        this.setState({ reconnecting })
+      }
+
+      // abort if stlid does not match testResultSid
+      if (response && response.stlid !== stlid) {
+        console.log('mismatch', response.stlid, this.state.testResultSid)
+        clearInterval( statusCheck )
+        reject()
+      }
+
+      // setting up the tests
+      if (response && response.status_msg === constStatus.SETUP) {
+        if (queueItem.status !== constStatus.SETUP) {
+          queueItem.status = constStatus.SETUP
+          this._updateTestingQueueItem(queueItem)
+        }
+      }
+      else if (queueItem.status === constStatus.SETUP) {
+        queueItem.status = constStatus[response.status_msg]
+        this._updateTestingQueueItem(queueItem)
+      }
+
+      console.log({ getRunTests, queueItem, stlid, response })
+
+      // update result data in `state`
+      if (
+        response && 
+        response.percent_complete &&
+        response.percent_complete >= lastPercentComplete
+      ) {
+        this.setState({
+          reconnecting: false,
+        })
+      }
+
+      // `percent_complete` has progressed
+      if (
+        response && 
+        response.percent_complete &&
+        response.percent_complete > lastPercentComplete
+      ) {
+        lastPercentComplete = response.percent_complete
+        retryAttempts = 0
+        this.setState({ reconnecting: false })
+      }
+
+      // results are ready
+      if (response && (response.status_msg === 'COMPUTING_PDF' || response.status_msg === 'COMPLETE')) {
+        response.percent_complete = 100
+        this.setState({ reconnecting: false })
+        resolve(response)
+      }
+
+      // the incoming response is from the current test
+      else if (reconnecting || response.stlid === stlid) {
+        // we should be fetching or not
+        if (
+          !this.state.fetchingTest.includes(stlid) &&
+          (retryAttempts <= retryAttemptsAllowed || lastPercentComplete === 0)
+        ) {
+          retryAttempts++
+          console.log(`Test Status request #${retryAttempts} at ${lastPercentComplete}% complete`)
+          statusCheck = setTimeout(
+            () => { resolve(this._checkTestStatus(queueItem)) },
+            retryIntervalMilliseconds
+          )
+        }
+        else reject()
+      }
+      else reject()
+    })
+  }
+
+  _runTests = async (queueItem) => {
+    const { owner, repo, selectedBranch } = queueItem
+    const projectName = `${owner}_${repo}_${selectedBranch}`
+
+    clearTimeout( statusCheck )
+    clearInterval( startCounting )
+    statusCheck = null
+    startCounting = setInterval(this._countUp, 1000)
+    testTimeElapsed = 0
+    successfulUploads = 0
+
+    // tell the server to run tests
+    const runTestsError = (err) => {
+      err = err || new Error('POST /run_tests returned a bad response')
+      alert(err.message)
+      console.error(err)
+      return null
+    }
+    const runTests = await api.postTestProject({ projectName }).catch(runTestsError)
+    if (runTests) {
+      const { stlid, status } = runTests.data
+      queueItem.testId = stlid
+      queueItem.status = constStatus[status]
+      this._updateTestingQueueItem(queueItem)
+      this._initCheckTestStatus(queueItem)
     }
   }
 
+  async _initCheckTestStatus(queueItem) {
+    clearTimeout( statusCheck )
+    lastPercentComplete = 0
+
+    const checkStatusError = (err) => {
+      err = err || new Error('GET /run_tests returned a bad response')
+      alert(err.message)
+      console.error(err)
+      return null
+    }
+
+    const results = await this._checkTestStatus(queueItem).catch(checkStatusError)
+    if (results) {
+      if (results.status_msg === constStatus.COMPUTING_PDF || results.status_msg === constStatus.COMPLETE) {
+        clearInterval( startCounting )
+        testTimeElapsed = 0
+        queueItem.status = constStatus.COMPLETE
+        this._updateTestingQueueItem(queueItem)
+      }
+      else this._initCheckTestStatus(queueItem)
+    }    
+  }
+
+  _runTestingQueue() {
+    this.setState({
+      runningQueue: setInterval(() => {
+        let running = this.state.branches.filter(b => ACTIVE_TESTING_STATUSES.includes(b.status))
+        running.forEach(item => {
+          console.log({item})
+
+          // Advance items based on status
+          if (item.status === constStatus.INIT) {
+            item.status = constStatus.FETCHING
+            this._updateTestingQueueItem(item)
+            this._fetchGithubRepo(item)
+          }
+          if (item.status === constStatus.UPLOADED) this._runTests(item)
+
+        })
+      }, MILISECOND_INTERVAL_FOR_STATUS_POLING)
+    })
+  }
+
+  _stopTestingQueue() {
+    clearInterval(this.state.runningQueue)
+    this.setState({ runningQueue: null })
+  }
+
+  _startTestingQueue() {
+    const { branches } = this.state
+    let queue = branches.filter(b => b.status === constStatus.QUEUED)
+    let running = branches.filter(b => ACTIVE_TESTING_STATUSES.includes(b.status))
+    console.log({queue, running})
+    if (queue.length && !running.length) this._startTestOnQueueItem(queue[0])
+    this._runTestingQueue()
+  }
+
   async _queueSelectedFiles() {
-    let markQueued = this.state.branches.filter(b => b.checked && !['SETUP','RUNNING'].includes(b.status))
+    let markQueued = this.state.branches.filter(b => b.checked && !ACTIVE_TESTING_STATUSES.includes(b.status))
     const branches = this.state.branches.map(b => {
       const shouldQueue = markQueued.find(m => {
         return m.repoPath === b.repoPath
       })
-      if (shouldQueue) return {...b, status: 'QUEUED'}
+      if (shouldQueue) return {...b, status: constStatus.QUEUED}
       else return b
     })
     await this._persistTestingQueue(branches)
     this._startTestingQueue()
+  }
+
+  _fetchGithubRepo = async queueItem => {
+    const { owner, repo, selectedBranch: branchName } = queueItem
+    const token = getCookie(tokenCookieName)
+    if (!token) alert('GitHub token not found.')
+    else {
+      githubApi.setToken(token)
+      const { tree } = await this._getTree(
+        owner,
+        repo,
+        branchName,
+      )
+      if (tree && tree.tree) this._uploadGithubRepo(queueItem, tree)    
+    }
+  }
+
+  _fetchProductCode = async (projectName) => {
+    const { data = {} } = await api.getProject(projectName).catch(() => ({}))
+    const { response: projectOnServer = {} } = data
+    const { code: codeOnServer = [] } = projectOnServer
+    return codeOnServer
+  }
+
+  _uploadGithubRepo = async (queueItem, tree) => {
+    const { owner, repo, selectedBranch } = queueItem
+    const projectName = `${owner}_${repo}_${selectedBranch}`
+    const codeOnServer = await this._fetchProductCode(projectName)
+    const thisUploadQueue = currentUploadQueue = new Date().getTime()
+
+    let uploadErrors = [],
+      uploaded = [],
+      toUpload = tree.tree.filter(t => t.type === 'blob'),
+      retryFailedUploadsAttempt = 0,
+      interval
+    const treeSize = toUpload.length
+
+    queueItem.fileCount = treeSize
+    queueItem.status = 'UPLOADING'
+    this._updateTestingQueueItem(queueItem)
+
+    const checkUploadsComplete = () => {
+      if (uploaded.length + uploadErrors.length === treeSize) { 
+        if (!uploadErrors.length) {
+          clearInterval(interval)
+          queueItem.status = constStatus.UPLOADED
+          this._updateTestingQueueItem(queueItem)
+        }
+        else if (retryFailedUploadsAttempt < 3) {
+          retryFailedUploadsAttempt++
+          console.log('Retry attempt #' + retryFailedUploadsAttempt)
+          successfulUploads = successfulUploads - uploadErrors.length
+          toUpload = uploadErrors
+          uploadErrors = []
+        }
+        else {
+          clearInterval(interval)
+          this.setState({ step: -1, uploadErrors })
+        }
+      }
+      this.setState({
+        ghUploaded: uploaded.length,
+      })
+    }
+    const fetchBlobError = (err, file) => {
+      console.error(err)
+      console.log(`Failed: ${file.sha}`, file.path)
+      return null
+    }
+    const apiError = (err, file) => {
+      err = err || new Error(`Failed to push file: ${file.path}`)
+      console.error(err)
+      uploadErrors.push(file)
+      checkUploadsComplete()
+    }
+    const sendFile = async (file) => {
+      concurrentUploads++
+      const blob = await githubApi.getBlob(owner, repo, file.sha)
+        .catch(() => null)
+      if (!blob) { fetchBlobError(new Error('Failed to fetch blob.'), file) }
+      else {
+        // check the sha256 hash to skip any synchronized files
+        const code = 'data:application/octet-stream;base64,' + blob['content']
+        let binStringToHash = sha256(atob(blob['content']))
+        const synchronized = Boolean(codeOnServer.find(f => f.sha256 === binStringToHash))
+
+        const putCodeCallback = (apiResponse, file) => {
+          successfulUploads++
+          concurrentUploads--
+          if (!apiResponse) apiError(null, file)
+          else {
+            uploaded.push(file)
+            checkUploadsComplete()
+          }
+        }
+
+        if (synchronized) {
+          // console.log(`\tSkipping synchronized file ${file.path}`)
+          putCodeCallback(true, file)
+        }
+        else {
+          // console.log(`\tUploading file ${file.path}`)
+          api.putCode({
+            name: file.path,
+            code,
+            project: encodeURIComponent(projectName),
+          })
+          .then(res => {putCodeCallback(res, file)})
+          .catch(err => apiError(err, file))
+        }
+      }
+    }
+
+    // send the files
+    const sendFiles = () => {
+      if (
+        currentUploadQueue === thisUploadQueue
+        && concurrentUploads <= maxConcurrentUploads
+      ) {
+        if (!toUpload.length) checkUploadsComplete()
+        else {
+          const file = toUpload[0]
+          toUpload = toUpload.filter(f => f !== file)
+          // console.log(`upload ${file.path} after pausing ${millisecondTimeout} milliseconds with ${concurrentUploads} files in queue and ${successfulUploads} successful uploads`)
+          sendFile(file)
+        }
+      }
+    }
+    interval = setInterval(
+      sendFiles,
+      millisecondTimeout
+    )
   }
 
   /** @dev Components ******************************/
@@ -276,11 +664,24 @@ export default class CQC extends Component {
 
   TableExamplePositiveNegative = ({
     branches,
-    disableQueueButtons
+    disableQueueButtons,
+    runningQueue
   }) => {
     if (!branches || !branches.length) return null
     else return <div>
-      <h2>Run Static Analysis Tests</h2>
+      <h2 style={{width: 'auto'}}>
+        Static Analysis Test Queue
+        <span style={{fontSize: '60%', marginLeft: 18}}>
+          off
+          &nbsp;<Radio toggle style={{verticalAlign: 'middle'}}
+            checked={runningQueue != null}
+            onClick={() => {
+              if (this.state.runningQueue) this._stopTestingQueue()
+              else this._startTestingQueue()
+            }} />&nbsp;
+          on
+        </span>
+      </h2>
       <Table celled>
         <Table.Header>
           <Table.Row>
@@ -302,6 +703,7 @@ export default class CQC extends Component {
             }} /></Table.HeaderCell>
             <Table.HeaderCell>Repo Path</Table.HeaderCell>
             <Table.HeaderCell>Branch</Table.HeaderCell>
+            <Table.HeaderCell>File Count</Table.HeaderCell>
             <Table.HeaderCell>Status</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
@@ -335,7 +737,15 @@ export default class CQC extends Component {
                   
                   </Select>
                 </Table.Cell>
-                <Table.Cell>{r.status}</Table.Cell>
+                <Table.Cell>{r.fileCount || '?'}</Table.Cell>
+                <Table.Cell>
+                  <Loader style={{
+                    display: (r.status && r.status !== constStatus.QUEUED && this.state.runningQueue) ? 'inline-block' : 'none',
+                    marginRight: 9
+                  }} inline size={'small'} />
+                  {/* {r.status && r.status !== 'QUEUED' ?  : null} */}
+                  {r.status}
+                </Table.Cell>
               </Table.Row>
             })
           }
@@ -612,6 +1022,7 @@ export default class CQC extends Component {
       disableQueueButtons,
       redirect,
       // repos,
+      runningQueue,
       token,
       // user,
       working,
@@ -691,7 +1102,8 @@ export default class CQC extends Component {
               <this.RepoList />
 
               <this.TableExamplePositiveNegative branches={branches}
-                disableQueueButtons={disableQueueButtons} />
+                disableQueueButtons={disableQueueButtons}
+                runningQueue={runningQueue} />
 
               {/* <this.BranchList /> */}
 
