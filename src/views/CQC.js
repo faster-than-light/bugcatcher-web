@@ -11,6 +11,7 @@ import Menu from '../components/Menu'
 import { appUrl, github } from '../config'
 import { getCookie, setCookie } from '../helpers/cookies'
 import githubApi from '../helpers/githubApi'
+import LocalStorage from '../helpers/LocalStorage'
 
 // images & styles
 import bugcatcherShield from '../assets/images/bugcatcher-shield-square.png'
@@ -57,6 +58,8 @@ export default class CQC extends Component {
 
   async componentWillMount() {
     this.setState({ working: true })
+
+    // handle tokens and auth codes
     const code = queryString.parse(document.location.search)['code']
     let { token, user } = this.state
     let redirect
@@ -68,9 +71,14 @@ export default class CQC extends Component {
       await githubApi.setToken(token)
       user = await this.fetchUser()
     }
+
+    // look for a queue in local storage
+    const testingQueue = LocalStorage.BulkTestingQueue.getTestingQueue()
+
     if (redirect) document.location.href = '/cqc'
     else this.setState({
       code: !user && code ? code : null,
+      branches: testingQueue,
       user,
       working: false,
     })
@@ -184,6 +192,8 @@ export default class CQC extends Component {
           repoListInputDisabled: null
         })
 
+        LocalStorage.BulkTestingQueue.setTestingQueue(branches)
+
       }
     }
   }
@@ -193,6 +203,18 @@ export default class CQC extends Component {
     this.setState({ working: true })
     let branches = this.fetchBranches(currentRepo.split('/'))
     this.setState({ branches, currentRepo, working: false })
+  }
+
+  _removeRowsFromQueue = () => {
+    const removedRows = this.state.branches.filter(b => b.checked)
+    const branches = this.state.branches.filter(
+      b => !removedRows.includes(b)
+    )
+    /** @todo: stop any jobs in progress and delete data from server */
+    if (window.confirm('Really remove?')) {
+      this.setState({ branches })
+      LocalStorage.BulkTestingQueue.setTestingQueue(branches)
+    }
   }
 
   /** @dev Components ******************************/
@@ -219,7 +241,10 @@ export default class CQC extends Component {
     </div>
   }
 
-  TableExamplePositiveNegative = ({branches}) => {
+  TableExamplePositiveNegative = ({
+    branches,
+    disableQueueButtons
+  }) => {
     if (!branches || !branches.length) return null
     else return <div>
       <h2>Run Static Analysis Tests</h2>
@@ -235,14 +260,17 @@ export default class CQC extends Component {
                   // console.log(b.checked, e.target.checked)
                   return ({...b, checked: e.target.checked})
                 })
-                this.setState({ branches })
-              }} /></Table.HeaderCell>
+                const filteredBranches = branches.filter(
+                  b => b.checked && branches.length
+                )
+                disableQueueButtons = Boolean(!filteredBranches.length)
+                this.setState({ branches, disableQueueButtons })
+            }} /></Table.HeaderCell>
             <Table.HeaderCell>Repo Path</Table.HeaderCell>
             <Table.HeaderCell>Branch</Table.HeaderCell>
             <Table.HeaderCell>Status</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
-
         <Table.Body>
           {
             branches.map(r => {
@@ -253,7 +281,11 @@ export default class CQC extends Component {
                   onChange={e => {
                     let row = branches.find(_r => _r.repoPath === r.repoPath)
                     row.checked = !row.checked
-                    this.setState({ branches })
+                    const filteredBranches = branches.filter(
+                      b => b.checked && branches.length
+                    )
+                    disableQueueButtons = Boolean(!filteredBranches.length)
+                    this.setState({ branches, disableQueueButtons })
                   }} /></Table.Cell>
                 <Table.Cell>{r.repoPath}</Table.Cell>
                 <Table.Cell>
@@ -273,7 +305,11 @@ export default class CQC extends Component {
           }
         </Table.Body>
       </Table>
-      <StlButton>Run Tests on Checked Repos</StlButton>
+      <StlButton disabled={disableQueueButtons}
+        onClick={() => { alert('in development') }}>Run Tests on Selected Repos</StlButton>
+      &nbsp;
+      <StlButton disabled={disableQueueButtons} default semantic
+        onClick={() => { this._removeRowsFromQueue() }}>Remove Selected Repos</StlButton>
     </div>
   }
 
@@ -534,13 +570,14 @@ export default class CQC extends Component {
   /** @dev Render this component ******************************/
   render() {
     const {
-      automateAuth,
-      branches,
+      // automateAuth,
+      branches = [],
       code,
+      disableQueueButtons,
       redirect,
-      repos,
+      // repos,
       token,
-      user,
+      // user,
       working,
     } = this.state
     const onSuccess = response => {
@@ -617,7 +654,8 @@ export default class CQC extends Component {
 
               <this.RepoList />
 
-              <this.TableExamplePositiveNegative branches={branches} />
+              <this.TableExamplePositiveNegative branches={branches}
+                disableQueueButtons={disableQueueButtons} />
 
               {/* <this.BranchList /> */}
 

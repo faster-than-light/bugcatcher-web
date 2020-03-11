@@ -21,6 +21,24 @@ class Annotations {
   }
 }
 
+class BulkTestingQueue {
+
+  static async clearStorage() {
+    await this.setTestingQueue()
+  }
+
+  /* Testing Queue */
+  static getTestingQueue() {
+    return jsonFromLS('testingQueue') || []
+  }
+  static setTestingQueue(queue) {
+    queue = Array.isArray(queue) ? queue.filter( (item, i, ar) => ar.indexOf(item) === i ) : []
+    if (window.localStorage) {
+      window.localStorage.setItem('testingQueue', JSON.stringify(queue))
+    }
+  }
+}
+
 class ProjectTestResults {
 
   static async clearStorage() {
@@ -107,6 +125,7 @@ class User {
 
 export default {
   Annotations,
+  BulkTestingQueue,
   ProjectTestResults,
   Stripe,
   User,
