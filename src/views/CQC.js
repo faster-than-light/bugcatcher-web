@@ -75,10 +75,16 @@ export default class CQC extends Component {
     // look for a queue in local storage
     const testingQueue = LocalStorage.BulkTestingQueue.getTestingQueue()
 
+    const filteredBranches = testingQueue.filter(
+      b => b.checked && testingQueue.length
+    )
+    const disableQueueButtons = Boolean(!filteredBranches.length)
+
     if (redirect) document.location.href = '/cqc'
     else this.setState({
       code: !user && code ? code : null,
       branches: testingQueue,
+      disableQueueButtons,
       user,
       working: false,
     })
