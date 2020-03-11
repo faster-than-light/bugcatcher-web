@@ -173,15 +173,14 @@ export default class CQC extends Component {
           const repoPath = `${r[0][0]}/${r[0][1]}`
           const repo = this.state.branches.find(b => b.repoPath === repoPath)
           const selectedBranch = repo ? repo.selectedBranch : 'master'
-          const checked = repo && repo.checked === false ? false : true
           return ({
             owner: r[0][0],
             repo: r[0][1],
             repoPath,
             branches: r[1],
             selectedBranch,
-            jobStatus: '',
-            checked
+            status: repo ? repo.status : null,
+            checked: repo && repo.checked
           })
         })
         if (!branches.length) branches = null
@@ -198,14 +197,14 @@ export default class CQC extends Component {
     }
   }
 
-  _getBranches = async currentRepo => {
+  async _getBranches(currentRepo) {
     window.scrollTo({ top: 0 })
     this.setState({ working: true })
     let branches = this.fetchBranches(currentRepo.split('/'))
     this.setState({ branches, currentRepo, working: false })
   }
 
-  _removeRowsFromQueue = () => {
+  _removeRowsFromQueue() {
     const removedRows = this.state.branches.filter(b => b.checked)
     const branches = this.state.branches.filter(
       b => !removedRows.includes(b)
@@ -220,6 +219,29 @@ export default class CQC extends Component {
   _persistTestingQueue(branches) {
     this.setState({ branches })
     LocalStorage.BulkTestingQueue.setTestingQueue(branches)
+  }
+
+  _startTestingQueue() {
+    const { branches } = this.state
+    let queue = branches.filter(b => b.status === 'QUEUED')
+    let running = branches.filter(b => ['SETUP','RUNNING'].includes(b.status))
+    if (queue.length && !running.length) {
+      queue[0]['status'] = 'SETUP'
+      this._persistTestingQueue(branches)
+    }
+  }
+
+  async _queueSelectedFiles() {
+    let markQueued = this.state.branches.filter(b => b.checked && !['SETUP','RUNNING'].includes(b.status))
+    const branches = this.state.branches.map(b => {
+      const shouldQueue = markQueued.find(m => {
+        return m.repoPath === b.repoPath
+      })
+      if (shouldQueue) return {...b, status: 'QUEUED'}
+      else return b
+    })
+    await this._persistTestingQueue(branches)
+    this._startTestingQueue()
   }
 
   /** @dev Components ******************************/
@@ -307,14 +329,14 @@ export default class CQC extends Component {
                   
                   </Select>
                 </Table.Cell>
-                <Table.Cell>{r.jobStatus}</Table.Cell>
+                <Table.Cell>{r.status}</Table.Cell>
               </Table.Row>
             })
           }
         </Table.Body>
       </Table>
       <StlButton disabled={disableQueueButtons}
-        onClick={() => { alert('in development') }}>Run Tests on Selected Repos</StlButton>
+        onClick={() => { this._queueSelectedFiles() }}>Run Tests on Selected Repos</StlButton>
       &nbsp;
       <StlButton disabled={disableQueueButtons} default semantic
         onClick={() => { this._removeRowsFromQueue() }}>Remove Selected Repos</StlButton>
@@ -395,7 +417,7 @@ export default class CQC extends Component {
         {repos}
       </div>
     }
-    else if (token) return <StlButton semantic default 
+    else if (token) return <StlButton link 
       style={{float: 'right'}}
       onClick={() => {this.setState({
         showRepoInput: true,
