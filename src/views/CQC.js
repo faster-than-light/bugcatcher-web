@@ -217,6 +217,11 @@ export default class CQC extends Component {
     }
   }
 
+  _persistTestingQueue(branches) {
+    this.setState({ branches })
+    LocalStorage.BulkTestingQueue.setTestingQueue(branches)
+  }
+
   /** @dev Components ******************************/
   ApiFunctions = () => {
     const { automateAuth } = this.state
@@ -264,7 +269,8 @@ export default class CQC extends Component {
                   b => b.checked && branches.length
                 )
                 disableQueueButtons = Boolean(!filteredBranches.length)
-                this.setState({ branches, disableQueueButtons })
+                this.setState({ disableQueueButtons })
+                this._persistTestingQueue(branches)
             }} /></Table.HeaderCell>
             <Table.HeaderCell>Repo Path</Table.HeaderCell>
             <Table.HeaderCell>Branch</Table.HeaderCell>
@@ -285,7 +291,8 @@ export default class CQC extends Component {
                       b => b.checked && branches.length
                     )
                     disableQueueButtons = Boolean(!filteredBranches.length)
-                    this.setState({ branches, disableQueueButtons })
+                    this.setState({ disableQueueButtons })
+                    this._persistTestingQueue(branches)
                   }} /></Table.Cell>
                 <Table.Cell>{r.repoPath}</Table.Cell>
                 <Table.Cell>
@@ -294,6 +301,7 @@ export default class CQC extends Component {
                     onChange={e => {
                       let row = branches.find(_r => _r.repoPath === r.repoPath)
                       row.selectedBranch = e.target.innerHTML
+                      this._persistTestingQueue(branches)
                     }}
                     placeholder={'Select a branch'}>
                   
