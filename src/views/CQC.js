@@ -55,6 +55,8 @@ const constStatus = {
   }
 const ACTIVE_TESTING_STATUSES = [
   constStatus.COMPUTING,
+  constStatus.COMPUTING_PDF,
+  constStatus.FETCHING,
   constStatus.INIT,
   constStatus.RUNNING,
   constStatus.SETUP,
@@ -128,16 +130,17 @@ export default class CQC extends Component {
 
     // look for a queue in local storage
     const testingQueue = LocalStorage.BulkTestingQueue.getTestingQueue()
+    const branches = testingQueue.map(q => ({...q, runningProcess: null}))
+    this._persistTestingQueue(branches)
 
-    const filteredBranches = testingQueue.filter(
-      b => b.checked && testingQueue.length
-    )
+    const filteredBranches = testingQueue.length ? testingQueue.filter(
+      b => b.checked
+    ) : []
     const disableQueueButtons = Boolean(!filteredBranches.length)
 
     if (redirect) document.location.href = '/cqc'
     else this.setState({
       code: !user && code ? code : null,
-      branches: testingQueue,
       disableQueueButtons,
       user,
       working: false,
@@ -267,14 +270,11 @@ export default class CQC extends Component {
 
   _removeRowsFromQueue() {
     const removedRows = this.state.branches.filter(b => b.checked)
+    if (removedRows.find(r => r.runningProcess)) clearInterval( statusCheck )
     const branches = this.state.branches.filter(
       b => !removedRows.includes(b)
     )
-    /** @todo: stop any jobs in progress and delete data from server */
-    if (window.confirm('Really remove?')) {
-      this.setState({ branches })
-      LocalStorage.BulkTestingQueue.setTestingQueue(branches)
-    }
+    if (window.confirm('Really remove?')) this._persistTestingQueue(branches)
   }
 
   _updateTestingQueueItem(updatedItem) {
@@ -346,18 +346,10 @@ export default class CQC extends Component {
       }
 
       // setting up the tests
-      if (response && response.status_msg === constStatus.SETUP) {
-        if (queueItem.status !== constStatus.SETUP) {
-          queueItem.status = constStatus.SETUP
-          this._updateTestingQueueItem(queueItem)
-        }
-      }
-      else if (queueItem.status === constStatus.SETUP) {
+      if (response && response.status_msg !== queueItem.status) {
         queueItem.status = constStatus[response.status_msg]
         this._updateTestingQueueItem(queueItem)
       }
-
-      console.log({ getRunTests, queueItem, stlid, response })
 
       // update result data in `state`
       if (
@@ -409,6 +401,9 @@ export default class CQC extends Component {
   }
 
   _runTests = async (queueItem) => {
+    queueItem.runningProcess = true
+    this._updateTestingQueueItem(queueItem)
+
     const { owner, repo, selectedBranch } = queueItem
     const projectName = `${owner}_${repo}_${selectedBranch}`
 
@@ -442,13 +437,13 @@ export default class CQC extends Component {
 
     const checkStatusError = (err) => {
       err = err || new Error('GET /run_tests returned a bad response')
-      alert(err.message)
       console.error(err)
       return null
     }
 
-    const results = await this._checkTestStatus(queueItem).catch(checkStatusError)
-    if (results) {
+    const results = await this._checkTestStatus(queueItem)//.catch(checkStatusError)
+    if (!results) checkStatusError()
+    else {
       if (results.status_msg === constStatus.COMPUTING_PDF || results.status_msg === constStatus.COMPLETE) {
         clearInterval( startCounting )
         testTimeElapsed = 0
@@ -462,25 +457,37 @@ export default class CQC extends Component {
   _runTestingQueue() {
     this.setState({
       runningQueue: setInterval(() => {
+
+
         let running = this.state.branches.filter(b => ACTIVE_TESTING_STATUSES.includes(b.status))
         running.forEach(item => {
-          console.log({item})
-
+          if (item.runningProcess) return
           // Advance items based on status
-          if (item.status === constStatus.INIT) {
+          else if (
+            item.status === constStatus.INIT ||
+            item.status === constStatus.FETCHING ||
+            item.status === constStatus.UPLOADING
+          ) {
             item.status = constStatus.FETCHING
+            item.runningProcess = true
             this._updateTestingQueueItem(item)
             this._fetchGithubRepo(item)
           }
-          if (item.status === constStatus.UPLOADED) this._runTests(item)
-
+          else if (item.status === constStatus.UPLOADED) this._runTests(item)
+          else {
+            this._initCheckTestStatus(item)
+          }
         })
+
+
       }, MILISECOND_INTERVAL_FOR_STATUS_POLING)
     })
   }
 
   _stopTestingQueue() {
     clearInterval(this.state.runningQueue)
+    clearTimeout( statusCheck )
+    clearInterval( startCounting )
     this.setState({ runningQueue: null })
   }
 
@@ -488,7 +495,6 @@ export default class CQC extends Component {
     const { branches } = this.state
     let queue = branches.filter(b => b.status === constStatus.QUEUED)
     let running = branches.filter(b => ACTIVE_TESTING_STATUSES.includes(b.status))
-    console.log({queue, running})
     if (queue.length && !running.length) this._startTestOnQueueItem(queue[0])
     this._runTestingQueue()
   }
@@ -550,6 +556,7 @@ export default class CQC extends Component {
         if (!uploadErrors.length) {
           clearInterval(interval)
           queueItem.status = constStatus.UPLOADED
+          queueItem.runningProcess = null
           this._updateTestingQueueItem(queueItem)
         }
         else if (retryFailedUploadsAttempt < 3) {
@@ -561,12 +568,12 @@ export default class CQC extends Component {
         }
         else {
           clearInterval(interval)
-          this.setState({ step: -1, uploadErrors })
+          this.setState({ fetchCustomRepoErrors: uploadErrors })
         }
       }
-      this.setState({
-        ghUploaded: uploaded.length,
-      })
+      // this.setState({
+      //   ghUploaded: uploaded.length,
+      // })
     }
     const fetchBlobError = (err, file) => {
       console.error(err)
@@ -667,7 +674,8 @@ export default class CQC extends Component {
     disableQueueButtons,
     runningQueue
   }) => {
-    if (!branches || !branches.length) return null
+    const { token } = this.state
+    if (!token || !branches || !branches.length) return null
     else return <div>
       <h2 style={{width: 'auto'}}>
         Static Analysis Test Queue
