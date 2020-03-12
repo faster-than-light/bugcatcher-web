@@ -448,7 +448,9 @@ export default class CQC extends Component {
         clearInterval( startCounting )
         testTimeElapsed = 0
         queueItem.status = constStatus.COMPLETE
+        queueItem.runningProcess = null
         this._updateTestingQueueItem(queueItem)
+        this._startTestingQueue()
       }
       else this._initCheckTestStatus(queueItem)
     }    
@@ -505,7 +507,11 @@ export default class CQC extends Component {
       const shouldQueue = markQueued.find(m => {
         return m.repoPath === b.repoPath
       })
-      if (shouldQueue) return {...b, status: constStatus.QUEUED}
+      if (shouldQueue) return {
+        ...b,
+        status: constStatus.QUEUED,
+        checked: null
+      }
       else return b
     })
     await this._persistTestingQueue(branches)
@@ -719,7 +725,7 @@ export default class CQC extends Component {
           {
             branches.map(r => {
               const rowKey = `row_${r.owner}_${r.path}`
-              return <Table.Row key={rowKey} positive={r.jobStatus === 'COMPLETE'}>
+              return <Table.Row key={rowKey} positive={r.jobStatus === constStatus.COMPLETE}>
                 <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.8, verticalAlign: 'middle'}}
                   checked={r.checked}
                   onChange={e => {
@@ -748,7 +754,7 @@ export default class CQC extends Component {
                 <Table.Cell>{r.fileCount || '?'}</Table.Cell>
                 <Table.Cell>
                   <Loader style={{
-                    display: (r.status && r.status !== constStatus.QUEUED && this.state.runningQueue) ? 'inline-block' : 'none',
+                    display: (r.status && r.status !== constStatus.QUEUED && r.status !== constStatus.COMPLETE && this.state.runningQueue) ? 'inline-block' : 'none',
                     marginRight: 9
                   }} inline size={'small'} />
                   {/* {r.status && r.status !== 'QUEUED' ?  : null} */}
