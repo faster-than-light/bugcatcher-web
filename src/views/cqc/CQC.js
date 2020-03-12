@@ -13,21 +13,21 @@ import {
 import { sha256 } from 'js-sha256'
 
 // components
-import FtlLoader from '../components/Loader'
-import Menu from '../components/Menu'
+import FtlLoader from '../../components/Loader'
+import Menu from '../../components/Menu'
 
 // helpers
-import api from '../helpers/api'
-import { appUrl, github } from '../config'
-import { getCookie, setCookie } from '../helpers/cookies'
-import githubApi from '../helpers/githubApi'
-import LocalStorage from '../helpers/LocalStorage'
+import api from '../../helpers/api'
+import { appUrl, github } from '../../config'
+import { getCookie, setCookie } from '../../helpers/cookies'
+import githubApi from '../../helpers/githubApi'
+import LocalStorage from '../../helpers/LocalStorage'
 
 // images & styles
-import bugcatcherShield from '../assets/images/bugcatcher-shield-square.png'
-import githubLogo from '../assets/images/github-logo.png'
-import StlButton from '../components/StlButton'
-import '../assets/css/CQC.css'
+import bugcatcherShield from '../../assets/images/bugcatcher-shield-square.png'
+import githubLogo from '../../assets/images/github-logo.png'
+import StlButton from '../../components/StlButton'
+import '../../assets/css/CQC.css'
 
 /** Constants */
 const uploadsPerSecond = 0 // 0 = unlimited
@@ -270,7 +270,7 @@ export default class CQC extends Component {
 
   _removeRowsFromQueue() {
     const removedRows = this.state.branches.filter(b => b.checked)
-    if (removedRows.find(r => r.runningProcess)) clearInterval( statusCheck )
+    if (removedRows.find(r => r.runningProcess)) clearTimeout( statusCheck )
     const branches = this.state.branches.filter(
       b => !removedRows.includes(b)
     )
@@ -307,7 +307,7 @@ export default class CQC extends Component {
   _checkTestStatus(queueItem) {
     const { testId: stlid } = queueItem
     let { reconnecting } = this.state
-    if (!stlid) return
+    if (!stlid) return []
     else return new Promise(async (resolve, reject) => {
       const noConnection = (err) => {
         reconnecting = true
@@ -341,7 +341,7 @@ export default class CQC extends Component {
       // abort if stlid does not match testResultSid
       if (response && response.stlid !== stlid) {
         console.log('mismatch', response.stlid, this.state.testResultSid)
-        clearInterval( statusCheck )
+        clearTimeout( statusCheck )
         reject()
       }
 
@@ -390,7 +390,7 @@ export default class CQC extends Component {
           retryAttempts++
           console.log(`Test Status request #${retryAttempts} at ${lastPercentComplete}% complete`)
           statusCheck = setTimeout(
-            () => { resolve(this._checkTestStatus(queueItem)) },
+            async () => { resolve(await this._checkTestStatus(queueItem)) },
             retryIntervalMilliseconds
           )
         }
@@ -433,6 +433,11 @@ export default class CQC extends Component {
 
   async _initCheckTestStatus(queueItem) {
     clearTimeout( statusCheck )
+    statusCheck = null
+
+    queueItem.runningProcess = true
+    this._updateTestingQueueItem(queueItem)
+
     lastPercentComplete = 0
 
     const checkStatusError = (err) => {
@@ -475,9 +480,10 @@ export default class CQC extends Component {
             this._updateTestingQueueItem(item)
             this._fetchGithubRepo(item)
           }
-          else if (item.status === constStatus.UPLOADED) this._runTests(item)
+          else if (item.status === constStatus.UPLOADED || !item.testId) this._runTests(item)
           else {
-            this._initCheckTestStatus(item)
+            if (item.testId) this._initCheckTestStatus(item)
+            else console.log(`item status: ${item.status}, test id: ${item.testId}`)
           }
         })
 
@@ -758,7 +764,10 @@ export default class CQC extends Component {
                     marginRight: 9
                   }} inline size={'small'} />
                   {/* {r.status && r.status !== 'QUEUED' ?  : null} */}
-                  {r.status}
+                  {
+                    r.status === constStatus.COMPLETE ?
+                      <Link to={`/results/${r.testId}`} target="_blank">{r.status}</Link> : r.status
+                  }
                 </Table.Cell>
               </Table.Row>
             })
