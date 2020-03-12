@@ -515,6 +515,7 @@ export default class CQC extends Component {
       })
       if (shouldQueue) return {
         ...b,
+        fileCount: null,
         status: constStatus.QUEUED,
         checked: null
       }
@@ -702,10 +703,10 @@ export default class CQC extends Component {
           on
         </span>
       </h2>
-      <Table celled>
+      <Table size={'small'} celled>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.8, verticalAlign: 'middle'}}
+            <Table.HeaderCell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 2.1, verticalAlign: 'middle'}}
               checked={
                 !branches.find(b => !b.checked)
               }
@@ -732,7 +733,7 @@ export default class CQC extends Component {
             branches.map(r => {
               const rowKey = `row_${r.owner}_${r.path}`
               return <Table.Row key={rowKey} positive={r.jobStatus === constStatus.COMPLETE}>
-                <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.8, verticalAlign: 'middle'}}
+                <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.5, verticalAlign: 'middle'}}
                   checked={r.checked}
                   onChange={e => {
                     let row = branches.find(_r => _r.repoPath === r.repoPath)
@@ -750,9 +751,11 @@ export default class CQC extends Component {
                     defaultValue={r.selectedBranch}
                     onChange={e => {
                       let row = branches.find(_r => _r.repoPath === r.repoPath)
-                      row.selectedBranch = e.target.innerHTML
+                      if (e.target.tagName === 'SPAN') row.selectedBranch = e.target.innerHTML
+                      else row.selectedBranch = e.target.childNodes[0].innerHTML
                       this._persistTestingQueue(branches)
                     }}
+                    style={{ zoom: 0.81 }}
                     placeholder={'Select a branch'}>
                   
                   </Select>
