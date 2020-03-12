@@ -13,6 +13,7 @@ import Home from './views/Home'
 // import Pricing from './views/Pricing'
 import Project from './views/Project'
 import Results from './views/Results'
+import SetSid from './views/SetSid'
 import Tests from './views/Tests'
 import ThankYou from './views/ThankYou'
 import Tour from './views/Tour'
@@ -109,6 +110,7 @@ class App extends Component {
             <Route path="/tour" component={() => <Tour {...props} />} exact />
             <Route path="/project/:id" component={Code} exact />
             <Route path="/results/:id" component={Results} exact />
+            <Route path="/sid/:sid" component={SetSid} exact />
           </Switch>
           <CookiesAlert />
         </div>
