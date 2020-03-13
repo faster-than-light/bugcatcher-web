@@ -297,7 +297,6 @@ export default class CQC extends Component {
       queueItem.repo,
       queueItem.selectedBranch,
     )
-    console.log({tree})
     this._persistTestingQueue(this.state.branches.map(b => {
       if (b.repoPath === queueItem.repoPath) return ({...b, status: 'INIT'})
       else return b
