@@ -182,40 +182,52 @@ export default class CQC extends Component {
     if (!user) await this.fetchUser()
   }
   
+  _appendPrintedErrors = errMsg => {
+    const fetchCustomRepoErrors = (this.state.fetchCustomRepoErrors || []).concat(errMsg)
+    this.setState({ fetchCustomRepoErrors })
+  }
+  
+  _removePrintedError = errMsg => {
+    const fetchCustomRepoErrors = (this.state.fetchCustomRepoErrors || []).filter(
+      e => !!e.search(errMsg)
+    )
+    this.setState({ fetchCustomRepoErrors })
+  }
+
+  _ephemeralPrintedError(errMsg, milliseconds) {
+    milliseconds = milliseconds || 6000
+    this._appendPrintedErrors(errMsg)
+    setTimeout(
+      () => {
+        this._removePrintedError(errMsg)
+      }, milliseconds
+    )
+  }
+
   _fetchRepoList = async () => {
-    this.setState({ fetchCustomRepoErrors: null, showRepoInput: false })
-    let fetchCustomRepoErrors = new Array()
+    // let fetchCustomRepoErrors = new Array()
+    this.setState({ fetchCustomRepoErrors: [], showRepoInput: false })
     const reposText = this.repoListTextInput.value || ''
-    const appendPrintedErrors = errMsg => {
-      fetchCustomRepoErrors.push(errMsg)
-      this.setState({ fetchCustomRepoErrors })
-    }
-    const removePrintedError = errMsg => {
-      const fetchCustomRepoErrors = this.state.fetchCustomRepoErrors.filter(
-        e => !!e.search(errMsg)
-      )
-      this.setState({ fetchCustomRepoErrors })
-    }
     if (!reposText) {
-      appendPrintedErrors('Please enter at least one owner/repo combo.')
+      this._appendPrintedErrors('Please enter at least one owner/repo combo.')
       return
     }
     let repos = new Array()
     const validateRepoText = r => {
       if (!r.length) return
       const [ owner, repo ] = r.split('/')
-      if (!owner || !repo) appendPrintedErrors(`Check format of "${r}"`)
+      if (!owner || !repo) this._appendPrintedErrors(`Check format of "${r}"`)
       else repos.push([owner, repo])
     }
     if (reposText.includes('\n')) {
       reposText.split('\n').forEach(r => { validateRepoText(r.trim()) })
     }
     else validateRepoText(reposText)
-    if (!repos.length) appendPrintedErrors('No repos parsed from input.')
+    if (!repos.length) this._appendPrintedErrors('No repos parsed from input.')
     else {
-      if (repos.length && !fetchCustomRepoErrors.length) {
+      if (repos.length && !this.state.fetchCustomRepoErrors || !this.state.fetchCustomRepoErrors.length) {
         this.setState({ repoListInputDisabled: true })
-        appendPrintedErrors(
+        this._appendPrintedErrors(
           `Fetching branches of ${repos.length} repos...`
         )
 
@@ -224,28 +236,32 @@ export default class CQC extends Component {
         for(let i = 0;i < repos.length;i++) {
           const branchesForRepo = await this.fetchBranches(repos[i])
             .catch(() => null)
-          if (!Array.isArray(branchesForRepo))
-            appendPrintedErrors(`${repos[i][0]}/${repos[i][1]} was not found.`)
+          if (!Array.isArray(branchesForRepo)) {
+            this._ephemeralPrintedError(`${repos[i][0]}/${repos[i][1]} was not found.`)
+          }
           else {
             fetchCustomRepoRows.push([repos[i],branchesForRepo])
           }
         }
 
-        removePrintedError('Fetching branches of')
+        this._removePrintedError('Fetching branches of')
 
         let branches = fetchCustomRepoRows.map(r => {
           const repoPath = `${r[0][0]}/${r[0][1]}`
           const repo = this.state.branches.find(b => b.repoPath === repoPath)
           const selectedBranch = repo ? repo.selectedBranch : 'master'
-          return ({
+          let branch = {
             owner: r[0][0],
             repo: r[0][1],
             repoPath,
             branches: r[1],
+            projectName: this._projectName(r),
             selectedBranch,
             status: repo ? repo.status : null,
             checked: repo && repo.checked
-          })
+          }
+          branch.projectName = this._projectName(branch)
+          return branch
         })
         if (!branches.length) branches = null
     
@@ -268,13 +284,31 @@ export default class CQC extends Component {
     this.setState({ branches, currentRepo, working: false })
   }
 
+  async _deleteProject(r) {
+    this._ephemeralPrintedError(`Deleting ${r.projectName}...`)
+    await api.deleteProject(r.projectName).catch(() => null)
+  }
+
   _removeRowsFromQueue() {
     const removedRows = this.state.branches.filter(b => b.checked)
+    if (!window.confirm(`Really remove ${removedRows.length} project from queue?\nAlso delete these ${removedRows.length} projects from BugCatcher?\nDeleting these projects will also delete any published test results.`)) return
+
+    // this.setState({ fetchCustomRepoErrors: ['clear'] })
+
     if (removedRows.find(r => r.runningProcess)) clearTimeout( statusCheck )
+
+    // if (window.confirm(`Also delete these ${removedRows.length} projects from BugCatcher?`)) {
+    //   if (window.confirm(`Deleting these ${removedRows.length} projects will delete any published results as well.`)) {
+        for (let i = 0; i < removedRows.length; i++) {
+          this._deleteProject(removedRows[i])
+        }
+    //   }
+    // }
+        
     const branches = this.state.branches.filter(
       b => !removedRows.includes(b)
     )
-    if (window.confirm('Really remove?')) this._persistTestingQueue(branches)
+    this._persistTestingQueue(branches)
   }
 
   _updateTestingQueueItem(updatedItem) {
@@ -399,12 +433,16 @@ export default class CQC extends Component {
     })
   }
 
+  _projectName(queueItem) {
+    const { owner, repo, selectedBranch } = queueItem
+    return `${owner}_${repo}_${selectedBranch}`
+  }
+
   _runTests = async (queueItem) => {
     queueItem.runningProcess = true
     this._updateTestingQueueItem(queueItem)
 
-    const { owner, repo, selectedBranch } = queueItem
-    const projectName = `${owner}_${repo}_${selectedBranch}`
+    const projectName = this._projectName(queueItem)
 
     clearTimeout( statusCheck )
     clearInterval( startCounting )
@@ -547,8 +585,8 @@ export default class CQC extends Component {
   }
 
   _uploadGithubRepo = async (queueItem, tree) => {
-    const { owner, repo, selectedBranch } = queueItem
-    const projectName = `${owner}_${repo}_${selectedBranch}`
+    const { owner, repo } = queueItem
+    const projectName = this._projectName(queueItem)
     const codeOnServer = await this._fetchProductCode(projectName)
     const thisUploadQueue = currentUploadQueue = new Date().getTime()
 
@@ -848,14 +886,14 @@ export default class CQC extends Component {
     </React.Fragment>
 
     if (token && (showRepoInput || !branches.length || fetchCustomRepoErrors.length)) {
-      const repos = this.state.repos ? this.state.repos.map((repo, k) => <Table.Row key={k}>
-        <Table.Cell><a onClick={() => this._getBranches(repo)}>
-          {repo}
-        </a></Table.Cell>
-      </Table.Row>) : null
+      // const repos = this.state.repos ? this.state.repos.map((repo, k) => <Table.Row key={k}>
+      //   <Table.Cell><a onClick={() => this._getBranches(repo)}>
+      //     {repo}
+      //   </a></Table.Cell>
+      // </Table.Row>) : null
       return <div className="repo-list">
         {specifyRepo}
-        {repos}
+        {/* {repos} */}
       </div>
     }
     else if (token) return <StlButton link 
