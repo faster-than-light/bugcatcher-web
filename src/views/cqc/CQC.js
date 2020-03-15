@@ -546,9 +546,12 @@ export default class CQC extends Component {
   async _queueSelectedFiles() {
     let markQueued = this.state.branches.filter(b => b.checked && !ACTIVE_TESTING_STATUSES.includes(b.status))
     const branches = this.state.branches.map(b => {
-      const shouldQueue = markQueued.find(m => {
+      let shouldQueue = markQueued.find(m => {
         return m.repoPath === b.repoPath
       })
+      if (shouldQueue && b.status === constStatus.COMPLETE)
+        if (!window.confirm(`${b.repoPath} is COMPLETE. Queue it again for another test?`))
+          shouldQueue = false
       if (shouldQueue) return {
         ...b,
         fileCount: null,
