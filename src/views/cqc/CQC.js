@@ -291,19 +291,18 @@ export default class CQC extends Component {
 
   _removeRowsFromQueue() {
     const removedRows = this.state.branches.filter(b => b.checked)
-    if (!window.confirm(`Really remove ${removedRows.length} project from queue?\nAlso delete these ${removedRows.length} projects from BugCatcher?\nDeleting these projects will also delete any published test results.`)) return
-
-    // this.setState({ fetchCustomRepoErrors: ['clear'] })
+    if (!window.confirm(`Really remove ${removedRows.length} project from queue?`)) return
 
     if (removedRows.find(r => r.runningProcess)) clearTimeout( statusCheck )
 
-    // if (window.confirm(`Also delete these ${removedRows.length} projects from BugCatcher?`)) {
-    //   if (window.confirm(`Deleting these ${removedRows.length} projects will delete any published results as well.`)) {
-        for (let i = 0; i < removedRows.length; i++) {
-          this._deleteProject(removedRows[i])
-        }
-    //   }
-    // }
+    if (window.confirm(`Also delete these ${removedRows.length} projects from BugCatcher?\nDeleting these projects will also delete any published test results.`)) {
+      for (let i = 0; i < removedRows.length; i++) {
+        setTimeout(
+          () => { this._deleteProject(removedRows[i]) },
+          i*300
+        )
+      }
+    }
         
     const branches = this.state.branches.filter(
       b => !removedRows.includes(b)
@@ -850,8 +849,6 @@ export default class CQC extends Component {
   RepoList = () => {
     const {
       branches = [],
-      fetchCustomRepoError = '',
-      fetchCustomRepoErrors = [],
       repoListInputDisabled,
       showRepoInput,
       token
@@ -879,13 +876,9 @@ export default class CQC extends Component {
             disabled={repoListInputDisabled}>fetch repos</StlButton>
         </p>
       </Form>
-      <div className="error">
-        {fetchCustomRepoErrors.map(e => <div>{e}</div>)}
-        <pre>{fetchCustomRepoError}</pre>
-      </div>
     </React.Fragment>
 
-    if (token && (showRepoInput || !branches.length || fetchCustomRepoErrors.length)) {
+    if (token && (showRepoInput || !branches.length)) {
       // const repos = this.state.repos ? this.state.repos.map((repo, k) => <Table.Row key={k}>
       //   <Table.Cell><a onClick={() => this._getBranches(repo)}>
       //     {repo}
@@ -1083,6 +1076,8 @@ export default class CQC extends Component {
       branches = [],
       code,
       disableQueueButtons,
+      fetchCustomRepoError = '',
+      fetchCustomRepoErrors = [],
       redirect,
       // repos,
       runningQueue,
@@ -1167,6 +1162,11 @@ export default class CQC extends Component {
               <this.TableExamplePositiveNegative branches={branches}
                 disableQueueButtons={disableQueueButtons}
                 runningQueue={runningQueue} />
+
+              <div className="error">
+                {fetchCustomRepoErrors.map(e => <div>{e}</div>)}
+                <pre>{fetchCustomRepoError}</pre>
+              </div>
 
               {/* <this.BranchList /> */}
 
