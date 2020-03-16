@@ -205,6 +205,7 @@ export default class CQC extends Component {
   }
 
   _fetchRepoList = async () => {
+    let { branches = [] } = this.state
     // let fetchCustomRepoErrors = new Array()
     this.setState({ fetchCustomRepoErrors: [], showRepoInput: false })
     const reposText = this.repoListTextInput.value || ''
@@ -246,24 +247,37 @@ export default class CQC extends Component {
 
         this._removePrintedError('Fetching branches of')
 
-        let branches = fetchCustomRepoRows.map(r => {
-          const repoPath = `${r[0][0]}/${r[0][1]}`
-          const repo = this.state.branches.find(b => b.repoPath === repoPath)
-          const selectedBranch = repo ? repo.selectedBranch : 'master'
+        fetchCustomRepoRows.forEach(r => {
+          const owner = r[0][0]
+          const repo = r[0][1]
+          const repoPath = `${owner}/${repo}`
+          let existingRepo = branches.find(b => b.repoPath === repoPath)
+          const selectedBranch = existingRepo ? existingRepo.selectedBranch : 'master'
           let branch = {
-            owner: r[0][0],
-            repo: r[0][1],
+            ...existingRepo,
+            owner,
+            repo,
             repoPath,
             branches: r[1],
             projectName: this._projectName(r),
             selectedBranch,
-            status: repo ? repo.status : null,
-            checked: repo && repo.checked
+            status: existingRepo ? existingRepo.status : null,
+            checked: existingRepo && existingRepo.checked
           }
           branch.projectName = this._projectName(branch)
-          return branch
+
+          if (existingRepo) existingRepo = { ...branch }
+          else branches.push(branch)
         })
-        if (!branches.length) branches = null
+
+        // fetchCustomRepoRows.forEach(r => {
+        //   const existsInQueue = branches.find(b => b.repoPath === r.repoPath)
+        //   if (existsInQueue) existsInQueue = r
+        // })
+
+
+
+        // if (!branches.length) branches = null
     
 
         this.setState({
@@ -876,7 +890,7 @@ export default class CQC extends Component {
           placeholder=":owner/:repo&#xa;:owner/:repo&#xa;:owner/:repo"
           style={{ height: 99 }} />
         <p>
-          <StlButton onClick={this._fetchRepoList}
+          <StlButton onClick={this._fetchRepoList.bind(this)}
             disabled={repoListInputDisabled}>fetch repos</StlButton>
         </p>
       </Form>
