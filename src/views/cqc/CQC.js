@@ -569,7 +569,6 @@ export default class CQC extends Component {
           shouldQueue = false
       if (shouldQueue) return {
         ...b,
-        fileCount: null,
         status: constStatus.QUEUED,
         checked: null
       }
