@@ -636,6 +636,7 @@ export default class CQC extends Component {
       interval
     const treeSize = toUpload.length
 
+    queueItem.filesUploaded = 0
     queueItem.fileCount = treeSize
     queueItem.status = 'UPLOADING'
     this._updateTestingQueueItem(queueItem)
@@ -692,6 +693,8 @@ export default class CQC extends Component {
           if (!apiResponse) apiError(null, file)
           else {
             uploaded.push(file)
+            queueItem.filesUploaded = uploaded.length
+            this._updateTestingQueueItem(queueItem)
             checkUploadsComplete()
           }
         }
@@ -811,6 +814,7 @@ export default class CQC extends Component {
                 branches: repoBranches,
                 checked,
                 fileCount,
+                filesUploaded,
                 owner,
                 percentComplete,
                 repo,
@@ -841,6 +845,13 @@ export default class CQC extends Component {
                   </Dropdown.Menu>
                 </Dropdown>
               )
+              let testStatus = status
+              if (status === constStatus.COMPLETE)
+                testStatus = <ActionsDropdown />
+              else if (status === constStatus.RUNNING && percentComplete)
+                testStatus = `${status} ${percentComplete}%`
+              else if (status === constStatus.UPLOADING && filesUploaded)
+                testStatus = `${status} ${filesUploaded}/${fileCount}`
 
               return <Table.Row key={rowKey}
                 positive={status === constStatus.COMPLETE}
@@ -879,16 +890,7 @@ export default class CQC extends Component {
                     display: (status && status !== constStatus.QUEUED && status !== constStatus.COMPLETE && this.state.runningQueue) ? 'inline-block' : 'none',
                     marginRight: 9
                   }} inline size={'small'} />
-                  {
-                    status === constStatus.COMPLETE ?
-                      <span>
-                        <ActionsDropdown />
-                      </span> : 
-                      status === constStatus.RUNNING && percentComplete ?
-                      <span>
-                        {status} {`${percentComplete}%`}
-                      </span> : status
-                  }
+                  { testStatus }
                 </Table.Cell>
               </Table.Row>
             })
