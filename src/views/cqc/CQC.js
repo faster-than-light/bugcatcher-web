@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import queryString from 'query-string'
 import {
+  Dropdown,
   Form,
   Icon,
   Loader,
@@ -785,6 +786,26 @@ export default class CQC extends Component {
           {
             branches.map(r => {
               const rowKey = `row_${r.owner}_${r.path}`
+              const ActionsDropdown = () => (
+                <Dropdown
+                  text={r.status}
+                  icon='chevron down'
+                  floating
+                  labeled
+                  style={{ width: 180 }}
+                  button
+                  className='icon'
+                >
+                  <Dropdown.Menu>
+                    <Dropdown.Header icon='tags' content='Applicable Actions' />
+                    <Dropdown.Divider />
+                    <Dropdown.Item><Link to={`/results/${r.testId}`} target="_blank"><Icon name={'linkify'} /> View Report</Link></Dropdown.Item>
+                    <Dropdown.Item icon='cloud upload' text='Publish' disabled />
+                    <Dropdown.Item icon='code branch' text='Create Pull Request' disabled />
+                  </Dropdown.Menu>
+                </Dropdown>
+              )
+
               return <Table.Row key={rowKey} positive={r.status === constStatus.COMPLETE}>
                 <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.5, verticalAlign: 'middle'}}
                   checked={r.checked}
@@ -822,7 +843,9 @@ export default class CQC extends Component {
                   {/* {r.status && r.status !== 'QUEUED' ?  : null} */}
                   {
                     r.status === constStatus.COMPLETE ?
-                      <Link to={`/results/${r.testId}`} target="_blank">{r.status}</Link> : r.status
+                      <span>
+                        <ActionsDropdown />
+                      </span> : r.status
                   }
                 </Table.Cell>
               </Table.Row>
