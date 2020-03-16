@@ -286,7 +286,8 @@ export default class CQC extends Component {
 
   async _deleteProject(r) {
     this._ephemeralPrintedError(`Deleting ${r.projectName}...`)
-    await api.deleteProject(r.projectName).catch(() => null)
+    const deleteProject = await api.deleteProject(r.projectName).catch(() => null)
+    console.log(deleteProject)
   }
 
   _removeRowsFromQueue() {
@@ -771,7 +772,7 @@ export default class CQC extends Component {
           {
             branches.map(r => {
               const rowKey = `row_${r.owner}_${r.path}`
-              return <Table.Row key={rowKey} positive={r.jobStatus === constStatus.COMPLETE}>
+              return <Table.Row key={rowKey} positive={r.status === constStatus.COMPLETE}>
                 <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.5, verticalAlign: 'middle'}}
                   checked={r.checked}
                   onChange={e => {
