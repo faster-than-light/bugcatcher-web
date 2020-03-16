@@ -302,7 +302,6 @@ export default class CQC extends Component {
   async _deleteProject(r) {
     this._ephemeralPrintedError(`Deleting ${r.projectName}...`)
     const deleteProject = await api.deleteProject(r.projectName).catch(() => null)
-    console.log(deleteProject)
   }
 
   _removeRowsFromQueue() {
@@ -504,6 +503,24 @@ export default class CQC extends Component {
       if (results.status_msg === constStatus.COMPUTING_PDF || results.status_msg === constStatus.COMPLETE) {
         clearInterval( startCounting )
         testTimeElapsed = 0
+
+        // fetch results
+        const results = await this.fetchTestResults(queueItem)//.catch(() => null)
+        if (results) {
+          const { data } = results
+          let resultsMatrix = {
+            low: 0,
+            medium: 0,
+            high: 0,
+          }
+          data.test_run_result.forEach(hit => {
+            const test_suite_test = hit['test_suite_test']
+            const ftl_severity = test_suite_test['ftl_severity']
+            resultsMatrix[ftl_severity]++
+          })
+          queueItem.resultsMatrix = resultsMatrix
+        }
+
         queueItem.status = constStatus.COMPLETE
         queueItem.runningProcess = null
         this._updateTestingQueueItem(queueItem)
@@ -784,11 +801,24 @@ export default class CQC extends Component {
         </Table.Header>
         <Table.Body>
           {
-            branches.map(r => {
-              const rowKey = `row_${r.owner}_${r.path}`
+            branches.map(row => {
+              const {
+                branches: repoBranches,
+                checked,
+                fileCount,
+                owner,
+                repo,
+                repoPath,
+                resultsMatrix,
+                status,
+                selectedBranch,
+                testId
+              } = row
+              const rowKey = `row_${owner}_${repo}`
+              const resultsBreakdown = resultsMatrix ? `${resultsMatrix.high}-H, ${resultsMatrix.medium}-M, ${resultsMatrix.low}-L` : 'unavailable'
               const ActionsDropdown = () => (
                 <Dropdown
-                  text={r.status}
+                  text={status}
                   icon='chevron down'
                   floating
                   labeled
@@ -797,21 +827,24 @@ export default class CQC extends Component {
                   className='icon'
                 >
                   <Dropdown.Menu>
-                    <Dropdown.Header icon='tags' content='Applicable Actions' />
+                    <Dropdown.Header content={`Results: ${resultsBreakdown}`} />
                     <Dropdown.Divider />
-                    <Dropdown.Item><Link to={`/results/${r.testId}`} target="_blank"><Icon name={'linkify'} /> View Report</Link></Dropdown.Item>
+                    <Dropdown.Item><Link to={`/results/${testId}`} target="_blank"><Icon name={'linkify'} /> View Report</Link></Dropdown.Item>
                     <Dropdown.Item icon='cloud upload' text='Publish' disabled />
                     <Dropdown.Item icon='code branch' text='Create Pull Request' disabled />
                   </Dropdown.Menu>
                 </Dropdown>
               )
 
-              return <Table.Row key={rowKey} positive={r.status === constStatus.COMPLETE}>
+              return <Table.Row key={rowKey}
+                positive={status === constStatus.COMPLETE}
+                warning={resultsMatrix && resultsMatrix.medium}
+                negative={resultsMatrix && resultsMatrix.high}>
                 <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.5, verticalAlign: 'middle'}}
-                  checked={r.checked}
-                  onChange={e => {
-                    let row = branches.find(_r => _r.repoPath === r.repoPath)
-                    row.checked = !row.checked
+                  checked={checked}
+                  onChange={() => {
+                    let thisRow = branches.find(_r => _r.repoPath === repoPath)
+                    thisRow.checked = !thisRow.checked
                     const filteredBranches = branches.filter(
                       b => b.checked && branches.length
                     )
@@ -819,12 +852,12 @@ export default class CQC extends Component {
                     this.setState({ disableQueueButtons })
                     this._persistTestingQueue(branches)
                   }} /></Table.Cell>
-                <Table.Cell>{r.repoPath}</Table.Cell>
+                <Table.Cell>{repoPath}</Table.Cell>
                 <Table.Cell>
-                  <Select options={r.branches.map(b => ({ key: b, value: b, text: b }))}
-                    defaultValue={r.selectedBranch}
+                  <Select options={repoBranches.map(b => ({ key: b, value: b, text: b }))}
+                    defaultValue={selectedBranch}
                     onChange={e => {
-                      let row = branches.find(_r => _r.repoPath === r.repoPath)
+                      let row = branches.find(_r => _r.repoPath === repoPath)
                       if (e.target.tagName === 'SPAN') row.selectedBranch = e.target.innerHTML
                       else row.selectedBranch = e.target.childNodes[0].innerHTML
                       this._persistTestingQueue(branches)
@@ -834,18 +867,17 @@ export default class CQC extends Component {
                   
                   </Select>
                 </Table.Cell>
-                <Table.Cell>{r.fileCount || '?'}</Table.Cell>
+                <Table.Cell>{fileCount || '?'}</Table.Cell>
                 <Table.Cell>
                   <Loader style={{
-                    display: (r.status && r.status !== constStatus.QUEUED && r.status !== constStatus.COMPLETE && this.state.runningQueue) ? 'inline-block' : 'none',
+                    display: (status && status !== constStatus.QUEUED && status !== constStatus.COMPLETE && this.state.runningQueue) ? 'inline-block' : 'none',
                     marginRight: 9
                   }} inline size={'small'} />
-                  {/* {r.status && r.status !== 'QUEUED' ?  : null} */}
                   {
-                    r.status === constStatus.COMPLETE ?
+                    status === constStatus.COMPLETE ?
                       <span>
                         <ActionsDropdown />
-                      </span> : r.status
+                      </span> : status
                   }
                 </Table.Cell>
               </Table.Row>
@@ -1107,6 +1139,11 @@ export default class CQC extends Component {
       currentRepo,
       working: false
     })
+  }
+
+  fetchTestResults = queueItem => {
+    if (!queueItem || !queueItem.testId) return
+    else return api.getTestResult({ stlid: queueItem.testId }).catch(() => null)
   }
 
   /** @dev Render this component ******************************/
