@@ -404,6 +404,8 @@ export default class CQC extends Component {
         response.percent_complete &&
         response.percent_complete >= lastPercentComplete
       ) {
+        queueItem.percentComplete = response.percent_complete
+        this._updateTestingQueueItem(queueItem)
         this.setState({
           reconnecting: false,
         })
@@ -486,8 +488,10 @@ export default class CQC extends Component {
     clearTimeout( statusCheck )
     statusCheck = null
 
-    queueItem.runningProcess = true
-    this._updateTestingQueueItem(queueItem)
+    if (!queueItem.runningProcess) {
+      queueItem.runningProcess = true
+      this._updateTestingQueueItem(queueItem)
+    }
 
     lastPercentComplete = 0
 
@@ -588,6 +592,7 @@ export default class CQC extends Component {
       if (shouldQueue) return {
         ...b,
         status: constStatus.QUEUED,
+        resultsMatrix: null,
         checked: null
       }
       else return b
@@ -807,6 +812,7 @@ export default class CQC extends Component {
                 checked,
                 fileCount,
                 owner,
+                percentComplete,
                 repo,
                 repoPath,
                 resultsMatrix,
@@ -838,7 +844,7 @@ export default class CQC extends Component {
 
               return <Table.Row key={rowKey}
                 positive={status === constStatus.COMPLETE}
-                warning={resultsMatrix && resultsMatrix.medium}
+                warning={resultsMatrix && resultsMatrix.medium && !resultsMatrix.high}
                 negative={resultsMatrix && resultsMatrix.high}>
                 <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.5, verticalAlign: 'middle'}}
                   checked={checked}
@@ -877,6 +883,10 @@ export default class CQC extends Component {
                     status === constStatus.COMPLETE ?
                       <span>
                         <ActionsDropdown />
+                      </span> : 
+                      status === constStatus.RUNNING && percentComplete ?
+                      <span>
+                        {status} {`${percentComplete}%`}
                       </span> : status
                   }
                 </Table.Cell>
