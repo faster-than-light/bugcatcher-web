@@ -936,6 +936,7 @@ export default class CQC extends Component {
                         else row.selectedBranch = e.target.childNodes[0].innerHTML
                         this._persistTestingQueue(branches)
                       }}
+                      disabled={status}
                       style={{ zoom: 0.81 }}
                       placeholder={'Select a branch'}>
                     
@@ -959,7 +960,12 @@ export default class CQC extends Component {
         &nbsp;
         <DropdownActionsMenu />
         &nbsp;
-        Running:<ToggleQueueRunning />
+        Running:<h2 style={{
+          display: 'inline-block',
+          width: 'auto',
+          margin: 0,
+          padding: 0
+        }}><ToggleQueueRunning /></h2>
       </div>
     }
   }
