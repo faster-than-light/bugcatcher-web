@@ -9,7 +9,8 @@ import {
   Radio,
   Select,
   Table,
-  TextArea
+  TextArea,
+  DropdownMenu
 } from 'semantic-ui-react'
 import { sha256 } from 'js-sha256'
 
@@ -32,6 +33,15 @@ import '../../assets/css/CQC.css'
 
 /** Constants */
 const uploadsPerSecond = 0 // 0 = unlimited
+const resetData = {
+  checked: false,
+  fileCount: null,
+  filesUploaded: null,
+  percentComplete: null,
+  runningProcess: null,
+  status: null,
+  testId: null,
+}
 const constStatus = {
     'COMPLETE': 'COMPLETE',
     'COMPUTING': 'COMPUTING',
@@ -302,6 +312,27 @@ export default class CQC extends Component {
   async _deleteProject(r) {
     this._ephemeralPrintedError(`Deleting ${r.projectName}...`)
     const deleteProject = await api.deleteProject(r.projectName).catch(() => null)
+  }
+
+  _resetRowsInQueue() {
+    let { branches = [] } = this.state
+    
+    let selected = branches.filter( b => b.checked )
+
+    if (!window.confirm(`Reset ${selected.length} projects and do not "queue" them yet?`)) return
+
+    if (selected.find(r => r.runningProcess)) clearTimeout( statusCheck )
+
+    // reset data
+    branches = branches.map(b => {
+      if (!b.checked) return b
+      else return ({
+        ...b,
+        ...resetData,
+      })
+    })
+
+    this._persistTestingQueue(branches)
   }
 
   _removeRowsFromQueue() {
@@ -700,11 +731,11 @@ export default class CQC extends Component {
         }
 
         if (synchronized) {
-          // console.log(`\tSkipping synchronized file ${file.path}`)
+          console.log(`\tSkipping synchronized file ${file.path}`)
           putCodeCallback(true, file)
         }
         else {
-          // console.log(`\tUploading file ${file.path}`)
+          console.log(`\tUploading file ${file.path}`)
           api.putCode({
             name: file.path,
             code,
@@ -768,9 +799,27 @@ export default class CQC extends Component {
   }) => {
     const { token } = this.state
     if (!token || !branches || !branches.length) return null
-    else return <div>
-      <h2 style={{width: 'auto'}}>
-        Static Analysis Test Queue
+    else {
+      const DropdownActionsMenu = () => (
+        <Dropdown
+          text={'more actions'}
+          icon='chevron down'
+          floating
+          labeled
+          style={{ width: 180 }}
+          button
+          className='icon'
+        >
+          <Dropdown.Menu>
+            <Dropdown.Item icon='delete' text='Reset Items'
+              onClick={() => { this._resetRowsInQueue() }}></Dropdown.Item>
+            <Dropdown.Item icon='delete' text='Remove Items'
+              onClick={() => { this._removeRowsFromQueue() }}></Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+      )
+
+      const ToggleQueueRunning = () => 
         <span style={{fontSize: '60%', marginLeft: 18}}>
           off
           &nbsp;<Radio toggle style={{verticalAlign: 'middle'}}
@@ -781,128 +830,138 @@ export default class CQC extends Component {
             }} />&nbsp;
           on
         </span>
-      </h2>
-      <Table size={'small'} celled>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 2.1, verticalAlign: 'middle'}}
-              checked={
-                !branches.find(b => !b.checked)
-              }
-              onChange={e => {
-                branches = branches.map(b => {
-                  // console.log(b.checked, e.target.checked)
-                  return ({...b, checked: e.target.checked})
-                })
-                const filteredBranches = branches.filter(
-                  b => b.checked && branches.length
-                )
-                disableQueueButtons = Boolean(!filteredBranches.length)
-                this.setState({ disableQueueButtons })
-                this._persistTestingQueue(branches)
-            }} /></Table.HeaderCell>
-            <Table.HeaderCell>Repo Path</Table.HeaderCell>
-            <Table.HeaderCell>Branch</Table.HeaderCell>
-            <Table.HeaderCell>File Count</Table.HeaderCell>
-            <Table.HeaderCell>Status</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {
-            branches.map(row => {
-              const {
-                branches: repoBranches,
-                checked,
-                fileCount,
-                filesUploaded,
-                owner,
-                percentComplete,
-                repo,
-                repoPath,
-                resultsMatrix,
-                status,
-                selectedBranch,
-                testId
-              } = row
-              const rowKey = `row_${owner}_${repo}`
-              const resultsBreakdown = resultsMatrix ? `${resultsMatrix.high}-H, ${resultsMatrix.medium}-M, ${resultsMatrix.low}-L` : 'unavailable'
-              const ActionsDropdown = () => (
-                <Dropdown
-                  text={status}
-                  icon='chevron down'
-                  floating
-                  labeled
-                  style={{ width: 180 }}
-                  button
-                  className='icon'
-                >
-                  <Dropdown.Menu>
-                    <Dropdown.Header content={`Results: ${resultsBreakdown}`} />
-                    <Dropdown.Divider />
-                    <Dropdown.Item><Link to={`/results/${testId}`} target="_blank"><Icon name={'linkify'} /> View Report</Link></Dropdown.Item>
-                    <Dropdown.Item icon='cloud upload' text='Publish' disabled />
-                    <Dropdown.Item icon='code branch' text='Create Pull Request' disabled />
-                  </Dropdown.Menu>
-                </Dropdown>
-              )
-              let testStatus = status
-              if (status === constStatus.COMPLETE)
-                testStatus = <ActionsDropdown />
-              else if (status === constStatus.RUNNING && percentComplete)
-                testStatus = `${status} ${percentComplete}%`
-              else if (status === constStatus.UPLOADING && filesUploaded)
-                testStatus = `${status} ${filesUploaded}/${fileCount}`
 
-              return <Table.Row key={rowKey}
-                positive={status === constStatus.COMPLETE}
-                warning={resultsMatrix && resultsMatrix.medium && !resultsMatrix.high}
-                negative={resultsMatrix && resultsMatrix.high}>
-                <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.5, verticalAlign: 'middle'}}
-                  checked={checked}
-                  onChange={() => {
-                    let thisRow = branches.find(_r => _r.repoPath === repoPath)
-                    thisRow.checked = !thisRow.checked
-                    const filteredBranches = branches.filter(
-                      b => b.checked && branches.length
-                    )
-                    disableQueueButtons = Boolean(!filteredBranches.length)
-                    this.setState({ disableQueueButtons })
-                    this._persistTestingQueue(branches)
-                  }} /></Table.Cell>
-                <Table.Cell>{repoPath}</Table.Cell>
-                <Table.Cell>
-                  <Select options={repoBranches.map(b => ({ key: b, value: b, text: b }))}
-                    defaultValue={selectedBranch}
-                    onChange={e => {
-                      let row = branches.find(_r => _r.repoPath === repoPath)
-                      if (e.target.tagName === 'SPAN') row.selectedBranch = e.target.innerHTML
-                      else row.selectedBranch = e.target.childNodes[0].innerHTML
+      return <div>
+        <h2 style={{width: 'auto'}}>
+          Static Analysis Test Queue
+          <ToggleQueueRunning />
+        </h2>
+        <Table size={'small'} celled>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 2.1, verticalAlign: 'middle'}}
+                checked={
+                  !branches.find(b => !b.checked)
+                }
+                onChange={e => {
+                  branches = branches.map(b => {
+                    // console.log(b.checked, e.target.checked)
+                    return ({...b, checked: e.target.checked})
+                  })
+                  const filteredBranches = branches.filter(
+                    b => b.checked && branches.length
+                  )
+                  disableQueueButtons = Boolean(!filteredBranches.length)
+                  this.setState({ disableQueueButtons })
+                  this._persistTestingQueue(branches)
+              }} /></Table.HeaderCell>
+              <Table.HeaderCell>Repo Path</Table.HeaderCell>
+              <Table.HeaderCell>Branch</Table.HeaderCell>
+              <Table.HeaderCell>File Count</Table.HeaderCell>
+              <Table.HeaderCell>Status</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {
+              branches.map(row => {
+                const {
+                  branches: repoBranches,
+                  checked,
+                  fileCount,
+                  filesUploaded,
+                  owner,
+                  percentComplete,
+                  repo,
+                  repoPath,
+                  resultsMatrix,
+                  status,
+                  selectedBranch,
+                  testId
+                } = row
+                const rowKey = `row_${owner}_${repo}`
+                const resultsBreakdown = resultsMatrix ? `${resultsMatrix.high} High, ${resultsMatrix.medium} Medium, ${resultsMatrix.low} Low` : 'unavailable'
+                const ActionsDropdown = () => (
+                  <Dropdown
+                    text={status}
+                    icon='chevron down'
+                    floating
+                    labeled
+                    style={{ width: 180 }}
+                    button
+                    className='icon'
+                  >
+                    <Dropdown.Menu>
+                      <Dropdown.Header content={<span>
+                        <strong>Test Results:</strong><br />
+                        {resultsBreakdown}
+                      </span>} />
+                      <Dropdown.Divider />
+                      <Dropdown.Item><Link to={`/results/${testId}`} target="_blank"><Icon name={'linkify'} /> View Report</Link></Dropdown.Item>
+                      <Dropdown.Item icon='cloud upload' text='Publish' disabled />
+                      <Dropdown.Item icon='code branch' text='Create Pull Request' disabled />
+                    </Dropdown.Menu>
+                  </Dropdown>
+                )
+                let testStatus = status
+                if (status === constStatus.COMPLETE)
+                  testStatus = <ActionsDropdown />
+                else if (status === constStatus.RUNNING && percentComplete)
+                  testStatus = `${status} ${percentComplete}%`
+                else if (status === constStatus.UPLOADING && filesUploaded)
+                  testStatus = `${status} ${filesUploaded}/${fileCount}`
+
+                return <Table.Row key={rowKey}
+                  positive={status === constStatus.COMPLETE}
+                  warning={resultsMatrix && resultsMatrix.medium && !resultsMatrix.high}
+                  negative={resultsMatrix && resultsMatrix.high}>
+                  <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.5, verticalAlign: 'middle'}}
+                    checked={checked}
+                    onChange={() => {
+                      let thisRow = branches.find(_r => _r.repoPath === repoPath)
+                      thisRow.checked = !thisRow.checked
+                      const filteredBranches = branches.filter(
+                        b => b.checked && branches.length
+                      )
+                      disableQueueButtons = Boolean(!filteredBranches.length)
+                      this.setState({ disableQueueButtons })
                       this._persistTestingQueue(branches)
-                    }}
-                    style={{ zoom: 0.81 }}
-                    placeholder={'Select a branch'}>
-                  
-                  </Select>
-                </Table.Cell>
-                <Table.Cell>{fileCount || '?'}</Table.Cell>
-                <Table.Cell>
-                  <Loader style={{
-                    display: (status && status !== constStatus.QUEUED && status !== constStatus.COMPLETE && this.state.runningQueue) ? 'inline-block' : 'none',
-                    marginRight: 9
-                  }} inline size={'small'} />
-                  { testStatus }
-                </Table.Cell>
-              </Table.Row>
-            })
-          }
-        </Table.Body>
-      </Table>
-      <StlButton disabled={disableQueueButtons}
-        onClick={() => { this._queueSelectedFiles() }}>Run Tests on Selected Repos</StlButton>
-      &nbsp;
-      <StlButton disabled={disableQueueButtons} default semantic
-        onClick={() => { this._removeRowsFromQueue() }}>Remove Selected Repos</StlButton>
-    </div>
+                    }} /></Table.Cell>
+                  <Table.Cell>{repoPath}</Table.Cell>
+                  <Table.Cell>
+                    <Select options={repoBranches.map(b => ({ key: b, value: b, text: b }))}
+                      defaultValue={selectedBranch}
+                      onChange={e => {
+                        let row = branches.find(_r => _r.repoPath === repoPath)
+                        if (e.target.tagName === 'SPAN') row.selectedBranch = e.target.innerHTML
+                        else row.selectedBranch = e.target.childNodes[0].innerHTML
+                        this._persistTestingQueue(branches)
+                      }}
+                      style={{ zoom: 0.81 }}
+                      placeholder={'Select a branch'}>
+                    
+                    </Select>
+                  </Table.Cell>
+                  <Table.Cell>{fileCount || '?'}</Table.Cell>
+                  <Table.Cell>
+                    <Loader style={{
+                      display: (status && status !== constStatus.QUEUED && status !== constStatus.COMPLETE && this.state.runningQueue) ? 'inline-block' : 'none',
+                      marginRight: 9
+                    }} inline size={'small'} />
+                    { testStatus }
+                  </Table.Cell>
+                </Table.Row>
+              })
+            }
+          </Table.Body>
+        </Table>
+        <StlButton disabled={disableQueueButtons}
+          onClick={() => { this._queueSelectedFiles() }}>Start Tests on Selected Repos</StlButton>
+        &nbsp;
+        <DropdownActionsMenu />
+        &nbsp;
+        Running:<ToggleQueueRunning />
+      </div>
+    }
   }
 
   FetchAccessToken = (props) => <StlButton primary semantic disabled={Boolean(this.state.token)}
