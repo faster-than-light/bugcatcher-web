@@ -38,6 +38,7 @@ const resetData = {
   fileCount: null,
   filesUploaded: null,
   percentComplete: null,
+  resultsMatrix: null,
   runningProcess: null,
   status: null,
   testId: null,
@@ -800,12 +801,14 @@ export default class CQC extends Component {
     const { token } = this.state
     if (!token || !branches || !branches.length) return null
     else {
-      const DropdownActionsMenu = () => (
-        <Dropdown
+      const DropdownActionsMenu = (props) => {
+        const { disabled } = props
+        return <Dropdown
           text={'more actions'}
           icon='chevron down'
           floating
           labeled
+          disabled={disabled}
           style={{ width: 180 }}
           button
           className='icon'
@@ -817,10 +820,11 @@ export default class CQC extends Component {
               onClick={() => { this._removeRowsFromQueue() }}></Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-      )
+      }
 
-      const ToggleQueueRunning = () => 
-        <span style={{fontSize: '60%', marginLeft: 18}}>
+      const ToggleQueueRunning = (props) => {
+        const { style } = props
+        return <span style={style}>
           off
           &nbsp;<Radio toggle style={{verticalAlign: 'middle'}}
             checked={runningQueue != null}
@@ -830,11 +834,18 @@ export default class CQC extends Component {
             }} />&nbsp;
           on
         </span>
-
+      }
       return <div>
         <h2 style={{width: 'auto'}}>
+          <span style={{ float: 'right', fontSize: '60%' }}>
+            Running: <h2 style={{
+              display: 'inline-block',
+              width: 'auto',
+              margin: 0,
+              padding: 0
+            }}><ToggleQueueRunning style={{fontSize: '60%', marginLeft: 9, marginRight: 18, fontWeight: 'normal'}} /></h2>
+          </span>
           Static Analysis Test Queue
-          <ToggleQueueRunning />
         </h2>
         <Table size={'small'} celled>
           <Table.Header>
@@ -958,14 +969,16 @@ export default class CQC extends Component {
         <StlButton disabled={disableQueueButtons}
           onClick={() => { this._queueSelectedFiles() }}>Start Tests on Selected Repos</StlButton>
         &nbsp;
-        <DropdownActionsMenu />
-        &nbsp;
-        Running:<h2 style={{
-          display: 'inline-block',
-          width: 'auto',
-          margin: 0,
-          padding: 0
-        }}><ToggleQueueRunning /></h2>
+        <DropdownActionsMenu disabled={disableQueueButtons} />
+        <span style={{ float: 'right', fontWeight: 'bold' }}>
+          Running: <span style={{
+            display: 'inline-block',
+            width: 'auto',
+            margin: 0,
+            padding: 0
+          }}><ToggleQueueRunning style={{ fontWeight: 'normal' }} /></span>
+        </span>
+        <p><br /></p>
       </div>
     }
   }
