@@ -106,6 +106,7 @@ let retryAttempts = 0,
   ghTreeSha
 
 export default class CQC extends Component {
+  /** @dev Constructor and Lifecycle *******************************/
   constructor(props) {
     super(props)
 
@@ -482,8 +483,11 @@ export default class CQC extends Component {
   }
 
   _projectName(queueItem) {
-    const { owner, repo, selectedBranch } = queueItem
-    return `${owner}_${repo}_${selectedBranch}`
+    let { owner, repo, selectedBranch } = queueItem
+    selectedBranch = selectedBranch.replace(/refs\/heads\//g, '')
+    const projectName = [`${owner}/${repo}`, selectedBranch].join('/').replace(/\//g, '_')
+    console.log({projectName})
+    return projectName
   }
 
   _runTests = async (queueItem) => {
@@ -769,7 +773,35 @@ export default class CQC extends Component {
     )
   }
 
-  /** @dev Components ******************************/
+  sortDirectionChange = e => {
+    const sortReposDirection = e.target.value
+    if (sortReposDirection != this.state.sortReposDirection) this.setState({
+      sortReposDirection,
+      repos: null,
+    })
+  }
+
+  getTree = async branchName => {
+    window.scrollTo({ top: 0 })
+    this.setState({ working: true })
+    const [ owner, repo ] = this.state.currentRepo.split('/')
+    const data = await this._getTree(
+      owner,
+      repo,
+      branchName,
+    )
+    this.setState({ ...data, working: false })
+  }
+
+  sortOptionChange = e => {
+    const sortReposBy = e.target.value
+    if (sortReposBy != this.state.sortReposBy) this.setState({
+      sortReposBy,
+      repos: null,
+    })
+  }
+
+/** @dev Components ******************************/
   ApiFunctions = () => {
     const { automateAuth } = this.state
     if (automateAuth) {
@@ -1063,22 +1095,6 @@ export default class CQC extends Component {
     else return null
   }
 
-  sortOptionChange = e => {
-    const sortReposBy = e.target.value
-    if (sortReposBy != this.state.sortReposBy) this.setState({
-      sortReposBy,
-      repos: null,
-    })
-  }
-
-  sortDirectionChange = e => {
-    const sortReposDirection = e.target.value
-    if (sortReposDirection != this.state.sortReposDirection) this.setState({
-      sortReposDirection,
-      repos: null,
-    })
-  }
-
   BranchList = () => {
     if (this.state.branches && !this.state.tree) {
       const branches = this.state.branches.length ? this.state.branches.map((branch, k) => 
@@ -1099,18 +1115,6 @@ export default class CQC extends Component {
       </div>
     }
     else return null
-  }
-
-  getTree = async branchName => {
-    window.scrollTo({ top: 0 })
-    this.setState({ working: true })
-    const [ owner, repo ] = this.state.currentRepo.split('/')
-    const data = await this._getTree(
-      owner,
-      repo,
-      branchName,
-    )
-    this.setState({ ...data, working: false })
   }
 
   RepoContents = () => {
