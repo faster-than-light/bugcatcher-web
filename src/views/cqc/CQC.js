@@ -486,7 +486,6 @@ export default class CQC extends Component {
     let { owner, repo, selectedBranch } = queueItem
     selectedBranch = selectedBranch.replace(/refs\/heads\//g, '')
     const projectName = [`${owner}/${repo}`, selectedBranch].join('/').replace(/\//g, '_')
-    console.log({projectName})
     return projectName
   }
 

@@ -409,7 +409,7 @@ export default class Results extends Component {
                   </Table>
 
                   {
-                    (process.env.REACT_APP_FTL_ENV === 'production' || !certified) ? null : <div>
+                    (published || process.env.REACT_APP_FTL_ENV === 'production' || !certified) ? null : <div>
                       <Table color={'green'}>
                         <Table.Header>
                           <Table.Row>

@@ -15,7 +15,7 @@ import cqcApi from '../helpers/cqcApi'
 // styles & images
 import '../assets/css/components/Modal.css'
 
-export default class DownloadResultsModal extends Component {
+export default class CopyResultsModal extends Component {
   constructor () {
     super()
     this.state = {
@@ -39,15 +39,17 @@ export default class DownloadResultsModal extends Component {
     let { results } = markdownPayload
 
     // append user object to results
+    console.log({user})
     results.user = user
 
     // push results to cqc server
     const putResults = await cqcApi.putResults(results).catch(() => null)
     
     // push PDF data to cqc server
-    const putPDF = await this.putPDF(results.test_run.stlid).catch(() => null)
+    // const putPDF = await this.putPDF(results.test_run.stlid).catch(() => null)
 
-    if (!putResults || !putPDF) console.error(
+    // if (!putResults || !putPDF) console.error(
+    if (!putResults) console.error(
       new Error('error pushing results to proxy server')
     )
   }
