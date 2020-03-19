@@ -976,7 +976,8 @@ export default class CQC extends Component {
                         let row = branches.find(_r => _r.repoPath === repoPath)
                         if (e.target.tagName === 'SPAN') row.selectedBranch = e.target.innerHTML
                         else row.selectedBranch = e.target.childNodes[0].innerHTML
-                        this._persistTestingQueue(branches)
+                        row.projectName = this._projectName(row)
+                        this._updateTestingQueueItem(row)
                       }}
                       disabled={status}
                       style={{ zoom: 0.81 }}

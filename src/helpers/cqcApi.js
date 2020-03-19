@@ -11,12 +11,23 @@ export default {
     return put('/results', results)
   },
 
-  getPDF: (stlid) => {
-    return get(`/pdf/${stlid}`)
+  // getPDF: (stlid) => {
+  //   return get(`/pdf/${stlid}`)
+  // },
+
+  // putPDF: (data) => {
+  //   return put('/pdf', data)
+  // },
+
+  getJobsQueue: (email) => {
+    return get(`/jobs/${email}`)
   },
 
-  putPDF: (data) => {
-    return put('/pdf', data)
+  putJobsQueue: (branches, email) => {
+    put(`/jobs/${email}`, branches)
+  },
+
+  updateJobsQueueItem: (updatedItem, email) => {
   },
 
 }
