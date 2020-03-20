@@ -385,7 +385,7 @@ export default class CQC extends Component {
     this._persistTestingQueue(branches)
   }
 
-  async _deleteTestingQueueItemsFromServer(jobs) {
+  async _deleteTestingQueueItemsFromServer(jobs) {console.log('_deleteTestingQueueItemsFromServer', jobs)
     const res = await cqcApi.deleteJobsQueueItems({
       jobs,
       user: this.props.user
@@ -406,15 +406,20 @@ export default class CQC extends Component {
       /** @todo: Only update changed rows */
       /** @todo: Delete removed rows from server */
   
-      if (branches.find(
+      const discrepency = branches.find(
         b => !lastPersistedBranches.includes(JSON.stringify(b))
-      )) {
+      )
+      if (discrepency) {
+        console.log('persisting branches to server', branches, discrepency)
         const newBranches = await cqcApi.putJobsQueue({
           jobs: branches,
           user: this.props.user
         })
+        // find jobs with no ID
+        let updateLocalStorage
         branches.forEach(b => {
           if (!b._id) {
+            updateLocalStorage = true
             const savedBranch = newBranches.find(n => (
               n.owner === b.owner &&
               n.repo === b.repo &&
@@ -426,8 +431,11 @@ export default class CQC extends Component {
             }
           }
         })
-        lastPersistedBranches = newBranches.map(JSON.stringify)
-        this._persistTestingQueue(branches)
+        lastPersistedBranches = branches.map(JSON.stringify)
+        if (updateLocalStorage) {
+          console.log('persisting branches to local storage')
+          this._persistTestingQueue(branches)
+        }
       }
       persistingToBackend = false
     }
