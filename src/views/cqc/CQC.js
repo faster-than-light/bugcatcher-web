@@ -71,7 +71,8 @@ const ACTIVE_TESTING_STATUSES = [
   constStatus.UPLOADING
 ]
 const FETCH_REPO_LIST_COOKIENAME = "fetchRepoList"
-const MILISECOND_INTERVAL_FOR_STATUS_POLING = 9000
+const MILISECOND_INTERVAL_FOR_STATUS_POLING = 6000
+const MILISECOND_INTERVAL_FOR_SERVER_PERSISTENCE = 12000
 const initialState = {
   code: null,
   currentRepo: null,
@@ -114,7 +115,6 @@ export default class CQC extends Component {
       token,
     }
 
-    this._toggleAutomateOption = this._toggleAutomateOption.bind(this)
     this.ApiFunctions = this.ApiFunctions.bind(this)
     this._persistTestingQueueToServer = this._persistTestingQueueToServer.bind(this)
     this.RepoList = this.RepoList.bind(this)
@@ -162,19 +162,40 @@ export default class CQC extends Component {
       const { data: jobs } = await cqcApi.getJobsQueue(this.props.user)
       this._persistTestingQueue(jobs)
     }
-    this.setState({
-      persistToBackendInterval: setInterval(this._persistTestingQueueToServer, 12000)
-    })
+    this._serverPersistOn()
   }
 
   async componentWillUnmount() {
     document.removeEventListener("keydown", this._fetchRepoKeydownEvent)
-    this._stopTestingQueue()
-    clearInterval(this.state.persistToBackendInterval)
+    this._stopServices()
     await this._persistTestingQueueToServer()
   }
 
   /** @dev Functions *******************************/
+  _serverPersistOn() {
+    if (this.state.persistToBackendInterval) clearInterval(this.state.persistToBackendInterval)
+    this.setState({
+      persistToBackendInterval: setInterval(
+        this._persistTestingQueueToServer,
+        MILISECOND_INTERVAL_FOR_SERVER_PERSISTENCE
+      )
+    })
+  }
+
+  _serverPersistOff() {
+    clearInterval(this.state.persistToBackendInterval)
+  }
+
+  _startServices() {
+    this._startTestingQueue()
+    this._serverPersistOn()
+  }
+
+  _stopServices() {
+    this._stopTestingQueue()
+    this._serverPersistOff()
+  }
+
   _fetchRepoKeydownEvent = event => {
     if (
       event.target["id"] === 'custom_repo' && (
@@ -182,13 +203,7 @@ export default class CQC extends Component {
       )
     ) this.fetchCustomRepo()
   }
-  
-  async _toggleAutomateOption(event) {
-    const automate = event.target.checked
-    await setCookie(automateCookieName, automate)
-    await this.setState({ automateAuth: automate })
-  }
-  
+    
   _resetState = () => {
     // setCookie(tokenCookieName, '')
     this.setState(initialState)
@@ -379,7 +394,7 @@ export default class CQC extends Component {
     }
   }
 
-  async _persistTestingQueueToServer() {
+  async _persistTestingQueueToServer() {console.log('_persistTestingQueueToServer')
     if (!persistingToBackend) {
       persistingToBackend = true
 
@@ -401,7 +416,10 @@ export default class CQC extends Component {
               n.repo === b.repo &&
               n.selectedBranch === b.selectedBranch
             ))
-            if (savedBranch) b = {...savedBranch}
+            if (savedBranch) {
+              console.log(`assign _id ${savedBranch._id}`)
+              b._id = savedBranch._id
+            }
           }
         })
         lastPersistedBranches = newBranches.map(JSON.stringify)
@@ -602,7 +620,7 @@ export default class CQC extends Component {
         queueItem.status = constStatus.COMPLETE
         queueItem.runningProcess = null
         this._updateTestingQueueItem(queueItem)
-        this._startTestingQueue()
+        this._startServices()
       }
       else this._initCheckTestStatus(queueItem)
     }    
@@ -610,7 +628,7 @@ export default class CQC extends Component {
 
   _runTestingQueue() {
     this.setState({
-      runningQueue: setInterval(() => {
+      runningQueue: setInterval(() => {console.log('_runTestingQueue')
 
 
         let running = this.state.branches.filter(b => ACTIVE_TESTING_STATUSES.includes(b.status))
@@ -672,7 +690,7 @@ export default class CQC extends Component {
       else return b
     })
     await this._persistTestingQueue(branches)
-    this._startTestingQueue()
+    this._startServices()
   }
 
   _fetchGithubRepo = async queueItem => {

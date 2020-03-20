@@ -30,7 +30,6 @@ export default {
   },
 
   deleteJobsQueueItems: async (data) => {
-    console.log({deleting: data})
     const { data: response } = await del(`/jobs`, data)
     return response
   },
