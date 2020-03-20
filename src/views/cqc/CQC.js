@@ -167,10 +167,11 @@ export default class CQC extends Component {
     })
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
     document.removeEventListener("keydown", this._fetchRepoKeydownEvent)
     this._stopTestingQueue()
     clearInterval(this.state.persistToBackendInterval)
+    await this._persistTestingQueueToServer()
   }
 
   /** @dev Functions *******************************/
@@ -393,8 +394,18 @@ export default class CQC extends Component {
           jobs: branches,
           user: this.props.user
         })
+        branches.forEach(b => {
+          if (!b._id) {
+            const savedBranch = newBranches.find(n => (
+              n.owner === b.owner &&
+              n.repo === b.repo &&
+              n.selectedBranch === b.selectedBranch
+            ))
+            if (savedBranch) b = {...savedBranch}
+          }
+        })
         lastPersistedBranches = newBranches.map(JSON.stringify)
-        // this._persistTestingQueue(branches)
+        this._persistTestingQueue(branches)
       }
       persistingToBackend = false
     }
