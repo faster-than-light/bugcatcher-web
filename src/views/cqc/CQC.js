@@ -9,8 +9,7 @@ import {
   Radio,
   Select,
   Table,
-  TextArea,
-  DropdownMenu
+  TextArea
 } from 'semantic-ui-react'
 import { sha256 } from 'js-sha256'
 
@@ -196,6 +195,11 @@ export default class CQC extends Component {
     this._serverPersistOff()
   }
 
+  _clearStatusCheck() {
+    clearTimeout( statusCheck )
+    statusCheck = null
+  }
+
   _fetchRepoKeydownEvent = event => {
     if (
       event.target["id"] === 'custom_repo' && (
@@ -332,7 +336,7 @@ export default class CQC extends Component {
 
     if (!window.confirm(`Reset ${selected.length} projects and do not "queue" them yet?`)) return
 
-    if (selected.find(r => r.runningProcess)) clearTimeout( statusCheck )
+    if (selected.find(r => r.runningProcess)) this._clearStatusCheck()
 
     // reset data
     branches = branches.map(b => {
@@ -350,7 +354,7 @@ export default class CQC extends Component {
     const removedRows = this.state.branches.filter(b => b.checked)
     if (!window.confirm(`Really remove ${removedRows.length} project from queue?`)) return
 
-    if (removedRows.find(r => r.runningProcess)) clearTimeout( statusCheck )
+    if (removedRows.find(r => r.runningProcess)) this._clearStatusCheck()
 
     if (window.confirm(`Also delete these ${removedRows.length} projects from BugCatcher?\nDeleting these projects will also delete any published test results.`)) {
       for (let i = 0; i < removedRows.length; i++) {
@@ -478,7 +482,7 @@ export default class CQC extends Component {
       // abort if stlid does not match testResultSid
       if (response && response.stlid !== stlid) {
         console.log('mismatch', response.stlid, this.state.testResultSid)
-        clearTimeout( statusCheck )
+        this._clearStatusCheck()
         reject()
       }
 
@@ -528,6 +532,7 @@ export default class CQC extends Component {
         ) {
           retryAttempts++
           console.log(`Test Status request #${retryAttempts} at ${lastPercentComplete}% complete`)
+          this._clearStatusCheck()
           statusCheck = setTimeout(
             async () => { resolve(await this._checkTestStatus(queueItem)) },
             retryIntervalMilliseconds
@@ -552,9 +557,8 @@ export default class CQC extends Component {
 
     const projectName = this._projectName(queueItem)
 
-    clearTimeout( statusCheck )
+    this._clearStatusCheck()
     clearInterval( startCounting )
-    statusCheck = null
     startCounting = setInterval(this._countUp, 1000)
     testTimeElapsed = 0
     successfulUploads = 0
@@ -577,8 +581,7 @@ export default class CQC extends Component {
   }
 
   async _initCheckTestStatus(queueItem) {
-    clearTimeout( statusCheck )
-    statusCheck = null
+    this._clearStatusCheck()
 
     if (!queueItem.runningProcess) {
       queueItem.runningProcess = true
@@ -659,7 +662,7 @@ export default class CQC extends Component {
 
   _stopTestingQueue() {
     clearInterval(this.state.runningQueue)
-    clearTimeout( statusCheck )
+    this._clearStatusCheck()
     clearInterval( startCounting )
     this.setState({ runningQueue: null })
   }
