@@ -311,6 +311,12 @@ export default class CQC extends Component {
           repoListInputDisabled: null
         })
 
+        function compare( a, b ) {
+          if ( a.projectName < b.projectName ) return -1
+          else if ( a.projectName > b.projectName ) return 1
+          else return 0
+        }
+        branches.sort( compare )
         this._persistTestingQueue(branches)
 
       }
