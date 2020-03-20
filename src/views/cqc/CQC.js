@@ -58,14 +58,8 @@ const constStatus = {
   },
   maxConcurrentUploads = 99,
   millisecondTimeout = Math.floor(1000 / uploadsPerSecond),
-  uiUploadThreshold = 1000,
   retryAttemptsAllowed = 300,
-  retryIntervalMilliseconds = 9000,
-  strStatus = {
-    [constStatus.COMPUTING_PDF]: 'Test Complete!',
-    [constStatus.RUNNING]: 'Running Tests...',
-    [constStatus.SETUP]: 'Setting up Tests...',
-  }
+  retryIntervalMilliseconds = 9000
 const ACTIVE_TESTING_STATUSES = [
   constStatus.COMPUTING,
   constStatus.COMPUTING_PDF,
@@ -97,17 +91,14 @@ const { automateCookieName, tokenCookieName } = github
 /** Global Variables */
 let retryAttempts = 0,
   lastPercentComplete = 0,
-  // projectName,
   currentUploadQueue,
   lastPersistedBranches = [],
   persistingToBackend,
-  persistToBackendInterval,
   statusCheck,
   startCounting,
   testTimeElapsed = 0,
   successfulUploads = 0,
-  concurrentUploads = 0,
-  ghTreeSha
+  concurrentUploads = 0
 
 export default class CQC extends Component {
   /** @dev Constructor and Lifecycle *******************************/
@@ -171,13 +162,15 @@ export default class CQC extends Component {
       const { data: jobs } = await cqcApi.getJobsQueue(this.props.user)
       this._persistTestingQueue(jobs)
     }
-    persistToBackendInterval = setInterval(this._persistTestingQueueToServer, 6000)
+    this.setState({
+      persistToBackendInterval: setInterval(this._persistTestingQueueToServer, 12000)
+    })
   }
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this._fetchRepoKeydownEvent)
     this._stopTestingQueue()
-    clearInterval(persistToBackendInterval)
+    clearInterval(this.state.persistToBackendInterval)
   }
 
   /** @dev Functions *******************************/
@@ -396,12 +389,12 @@ export default class CQC extends Component {
       if (branches.find(
         b => !lastPersistedBranches.includes(JSON.stringify(b))
       )) {
-        branches = await cqcApi.putJobsQueue({
+        const newBranches = await cqcApi.putJobsQueue({
           jobs: branches,
           user: this.props.user
         })
-        lastPersistedBranches = branches.map(JSON.stringify)
-        this._persistTestingQueue(branches)
+        lastPersistedBranches = newBranches.map(JSON.stringify)
+        // this._persistTestingQueue(branches)
       }
       persistingToBackend = false
     }
@@ -1033,7 +1026,7 @@ export default class CQC extends Component {
             }
           </Table.Body>
         </Table>
-        <StlButton disabled={disableQueueButtons}
+        <StlButton semantic primary disabled={disableQueueButtons}
           onClick={() => { this._queueSelectedFiles() }}>Start Tests on Selected Repos</StlButton>
         &nbsp;
         <DropdownActionsMenu disabled={disableQueueButtons} />
