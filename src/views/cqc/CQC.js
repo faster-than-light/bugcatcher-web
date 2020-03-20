@@ -30,6 +30,7 @@ import bugcatcherShield from '../../assets/images/bugcatcher-shield-square.png'
 import githubLogo from '../../assets/images/github-logo.png'
 import StlButton from '../../components/StlButton'
 import '../../assets/css/CQC.css'
+import cqcApi from '../../helpers/cqcApi'
 
 /** Constants */
 const uploadsPerSecond = 0 // 0 = unlimited
@@ -98,6 +99,9 @@ let retryAttempts = 0,
   lastPercentComplete = 0,
   // projectName,
   currentUploadQueue,
+  lastPersistedBranches = [],
+  persistingToBackend,
+  persistToBackendInterval,
   statusCheck,
   startCounting,
   testTimeElapsed = 0,
@@ -121,6 +125,7 @@ export default class CQC extends Component {
 
     this._toggleAutomateOption = this._toggleAutomateOption.bind(this)
     this.ApiFunctions = this.ApiFunctions.bind(this)
+    this._persistTestingQueueToServer = this._persistTestingQueueToServer.bind(this)
     this.RepoList = this.RepoList.bind(this)
     this._getTree = githubApi.getTree.bind(this)
   }
@@ -160,13 +165,19 @@ export default class CQC extends Component {
     })
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     document.addEventListener("keydown", this._fetchRepoKeydownEvent)
+    if (this.props.user) {
+      const { data: jobs } = await cqcApi.getJobsQueue(this.props.user)
+      this._persistTestingQueue(jobs)
+    }
+    persistToBackendInterval = setInterval(this._persistTestingQueueToServer, 6000)
   }
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this._fetchRepoKeydownEvent)
     this._stopTestingQueue()
+    clearInterval(persistToBackendInterval)
   }
 
   /** @dev Functions *******************************/
@@ -283,22 +294,11 @@ export default class CQC extends Component {
           else branches.push(branch)
         })
 
-        // fetchCustomRepoRows.forEach(r => {
-        //   const existsInQueue = branches.find(b => b.repoPath === r.repoPath)
-        //   if (existsInQueue) existsInQueue = r
-        // })
-
-
-
-        // if (!branches.length) branches = null
-    
-
         this.setState({
-          branches,
           repoListInputDisabled: null
         })
 
-        LocalStorage.BulkTestingQueue.setTestingQueue(branches)
+        this._persistTestingQueue(branches)
 
       }
     }
@@ -351,11 +351,8 @@ export default class CQC extends Component {
         )
       }
     }
-        
-    const branches = this.state.branches.filter(
-      b => !removedRows.includes(b)
-    )
-    this._persistTestingQueue(branches)
+     
+    this._deleteTestingQueueItemsFromServer(removedRows)
   }
 
   _updateTestingQueueItem(updatedItem) {
@@ -367,17 +364,55 @@ export default class CQC extends Component {
     this._persistTestingQueue(branches)
   }
 
-  _persistTestingQueue(branches) {
+  _deleteTestingQueueItems(deletedItems) {
+    let { branches } = this.state
+    branches = branches.filter(
+      b => !deletedItems.includes(b)
+    )
+    this._persistTestingQueue(branches)
+  }
+
+  async _deleteTestingQueueItemsFromServer(jobs) {
+    const res = await cqcApi.deleteJobsQueueItems({
+      jobs,
+      user: this.props.user
+    })
+    if (res) {
+      const branches = this.state.branches.filter(
+        b => !jobs.includes(b)
+      )
+      this._persistTestingQueue(branches)
+    }
+  }
+
+  async _persistTestingQueueToServer() {
+    if (!persistingToBackend) {
+      persistingToBackend = true
+
+      let { branches = [] } = this.state
+      /** @todo: Only update changed rows */
+      /** @todo: Delete removed rows from server */
+  
+      if (branches.find(
+        b => !lastPersistedBranches.includes(JSON.stringify(b))
+      )) {
+        branches = await cqcApi.putJobsQueue({
+          jobs: branches,
+          user: this.props.user
+        })
+        lastPersistedBranches = branches.map(JSON.stringify)
+        this._persistTestingQueue(branches)
+      }
+      persistingToBackend = false
+    }
+  }
+
+  async _persistTestingQueue(branches) {
     this.setState({ branches })
     LocalStorage.BulkTestingQueue.setTestingQueue(branches)
   }
 
   async _startTestOnQueueItem(queueItem) {
-    const tree = await this._getTree(
-      queueItem.owner,
-      queueItem.repo,
-      queueItem.selectedBranch,
-    )
     this._persistTestingQueue(this.state.branches.map(b => {
       if (b.repoPath === queueItem.repoPath) return ({...b, status: 'INIT'})
       else return b
@@ -484,7 +519,7 @@ export default class CQC extends Component {
 
   _projectName(queueItem) {
     let { owner, repo, selectedBranch } = queueItem
-    selectedBranch = selectedBranch.replace(/refs\/heads\//g, '')
+    if (selectedBranch) selectedBranch = selectedBranch.replace(/refs\/heads\//g, '')
     const projectName = [`${owner}/${repo}`, selectedBranch].join('/').replace(/\//g, '_')
     return projectName
   }

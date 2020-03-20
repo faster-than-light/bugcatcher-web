@@ -19,15 +19,20 @@ export default {
   //   return put('/pdf', data)
   // },
 
-  getJobsQueue: (email) => {
-    return get(`/jobs/${email}`)
+  getJobsQueue: async (user) => {
+    const jobs = await get(`/jobs/${user.sid}`)
+    return jobs
   },
 
-  putJobsQueue: (branches, email) => {
-    put(`/jobs/${email}`, branches)
+  putJobsQueue: async (data) => {
+    const { data: jobs } = await put(`/jobs`, data)
+    return jobs
   },
 
-  updateJobsQueueItem: (updatedItem, email) => {
+  deleteJobsQueueItems: async (data) => {
+    console.log({deleting: data})
+    const { data: response } = await del(`/jobs`, data)
+    return response
   },
 
 }
@@ -55,8 +60,9 @@ async function put(endpoint, data) {
     }
   })
 }
-async function del(endpoint) {
+async function del(endpoint, data) {
   return axios.delete(cqcApiUrl + endpoint, {
+    data,
     headers: {
       'Content-Type': 'application/json',
     }
