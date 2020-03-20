@@ -668,6 +668,7 @@ export default class CQC extends Component {
   }
 
   _startTestingQueue() {
+    this._stopTestingQueue()
     const { branches } = this.state
     let queue = branches.filter(b => b.status === constStatus.QUEUED)
     let running = branches.filter(b => ACTIVE_TESTING_STATUSES.includes(b.status))
