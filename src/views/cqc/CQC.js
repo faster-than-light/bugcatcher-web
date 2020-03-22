@@ -162,12 +162,25 @@ export default class CQC extends Component {
       this._persistTestingQueue(jobs)
     }
     this._serverPersistOn()
+    window.addEventListener("beforeunload", (ev) => 
+    {  
+        ev.preventDefault()
+
+        let { branches = [] } = this.state
+        if (
+          branches.find(
+            b => !lastPersistedBranches.includes(JSON.stringify(b))
+          )
+        ) {
+          this._persistTestingQueueToServer()
+          return ev.returnValue = 'Are you sure you want to close?'
+        }
+    })
   }
 
-  async componentWillUnmount() {
+  componentWillUnmount() {
     document.removeEventListener("keydown", this._fetchRepoKeydownEvent)
     this._stopServices()
-    await this._persistTestingQueueToServer()
   }
 
   /** @dev Functions *******************************/
@@ -852,14 +865,6 @@ export default class CQC extends Component {
     )
   }
 
-  sortDirectionChange = e => {
-    const sortReposDirection = e.target.value
-    if (sortReposDirection != this.state.sortReposDirection) this.setState({
-      sortReposDirection,
-      repos: null,
-    })
-  }
-
   getTree = async branchName => {
     window.scrollTo({ top: 0 })
     this.setState({ working: true })
@@ -870,14 +875,6 @@ export default class CQC extends Component {
       branchName,
     )
     this.setState({ ...data, working: false })
-  }
-
-  sortOptionChange = e => {
-    const sortReposBy = e.target.value
-    if (sortReposBy != this.state.sortReposBy) this.setState({
-      sortReposBy,
-      repos: null,
-    })
   }
 
 /** @dev Components ******************************/
