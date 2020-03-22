@@ -679,6 +679,11 @@ export default class CQC extends Component {
     this._clearStatusCheck()
     clearInterval( startCounting )
     this.setState({ runningQueue: null })
+    const branches = (this.state.branches || []).map(b => ({
+      ...b,
+      runningProcess: null,
+    }))
+    this._persistTestingQueue(branches)
   }
 
   _startTestingQueue() {
