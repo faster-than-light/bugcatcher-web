@@ -461,7 +461,11 @@ export default class CQC extends Component {
   }
 
   async _persistTestingQueue(branches) {
-    this.setState({ branches })
+    const filteredBranches = branches.length ? branches.filter(
+      b => b.checked
+    ) : []
+    const disableQueueButtons = Boolean(!filteredBranches.length)
+    this.setState({ branches, disableQueueButtons })
     LocalStorage.BulkTestingQueue.setTestingQueue(branches)
   }
 
