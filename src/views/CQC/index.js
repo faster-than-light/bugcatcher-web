@@ -160,6 +160,7 @@ export default class CQC extends Component {
     if (this.props.user) {
       const { data: jobs } = await cqcApi.getJobsQueue(this.props.user)
       this._persistTestingQueue(jobs)
+      this.setState({ jobsFetchedFromServer: true })
     }
     this._serverPersistOn()
     window.addEventListener("beforeunload", (ev) => 
@@ -410,7 +411,7 @@ export default class CQC extends Component {
     this._persistTestingQueue(branches)
   }
 
-  async _deleteTestingQueueItemsFromServer(jobs) {console.log('_deleteTestingQueueItemsFromServer', jobs)
+  async _deleteTestingQueueItemsFromServer(jobs) {
     const res = await cqcApi.deleteJobsQueueItems({
       jobs,
       user: this.props.user
@@ -423,7 +424,7 @@ export default class CQC extends Component {
     }
   }
 
-  async _persistTestingQueueToServer() {console.log('_persistTestingQueueToServer')
+  async _persistTestingQueueToServer() {
     if (!persistingToBackend) {
       persistingToBackend = true
 
@@ -435,7 +436,6 @@ export default class CQC extends Component {
         b => !lastPersistedBranches.includes(JSON.stringify(b))
       )
       if (discrepency) {
-        console.log('persisting branches to server', branches, discrepency)
         const newBranches = await cqcApi.putJobsQueue({
           jobs: branches,
           user: this.props.user
@@ -668,7 +668,7 @@ export default class CQC extends Component {
 
   _runTestingQueue() {
     this.setState({
-      runningQueue: setInterval(() => {console.log('_runTestingQueue')
+      runningQueue: setInterval(() => {
 
 
         let running = this.state.branches.filter(b => ACTIVE_TESTING_STATUSES.includes(b.status))
@@ -1130,6 +1130,7 @@ export default class CQC extends Component {
   RepoList = () => {
     const {
       branches = [],
+      jobsFetchedFromServer,
       repoListInputDisabled,
       showRepoInput,
       token
@@ -1169,7 +1170,8 @@ export default class CQC extends Component {
       </Form>
     </React.Fragment>
 
-    if (token && (showRepoInput || !branches.length)) {
+    if (!jobsFetchedFromServer) return <FtlLoader show={true} />
+    else if (token && (showRepoInput || !branches.length)) {
       return <div className="repo-list">
         {specifyRepo}
       </div>
