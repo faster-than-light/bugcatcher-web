@@ -74,6 +74,7 @@ const constStatus = {
     'SETUP': 'SETUP'
   },
   maxConcurrentUploads = 99,
+  uploadsPerSecond = 0, // 0 = unlimited
   millisecondTimeout = Math.floor(1000 / uploadsPerSecond),
   uiUploadThreshold = 1000,
   retryAttemptsAllowed = 300,
@@ -83,8 +84,7 @@ const constStatus = {
     [constStatus.RUNNING]: 'Running Tests...',
     [constStatus.SETUP]: 'Setting up Tests...',
   },
-  tokenCookieName = 'github-ftl-token',
-  uploadsPerSecond = 0 // 0 = unlimited
+  tokenCookieName = 'github-ftl-token'
 
 let retryAttempts = 0,
   lastPercentComplete = 0,
@@ -671,7 +671,7 @@ export default class Code extends Component {
 
   _showCodeList = () => {
     const showCodeList = !this.state.showCodeList
-    const showDropzone = !showCodeList && showDropzone
+    const showDropzone = !showCodeList && this.state.showDropzone
     this.setState({ showCodeList, showDropzone })
   }
 
