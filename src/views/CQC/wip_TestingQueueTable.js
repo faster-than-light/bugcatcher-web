@@ -16,11 +16,22 @@ export default class TestingQueueTable extends Component {
   render() {
 
     const {
-      branches,
       constStatus,
-      disableQueueButtons,
+      functions,
       runningQueue,
-      token
+      token,
+    } = this.props
+
+    let {
+      changeBranch,
+      selectAllRows,
+    } = functions
+    // changeBranch = changeBranch.bind(this)
+    // persistTestingQueue = persistTestingQueue.bind(this)
+
+    let {
+      branches = [],
+      disableQueueButtons,
     } = this.props
 
     if (!token || !branches || !branches.length) return null
@@ -79,18 +90,7 @@ export default class TestingQueueTable extends Component {
                 checked={
                   !branches.find(b => !b.checked)
                 }
-                onChange={e => {
-                  branches = branches.map(b => {
-                    // console.log(b.checked, e.target.checked)
-                    return ({...b, checked: e.target.checked})
-                  })
-                  const filteredBranches = branches.filter(
-                    b => b.checked && branches.length
-                  )
-                  disableQueueButtons = Boolean(!filteredBranches.length)
-                  this.setState({ disableQueueButtons })
-                  this._persistTestingQueue(branches)
-              }} /></Table.HeaderCell>
+                onChange={selectAllRows} /></Table.HeaderCell>
               <Table.HeaderCell>Repo Path</Table.HeaderCell>
               <Table.HeaderCell>Branch</Table.HeaderCell>
               <Table.HeaderCell>File Count</Table.HeaderCell>
@@ -152,27 +152,12 @@ export default class TestingQueueTable extends Component {
                   negative={resultsMatrix && resultsMatrix.high}>
                   <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.5, verticalAlign: 'middle'}}
                     checked={checked}
-                    onChange={() => {
-                      let thisRow = branches.find(_r => _r.repoPath === repoPath)
-                      thisRow.checked = !thisRow.checked
-                      const filteredBranches = branches.filter(
-                        b => b.checked && branches.length
-                      )
-                      disableQueueButtons = Boolean(!filteredBranches.length)
-                      this.setState({ disableQueueButtons })
-                      this._persistTestingQueue(branches)
-                    }} /></Table.Cell>
+                    onChange={this.changeBranch} /></Table.Cell>
                   <Table.Cell>{repoPath}</Table.Cell>
                   <Table.Cell>
                     <Select options={repoBranches.map(b => ({ key: b, value: b, text: b }))}
                       defaultValue={selectedBranch}
-                      onChange={e => {
-                        let row = branches.find(_r => _r.repoPath === repoPath)
-                        if (e.target.tagName === 'SPAN') row.selectedBranch = e.target.innerHTML
-                        else row.selectedBranch = e.target.childNodes[0].innerHTML
-                        row.projectName = this._projectName(row)
-                        this._updateTestingQueueItem(row)
-                      }}
+                      onChange={changeBranch}
                       disabled={status}
                       style={{ zoom: 0.81 }}
                       placeholder={'Select a branch'}>
