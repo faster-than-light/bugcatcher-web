@@ -343,9 +343,9 @@ export default class CQC extends Component {
     this.setState({ branches, currentRepo, working: false })
   }
 
-  async _deleteProject(r) {
-    this._ephemeralPrintedError(`Deleting ${r.projectName}...`)
-    const deleteProject = await api.deleteProject(r.projectName).catch(() => null)
+  async _deleteProject(r, print) {
+    if (print) this._ephemeralPrintedError(`Deleting ${r.projectName}...`)
+    await api.deleteProject(r.projectName).catch(() => null)
   }
 
   _resetRowsInQueue() {
@@ -356,6 +356,14 @@ export default class CQC extends Component {
     if (!window.confirm(`Reset ${selected.length} projects and do not "queue" them yet?`)) return
 
     if (selected.find(r => r.runningProcess)) this._clearStatusCheck()
+
+    // delete projects from backend
+    for (let i = 0; i < selected.length; i++) {
+      setTimeout(
+        () => { this._deleteProject(selected[i]) },
+        i*300
+      )
+    }
 
     // reset data
     branches = branches.map(b => {
@@ -375,13 +383,11 @@ export default class CQC extends Component {
 
     if (removedRows.find(r => r.runningProcess)) this._clearStatusCheck()
 
-    if (window.confirm(`Also delete these ${removedRows.length} projects from BugCatcher?\nDeleting these projects will also delete any published test results.`)) {
-      for (let i = 0; i < removedRows.length; i++) {
-        setTimeout(
-          () => { this._deleteProject(removedRows[i]) },
-          i*300
-        )
-      }
+    for (let i = 0; i < removedRows.length; i++) {
+      setTimeout(
+        () => { this._deleteProject(removedRows[i], true) },
+        i*300
+      )
     }
      
     this._deleteTestingQueueItemsFromServer(removedRows)
@@ -926,7 +932,7 @@ export default class CQC extends Component {
           className='icon'
         >
           <Dropdown.Menu>
-            <Dropdown.Item icon='delete' text='Reset Items'
+            <Dropdown.Item icon='repeat' text='Reset Items'
               onClick={() => { this._resetRowsInQueue() }}></Dropdown.Item>
             <Dropdown.Item icon='delete' text='Remove Items'
               onClick={() => { this._removeRowsFromQueue() }}></Dropdown.Item>
