@@ -1149,19 +1149,23 @@ export default class CQC extends Component {
         <p>
           <StlButton onClick={this._fetchRepoList.bind(this)}
             disabled={repoListInputDisabled}>fetch repos</StlButton>
+          &nbsp;
+          <StlButton default semantic
+            onClick={() => { this.setState({
+              showRepoInput: false,
+            }) }}
+            style={{
+              display: branches.length ? 'inline-block' : 'none',
+            }}
+            >cancel</StlButton>
         </p>
+        <p>&nbsp;</p>
       </Form>
     </React.Fragment>
 
     if (token && (showRepoInput || !branches.length)) {
-      // const repos = this.state.repos ? this.state.repos.map((repo, k) => <Table.Row key={k}>
-      //   <Table.Cell><a onClick={() => this._getBranches(repo)}>
-      //     {repo}
-      //   </a></Table.Cell>
-      // </Table.Row>) : null
       return <div className="repo-list">
         {specifyRepo}
-        {/* {repos} */}
       </div>
     }
     else if (token) return <StlButton link 
