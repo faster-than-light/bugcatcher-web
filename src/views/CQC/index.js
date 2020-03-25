@@ -729,9 +729,11 @@ export default class CQC extends Component {
           shouldQueue = false
       if (shouldQueue) return {
         ...b,
-        status: constStatus.QUEUED,
+        checked: null,
+        fileCount: null,
         resultsMatrix: null,
-        checked: null
+        runningProcess: null,
+        status: constStatus.QUEUED,
       }
       else return b
     })
