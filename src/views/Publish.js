@@ -288,8 +288,8 @@ ${certified ? badge : null}
 `
     })()
 
-    return <div>
-      <section id="results">
+    return <div style={{ minHeight: '100vh', background: '#fff' }}>
+      <section id="results" className={'container'}>
         <UserContext.Consumer>
           {(userContext) => {
             const { user, userDataLoaded } = userContext ? userContext.state : {}
@@ -344,7 +344,7 @@ ${certified ? badge : null}
                             </Table.Cell>
                             <Table.Cell colSpan={2}>
                               <div>
-                                <h2>Publish Your Test Results as Certified Code on GitHub or Bitbucket, etc.</h2>
+                                <h3>Publish Your Test Results as Certified Code on GitHub or Bitbucket, etc.</h3>
                                 <p>Publish this markdown to your repository.</p>
                                 <CopyToClipboard text={markdown}
                                     onCopy={() => { this._copyMarkdown(markdownPayload) }}>
