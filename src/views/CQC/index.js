@@ -670,9 +670,8 @@ export default class CQC extends Component {
     this.setState({
       runningQueue: setInterval(() => {
 
-        console.log('running test queue')
         let running = this.state.branches.filter(b => ACTIVE_TESTING_STATUSES.includes(b.status))
-        running.forEach(item => {
+        if (running.length) running.forEach(item => {
           if (item.runningProcess) return
           // Advance items based on status
           else if (
@@ -691,6 +690,15 @@ export default class CQC extends Component {
             else console.log(`item status: ${item.status}, test id: ${item.testId}`)
           }
         })
+        else {
+          // No jobs are running. Let's look for queued jobs
+          let queued = this.state.branches.find(b => b.status === constStatus.QUEUED)
+          if (queued) {
+            queued.status = constStatus.INIT
+            queued.runningProcess = true
+            this._updateTestingQueueItem(queued)
+          }
+        }
 
 
       }, MILISECOND_INTERVAL_FOR_STATUS_POLING)
