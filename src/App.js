@@ -12,6 +12,7 @@ import Github from './views/Github'
 import Home from './views/Home'
 // import Pricing from './views/Pricing'
 import Project from './views/Project'
+import Publish from './views/Publish'
 import Results from './views/Results'
 import SetSid from './views/SetSid'
 import Tests from './views/Tests'
@@ -109,6 +110,7 @@ class App extends Component {
             <Route path="/thankyou" component={() => <ThankYou {...props} />} exact />
             <Route path="/tour" component={() => <Tour {...props} />} exact />
             <Route path="/project/:id" component={Code} exact />
+            <Route path="/publish/:id" component={Publish} exact />
             <Route path="/results/:id" component={Results} exact />
             <Route path="/sid/:sid" component={SetSid} exact />
           </Switch>

@@ -915,15 +915,14 @@ export default class CQC extends Component {
     <span style={{ color: resultsMatrix.high ? '#ff4747' : 'inherit' }}>{resultsMatrix.high} High</span>&nbsp;&nbsp;
     <span style={{ color: resultsMatrix.medium ? '#dcab27' : 'inherit' }}>{resultsMatrix.medium} Medium</span>&nbsp;&nbsp;
     <span style={{ color: resultsMatrix.low ? '#29ab55' : 'inherit' }}>{resultsMatrix.low} Low</span>
-    {/* {`${resultsMatrix.high} High, ${resultsMatrix.medium} Medium, ${resultsMatrix.low} Low`} */}
   </span>)
-  
+
   TableExamplePositiveNegative = ({
     branches,
     disableQueueButtons,
     runningQueue
   }) => {
-    const { token } = this.state
+    const { token, tree = {} } = this.state
     if (!token || !branches || !branches.length) return null
     else {
       const DropdownActionsMenu = (props) => {
@@ -1005,6 +1004,7 @@ export default class CQC extends Component {
                   checked,
                   fileCount,
                   filesUploaded,
+                  ghTreeSha,
                   owner,
                   percentComplete,
                   repo,
@@ -1033,7 +1033,8 @@ export default class CQC extends Component {
                       </span>} />
                       <Dropdown.Divider />
                       <Dropdown.Item><Link to={`/results/${testId}`} target="_blank"><Icon name={'linkify'} /> View Report</Link></Dropdown.Item>
-                      <Dropdown.Item icon='cloud upload' text='Publish' disabled={resultsMatrix && resultsMatrix.high} />
+                      <Dropdown.Item disabled={resultsMatrix && resultsMatrix.high}><Link to={`/publish/${testId}?gh=${ghTreeSha}`} target="_blank"><Icon name={'cloud upload'} /> Publish</Link></Dropdown.Item>
+                      {/* <Dropdown.Item icon='cloud upload' text='Publish' disabled={resultsMatrix && resultsMatrix.high} /> */}
                       <Dropdown.Item icon='code branch' text='Create Pull Request' disabled />
                     </Dropdown.Menu>
                   </Dropdown>
@@ -1212,44 +1213,6 @@ export default class CQC extends Component {
             { branches }
           </Table.Body>
         </Table>
-      </div>
-    }
-    else return null
-  }
-
-  RepoContents = () => {
-    const { branchName, currentRepo, showFiles, tree } = this.state
-    let newProjectPath = `${this.state.currentRepo}/${this.state.branchName}`
-    newProjectPath = '/project/' + newProjectPath.replace(/\//g,'%2F')
-    if (tree) newProjectPath += '?gh=' + tree.sha
-    if (tree) {
-      const contents = tree.tree && tree.tree.length ? tree.tree.map((t, k) => 
-      <Table.Row key={k}>
-        <Table.Cell>
-          { t.path }
-        </Table.Cell>
-      </Table.Row>) : <Table.Row key={0}>
-        <Table.Cell>Not found.</Table.Cell>
-      </Table.Row>
-      return <div className="repo-list">
-        <h3 style={{ padding: 0 }}>GitHub Repo: <code>{currentRepo}</code></h3>
-        <h3 style={{ padding: 0, margin: 0 }}>Branch: <code>{branchName}</code></h3>
-        <p style={{ marginTop: 15 }}>GitHub Tree SHA: <code>{tree.sha}</code></p>
-        <p>
-          {tree.tree.filter(t => t.type === 'blob').length} total files &nbsp;
-          <a onClick={() => { this.setState({ showFiles: !showFiles })}}>
-            show / hide
-          </a>
-        </p>
-        <Table celled striped className={'data-table'}
-          style={{ display: !showFiles ? 'none' : 'table' }}>
-          <Table.Body>
-            { contents }
-          </Table.Body>
-        </Table>
-        <Link to={newProjectPath}>
-          <StlButton onClick={this.testRepo}>Test This GitHub Repo</StlButton>
-        </Link>
       </div>
     }
     else return null
@@ -1438,10 +1401,6 @@ export default class CQC extends Component {
                 {fetchCustomRepoErrors.map(e => <div>{e}</div>)}
                 <pre>{fetchCustomRepoError}</pre>
               </div>
-
-              {/* <this.BranchList /> */}
-
-              {/* <this.RepoContents /> */}
 
             </div>
 
