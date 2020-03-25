@@ -670,7 +670,7 @@ export default class CQC extends Component {
     this.setState({
       runningQueue: setInterval(() => {
 
-
+        console.log('running test queue')
         let running = this.state.branches.filter(b => ACTIVE_TESTING_STATUSES.includes(b.status))
         running.forEach(item => {
           if (item.runningProcess) return
@@ -815,41 +815,48 @@ export default class CQC extends Component {
       checkUploadsComplete()
     }
     const sendFile = async (file) => {
-      concurrentUploads++
-      const blob = await githubApi.getBlob(owner, repo, file.sha)
-        .catch(() => null)
-      if (!blob) { fetchBlobError(new Error('Failed to fetch blob.'), file) }
-      else {
-        // check the sha256 hash to skip any synchronized files
-        const code = 'data:application/octet-stream;base64,' + blob['content']
-        let binStringToHash = sha256(atob(blob['content']))
-        const synchronized = Boolean(codeOnServer.find(f => f.sha256 === binStringToHash))
-
-        const putCodeCallback = (apiResponse, file) => {
-          successfulUploads++
-          concurrentUploads--
-          if (!apiResponse) apiError(null, file)
-          else {
-            uploaded.push(file)
-            queueItem.filesUploaded = uploaded.length
-            this._updateTestingQueueItem(queueItem)
-            checkUploadsComplete()
-          }
-        }
-
-        if (synchronized) {
-          console.log(`\tSkipping synchronized file ${file.path}`)
-          putCodeCallback(true, file)
-        }
+      queueItem = !queueItem ? null : this.state.branches.find(b => {
+        return b.owner === queueItem.owner &&
+          b.repo === queueItem.repo &&
+          b.selectedBranch === queueItem.selectedBranch
+      })
+      if (this.state.runningQueue && queueItem && queueItem.status === constStatus.UPLOADING) {
+        concurrentUploads++
+        const blob = await githubApi.getBlob(owner, repo, file.sha)
+          .catch(() => null)
+        if (!blob) { fetchBlobError(new Error('Failed to fetch blob.'), file) }
         else {
-          console.log(`\tUploading file ${file.path}`)
-          api.putCode({
-            name: file.path,
-            code,
-            project: encodeURIComponent(projectName),
-          })
-          .then(res => {putCodeCallback(res, file)})
-          .catch(err => apiError(err, file))
+          // check the sha256 hash to skip any synchronized files
+          const code = 'data:application/octet-stream;base64,' + blob['content']
+          let binStringToHash = sha256(atob(blob['content']))
+          const synchronized = Boolean(codeOnServer.find(f => f.sha256 === binStringToHash))
+  
+          const putCodeCallback = (apiResponse, file) => {
+            successfulUploads++
+            concurrentUploads--
+            if (!apiResponse) apiError(null, file)
+            else {
+              uploaded.push(file)
+              queueItem.filesUploaded = uploaded.length
+              this._updateTestingQueueItem(queueItem)
+              checkUploadsComplete()
+            }
+          }
+  
+          if (synchronized) {
+            console.log(`\tSkipping synchronized file ${file.path}`)
+            putCodeCallback(true, file)
+          }
+          else {
+            console.log(`\tUploading file ${file.path}`)
+            api.putCode({
+              name: file.path,
+              code,
+              project: encodeURIComponent(projectName),
+            })
+            .then(res => {putCodeCallback(res, file)})
+            .catch(err => apiError(err, file))
+          }
         }
       }
     }
@@ -1096,7 +1103,12 @@ export default class CQC extends Component {
         <StlButton semantic primary disabled={disableQueueButtons}
           onClick={() => { this._queueSelectedFiles() }}>Start Tests on Selected Repos</StlButton>
         &nbsp;
-        <DropdownActionsMenu disabled={disableQueueButtons} />
+        <StlButton semantic default disabled={disableQueueButtons}
+          onClick={() => { this._resetRowsInQueue() }}>Reset Jobs</StlButton>
+        &nbsp;
+        <StlButton semantic default disabled={disableQueueButtons}
+          onClick={() => { this._removeRowsFromQueue() }}>Delete Jobs</StlButton>
+        {/* <DropdownActionsMenu disabled={disableQueueButtons} /> */}
         <span style={{ float: 'right', fontWeight: 'bold' }}>
           Running: <span style={{
             display: 'inline-block',
