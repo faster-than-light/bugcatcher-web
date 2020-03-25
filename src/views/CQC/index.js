@@ -372,6 +372,7 @@ export default class CQC extends Component {
       else return ({
         ...b,
         ...resetData,
+        checked: true,
       })
     })
 
