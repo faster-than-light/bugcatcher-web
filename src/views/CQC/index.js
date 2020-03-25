@@ -911,6 +911,13 @@ export default class CQC extends Component {
     </div>
   }
 
+  ResultsBreakdown = (resultsMatrix = {}) => (<span>
+    <span style={{ color: resultsMatrix.high ? '#ff4747' : 'inherit' }}>{resultsMatrix.high} High</span>&nbsp;&nbsp;
+    <span style={{ color: resultsMatrix.medium ? '#dcab27' : 'inherit' }}>{resultsMatrix.medium} Medium</span>&nbsp;&nbsp;
+    <span style={{ color: resultsMatrix.low ? '#29ab55' : 'inherit' }}>{resultsMatrix.low} Low</span>
+    {/* {`${resultsMatrix.high} High, ${resultsMatrix.medium} Medium, ${resultsMatrix.low} Low`} */}
+  </span>)
+  
   TableExamplePositiveNegative = ({
     branches,
     disableQueueButtons,
@@ -1008,7 +1015,7 @@ export default class CQC extends Component {
                   testId
                 } = row
                 const rowKey = `row_${owner}_${repo}`
-                const resultsBreakdown = resultsMatrix ? `${resultsMatrix.high} High, ${resultsMatrix.medium} Medium, ${resultsMatrix.low} Low` : 'unavailable'
+                const resultsBreakdown = resultsMatrix ? this.ResultsBreakdown(resultsMatrix) : 'unavailable'
                 const ActionsDropdown = () => (
                   <Dropdown
                     text={status}
@@ -1026,7 +1033,7 @@ export default class CQC extends Component {
                       </span>} />
                       <Dropdown.Divider />
                       <Dropdown.Item><Link to={`/results/${testId}`} target="_blank"><Icon name={'linkify'} /> View Report</Link></Dropdown.Item>
-                      <Dropdown.Item icon='cloud upload' text='Publish' disabled />
+                      <Dropdown.Item icon='cloud upload' text='Publish' disabled={resultsMatrix && resultsMatrix.high} />
                       <Dropdown.Item icon='code branch' text='Create Pull Request' disabled />
                     </Dropdown.Menu>
                   </Dropdown>
