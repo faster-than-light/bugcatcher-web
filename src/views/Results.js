@@ -333,7 +333,9 @@ export default class Results extends Component {
 
               // return the styled test results
               return <div>
-                <h3 style={{ textAlign: 'center', marginBottom: 36 }}>Feedback or bug reports about the BugCatcher beta? Email <a href={`mailto:${helpEmail}`}>{helpEmail}</a></h3>
+                <h3 style={{ textAlign: 'center', marginBottom: 36,
+                  display: published ? 'none' : 'inline-block'
+                }}>Feedback or bug reports about the BugCatcher beta? Email <a href={`mailto:${helpEmail}`}>{helpEmail}</a></h3>
                 <div className="container results-container">
                   <header style={{ marginBottom: 15 }}>
                     <a href={'https://fasterthanlight.dev'}>
@@ -350,7 +352,11 @@ export default class Results extends Component {
                     </Link>
                   </header>
                   <Link to={`/project/${encodeURIComponent(project)}`}
-                     style={{ fontSize: '120%', marginLeft: 12 }}>
+                     style={{
+                       display: published ? 'none' : 'inline-block',
+                       fontSize: '120%',
+                       marginLeft: 12,
+                      }}>
                     &laquo; back to project
                   </Link>
                   <Table color={color}>
@@ -361,7 +367,7 @@ export default class Results extends Component {
                           <span style={{fontSize:'150%'}} className={'dont-break-out'}>{project}</span>
                         </Table.HeaderCell>
                         <Table.HeaderCell>
-                          <Label ribbon={'right'} color={color} style={{fontSize: '120%'}}>Testing: {status}</Label>
+                          <Label ribbon={'right'} color={color} style={{fontSize: '120%', display: published ? 'none' : 'inline-block' }}>Testing: {status}</Label>
                         </Table.HeaderCell>
                       </Table.Row>
                     </Table.Header>
