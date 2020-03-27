@@ -1,6 +1,7 @@
 import axios from 'axios'
 import octokit from './octokit'
 import { github } from '../config'
+import octokitCreatePullRequest from './octokitCreatePullRequest'
 
 let token
 function getToken() { return token }
@@ -99,15 +100,123 @@ const getTree = async (owner, repo, branchName) => {
   }
 }
 
+const getTreeFromSha = async (options) => {
+  const { owner, repo, sha } = options
+    const tree = await octokit.getTree(
+      owner,
+      repo,
+      sha,
+      true // recursive bool
+    )
+    return tree
+}
+
+function createBlob(blob) {
+  return octokit.git.createBlob(blob)
+}
+
+function getRef(ref) {
+  return octokit.git.getRef(ref)
+}
+
+function createPullRequest(options) {
+  options.token = token
+  return octokitCreatePullRequest(options)
+}
+
+async function makePullRequestFromResults(options) {
+  const BUGCATCHER_CERTIFIED_REF = `refs/heads/bugcatcher-certified`
+
+  let {
+    owner,
+    repo,
+    selectedBranch,
+    treeSha: commit_sha,
+  } = options
+
+  // 1. Create a fork
+  const fork = await octokit.createFork({
+    owner,
+    repo,
+  })
+  owner = fork.data.owner.login
+  repo = fork.data.name
+
+  // 2. Get base tree sha
+  const { data: commit } = await octokit.octokit.git.getCommit({
+    owner,
+    repo,
+    commit_sha,
+  })
+  const { tree } = commit
+  const { sha: treeSha } = tree
+
+  // 3. Create a blob
+  const { data: blob } = await octokit.createBlob({
+    owner,
+    repo,
+    content: window.atob('this is the test results markdown content'),
+    encoding: 'base64',
+  })
+  const { sha: blobSha } = blob
+
+  // 4. Create a tree with the blob as a new file
+  const { data: blobTree } = await octokit.createTree({
+    owner,
+    repo,
+    tree: [{
+      path: 'BUGCATCHER_CERTIFIED.md',
+      mode: "100644",
+      type: "blob",
+      sha: blobSha,
+    }],
+    base_tree: treeSha,
+  })
+  const { sha: blobTreeSha } = blobTree
+
+  // 5. Commit the new tree
+  const { data: newCommit } = await octokit.createCommit({
+    owner,
+    repo,
+    message: 'dynamic commit',
+    tree: blobTreeSha,
+    parents: [commit_sha],
+  })
+  const { sha: newCommitSha } = newCommit
+
+  // 6. Create a reference to point at new commit
+  const { data: createdRef } = await octokit.createRef({
+    repo,
+    owner,
+    ref: BUGCATCHER_CERTIFIED_REF,
+    sha: newCommitSha,
+  })
+
+  // 7. Create a pull request for this new commit
+  const { data: pullRequest } = await octokit.createPullRequest({
+    owner,
+    repo,
+    title: 'BugCatcher Certified Code',
+    head: BUGCATCHER_CERTIFIED_REF,
+    base: `refs/heads/${selectedBranch}`
+  })
+
+  return ({pullRequest})
+}
 
 export default {
   ...octokit,
+  createBlob,
+  createPullRequest,
   getAccessToken,
   getBranch,
+  getRef,
   getRepos,
   getRepoContents,
   getToken,
   getTree,
+  getTreeFromSha,
+  makePullRequestFromResults,
   setToken,
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "bugcatcher-web",
-  "version": "1.0.118",
+  "version": "1.0.119",
   "repository": {
     "type": "git",
     "url": "https://github.com/faster-than-light/bugcatcher-web.git"
@@ -19,10 +19,11 @@
     "moment": "2.24.0",
     "node-bugcatcher": "1.0.26",
     "node-fetch": "2.6.0",
+    "octokit-create-pull-request": "1.4.2",
     "query-string": "6.11.1",
     "react": "16.8.6",
     "react-animate-on-scroll": "2.1.5",
-    "react-copy-to-clipboard": "^5.0.2",
+    "react-copy-to-clipboard": "5.0.2",
     "react-dom": "16.8.6",
     "react-dropzone": "5.1.1",
     "react-github-login": "1.0.3",

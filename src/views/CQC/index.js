@@ -86,7 +86,7 @@ const initialState = {
   user: null,
   working: false,
 }
-const { automateCookieName, tokenCookieName } = github
+const { tokenCookieName } = github
 
 /** Global Variables */
 let retryAttempts = 0,
@@ -302,18 +302,22 @@ export default class CQC extends Component {
           const owner = r[0][0]
           const repo = r[0][1]
           const repoPath = `${owner}/${repo}`
-          let existingRepo = branches.find(b => b.repoPath === repoPath)
+          const projectName = this._projectName(r)
           const selectedBranch = existingRepo ? existingRepo.selectedBranch : 'master'
+          let existingRepo = branches.find(b => b.projectName === projectName)
+          let repoBranches = r[1]
+          const treeSha = repoBranches.find(b => b.name === selectedBranch)['commit']['sha']
           let branch = {
             ...existingRepo,
+            branches: repoBranches,
+            checked: existingRepo && existingRepo.checked,
             owner,
+            projectName,
             repo,
             repoPath,
-            branches: r[1],
-            projectName: this._projectName(r),
             selectedBranch,
             status: existingRepo ? existingRepo.status : null,
-            checked: existingRepo && existingRepo.checked
+            treeSha,
           }
           branch.projectName = this._projectName(branch)
 
@@ -335,13 +339,6 @@ export default class CQC extends Component {
 
       }
     }
-  }
-
-  async _getBranches(currentRepo) {
-    window.scrollTo({ top: 0 })
-    this.setState({ working: true })
-    let branches = this.fetchBranches(currentRepo.split('/'))
-    this.setState({ branches, currentRepo, working: false })
   }
 
   async _deleteProject(r, print) {
@@ -1022,9 +1019,10 @@ export default class CQC extends Component {
                   checked,
                   fileCount,
                   filesUploaded,
-                  ghTreeSha,
+                  treeSha,
                   owner,
                   percentComplete,
+                  projectName,
                   repo,
                   repoPath,
                   resultsMatrix,
@@ -1051,9 +1049,7 @@ export default class CQC extends Component {
                       </span>} />
                       <Dropdown.Divider />
                       <Dropdown.Item><Link to={`/results/${testId}`} target="_blank"><Icon name={'linkify'} /> View Report</Link></Dropdown.Item>
-                      <Dropdown.Item disabled={resultsMatrix && resultsMatrix.high}><Link to={`/publish/${testId}?gh=${ghTreeSha}`} target="_blank"><Icon name={'cloud upload'} /> Publish</Link></Dropdown.Item>
-                      {/* <Dropdown.Item icon='cloud upload' text='Publish' disabled={resultsMatrix && resultsMatrix.high} /> */}
-                      <Dropdown.Item icon='code branch' text='Create Pull Request' disabled />
+                      <Dropdown.Item disabled={resultsMatrix && resultsMatrix.high}><Link to={`/publish/${testId}?gh=${treeSha}&owner=${owner}&repo=${repo}&branch=${selectedBranch}`} target="_blank"><Icon name={'cloud upload'} /> Publish</Link></Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
                 )
@@ -1072,7 +1068,7 @@ export default class CQC extends Component {
                   <Table.Cell style={{textAlign: 'center'}}><input type="checkbox" style={{zoom: 1.5, verticalAlign: 'middle'}}
                     checked={checked}
                     onChange={() => {
-                      let thisRow = branches.find(_r => _r.repoPath === repoPath)
+                      let thisRow = branches.find(_r => _r.projectName === projectName)
                       thisRow.checked = !thisRow.checked
                       const filteredBranches = branches.filter(
                         b => b.checked && branches.length
@@ -1083,10 +1079,10 @@ export default class CQC extends Component {
                     }} /></Table.Cell>
                   <Table.Cell>{repoPath}</Table.Cell>
                   <Table.Cell>
-                    <Select options={repoBranches.map(b => ({ key: b, value: b, text: b }))}
+                    <Select options={repoBranches.map(b => ({ key: b.name, value: b.name, text: b.name }))}
                       defaultValue={selectedBranch}
                       onChange={e => {
-                        let row = branches.find(_r => _r.repoPath === repoPath)
+                        let row = branches.find(_r => _r.projectName === projectName)
                         if (e.target.tagName === 'SPAN') row.selectedBranch = e.target.innerHTML
                         else row.selectedBranch = e.target.childNodes[0].innerHTML
                         row.projectName = this._projectName(row)
@@ -1275,10 +1271,9 @@ export default class CQC extends Component {
     return repos
   }
 
-  fetchBranches = async ownerRepoArray => {
+  fetchBranches = ownerRepoArray => {
     const [ owner, repo ] = ownerRepoArray
-    let branches = await githubApi.getBranches(owner, repo)
-    return branches.map(b => b.name)
+    return githubApi.getBranches(owner, repo)
   }
 
   fetchUser = async alertError => {

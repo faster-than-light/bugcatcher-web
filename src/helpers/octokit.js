@@ -1,4 +1,5 @@
 const Octokit = require("@octokit/rest")
+
 let token
 let octokit = new Octokit(token)
 
@@ -9,8 +10,10 @@ function setToken(t) {
     auth() {
       return `token ${token}`
     }
-   })
+  })
 }
+
+function getToken() { return token }
 
 async function getAuthenticated() {
   const { data } = await octokit.users.getAuthenticated()
@@ -58,11 +61,43 @@ async function getBranches(owner, repo) {
   return data
 }
 
+const createBlob = (options) => { return octokit.git.createBlob(options) }
+
+/**
+ * @options
+ * {
+    owner,
+    repo,
+    message,
+    tree, // The SHA of the tree object this commit points to
+    parents, // The SHAs of the commits that were the parents of this commit. If omitted or empty, the commit will be written as a root commit. For a single parent, an array of one SHA should be provided; for a merge commit, an array of more than one should be provided.
+  }
+ */
+const createCommit = (options) => { return octokit.git.createCommit(options) }
+
+const createFork = (options) => { return octokit.repos.createFork(options) }
+
+const createTree = (options) => { return octokit.git.createTree(options) }
+
+const createRef = (options) => { return octokit.git.createRef(options) }
+
+const updateRef = (options) => { return octokit.git.updateRef(options) }
+
+const createPullRequest = (options) => { return octokit.pulls.create(options) }
 
 export default {
-  setToken,
+  createBlob,
+  createCommit,
+  createFork,
+  createPullRequest,
+  createRef,
+  createTree,
   getAuthenticated,
   getBlob,
   getBranches,
+  getToken,
   getTree,
+  octokit,
+  setToken,
+  updateRef,
 }

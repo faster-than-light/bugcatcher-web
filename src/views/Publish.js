@@ -15,9 +15,10 @@ import { UserContext } from '../contexts/UserContext'
 // helpers
 import api from '../helpers/api'
 import cqcApi from '../helpers/cqcApi'
+import githubApi from '../helpers/githubApi'
 import { getCookie } from '../helpers/cookies'
 import { severities } from '../helpers/strings'
-import { appUrl } from '../config'
+import { appUrl, github } from '../config'
 import { durationBreakdown } from '../helpers/moment'
 
 // images and styles
@@ -28,6 +29,7 @@ const sortRowsByFileLine = (a, b) =>
   String(a.code.name + a.start_line).localeCompare(
     String(b.code.name + b.start_line)
   )
+const { tokenCookieName } = github
 
 export default class Publish extends Component {
   static contextType = UserContext
@@ -39,9 +41,15 @@ export default class Publish extends Component {
     const user = await this.context.actions.fetchUser()
     const fetchedResults = await this._fetchResults()
     
+    let token = getCookie(tokenCookieName)
+    if (token) {
+      await githubApi.setToken(token)
+    }
+
     this.setState({
       ...fetchedResults,
       theme: getCookie("theme"),
+      token,
       user,
       failedToFetchError: null,
     })
@@ -124,8 +132,13 @@ export default class Publish extends Component {
       pdfReady,
       productCode,
       results,
+      token,
     } = this.state
     const ghTreeSha = queryString.parse(document.location.search)['gh']
+    const owner = queryString.parse(document.location.search)['owner']
+    const repo = queryString.parse(document.location.search)['repo']
+    const branch = queryString.parse(document.location.search)['branch']
+
     let certified = true
     const groupedResultsJson = (testRunResult, project) => {
       /**
@@ -306,7 +319,7 @@ ${certified ? badge : null}
 
                   {
                     (process.env.REACT_APP_FTL_ENV === 'production' || !certified) ? null : <div>
-                      <Table color={'green'}>
+                      <Table color={'blue'}>
                         <Table.Header>
                           <Table.Row>
                             <Table.HeaderCell colSpan={3}>
@@ -316,13 +329,23 @@ ${certified ? badge : null}
                         </Table.Header>
 
                         <Table.Body>
+                        <Table.Row>
+                            <Table.Cell className="grey-color light-grey-bg-color"
+                              style={{ width: '33%' }}>
+                              Repository
+                            </Table.Cell>
+                            <Table.Cell colSpan={2}>
+                              <code>{owner}/{repo}/tree/{branch}</code>
+                            </Table.Cell>
+                          </Table.Row>
                           <Table.Row>
                             <Table.Cell className="grey-color light-grey-bg-color"
                               style={{ width: '33%' }}>
                               Sharable Link
                             </Table.Cell>
                             <Table.Cell colSpan={2}>
-                            <CopyToClipboard text={resultsUrl}
+                              <h3>Copy and Paste a URL to your Published Test Results</h3>
+                              <CopyToClipboard text={resultsUrl}
                                 onCopy={this._copyLink}>
                                 <StlButton link>
                                   {resultsUrl}
@@ -330,7 +353,7 @@ ${certified ? badge : null}
                               </CopyToClipboard>
                               <CopyToClipboard text={resultsUrl}
                                 onCopy={() => { this._copyLink(markdownPayload) }}>
-                                <StlButton semantic default>
+                                <StlButton>
                                   Copy Link
                                 </StlButton>
                               </CopyToClipboard>
@@ -356,11 +379,45 @@ ${certified ? badge : null}
                                 </CopyToClipboard>
                                 <CopyToClipboard text={markdown}
                                   onCopy={() => { this._copyMarkdown(markdownPayload) }}>
-                                  <StlButton semantic>
+                                  <StlButton>
                                     Copy Markdown
                                   </StlButton>
                                 </CopyToClipboard>
                                 {copiedMarkdown ? <span style={{color: 'red'}}>&nbsp;Copied to clipboard.</span> : null}
+
+                              </div>
+
+                            </Table.Cell>
+                          </Table.Row>
+                          <Table.Row>
+                            <Table.Cell className="grey-color light-grey-bg-color"
+                              style={{ width: '33%' }}>
+                              Create a Pull Request on GitHub
+                            </Table.Cell>
+                            <Table.Cell colSpan={2}>
+                              <div>
+                                <h3>Create a Pull Request to Publish Results Markdown at {owner}/{repo}</h3>
+                                <StlButton
+                                  onClick={async () => {
+                                    githubApi.createPullRequest({
+                                      username: 'retzion',
+                                      owner,
+                                      repo,
+                                      treeSha,
+                                      resultsMarkdown: markdown,
+                                      selectedBranch: branch,
+                                      commitMessage: 'testing pull requests',
+                                      prBody: 'pr body',
+                                      changeSetArray: [
+                                        {
+                                          new: true,
+                                          path: 'BUGCATCHER_CERTIFIED.md',
+                                          payload: markdown,
+                                        }
+                                      ],
+                                    })
+                                  }}
+                                  disabled={!token}>Create GitHub Pull Request</StlButton>
 
                               </div>
 
