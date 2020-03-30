@@ -5,11 +5,13 @@ import {
   Dropdown,
   Form,
   Icon,
+  Label,
   Loader,
   Radio,
   Select,
   Table,
-  TextArea
+  TextArea,
+  DropdownItem
 } from 'semantic-ui-react'
 import { sha256 } from 'js-sha256'
 
@@ -737,6 +739,7 @@ export default class CQC extends Component {
         ...b,
         checked: null,
         fileCount: null,
+        published: null,
         resultsMatrix: null,
         runningProcess: null,
         status: constStatus.QUEUED,
@@ -940,26 +943,26 @@ export default class CQC extends Component {
     const { token, tree = {} } = this.state
     if (!token || !branches || !branches.length) return null
     else {
-      const DropdownActionsMenu = (props) => {
-        const { disabled } = props
-        return <Dropdown
-          text={'more actions'}
-          icon='chevron down'
-          floating
-          labeled
-          disabled={disabled}
-          style={{ width: 180 }}
-          button
-          className='icon'
-        >
-          <Dropdown.Menu>
-            <Dropdown.Item icon='repeat' text='Reset Items'
-              onClick={() => { this._resetRowsInQueue() }}></Dropdown.Item>
-            <Dropdown.Item icon='delete' text='Remove Items'
-              onClick={() => { this._removeRowsFromQueue() }}></Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      }
+      // const DropdownActionsMenu = (props) => {
+      //   const { disabled } = props
+      //   return <Dropdown
+      //     text={'more actions'}
+      //     icon='chevron down'
+      //     floating
+      //     labeled
+      //     disabled={disabled}
+      //     style={{ width: 180 }}
+      //     button
+      //     className='icon'
+      //   >
+      //     <Dropdown.Menu>
+      //       <Dropdown.Item icon='repeat' text='Reset Items'
+      //         onClick={() => { this._resetRowsInQueue() }}></Dropdown.Item>
+      //       <Dropdown.Item icon='delete' text='Remove Items'
+      //         onClick={() => { this._removeRowsFromQueue() }}></Dropdown.Item>
+      //     </Dropdown.Menu>
+      //   </Dropdown>
+      // }
 
       const ToggleQueueRunning = (props) => {
         const { style } = props
@@ -1007,7 +1010,7 @@ export default class CQC extends Component {
               }} /></Table.HeaderCell>
               <Table.HeaderCell>Repo Path</Table.HeaderCell>
               <Table.HeaderCell>Branch</Table.HeaderCell>
-              <Table.HeaderCell>File Count</Table.HeaderCell>
+              <Table.HeaderCell>Properties</Table.HeaderCell>
               <Table.HeaderCell>Status</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
@@ -1022,7 +1025,9 @@ export default class CQC extends Component {
                   treeSha,
                   owner,
                   percentComplete,
+                  pr,
                   projectName,
+                  published,
                   repo,
                   repoPath,
                   resultsMatrix,
@@ -1049,7 +1054,17 @@ export default class CQC extends Component {
                       </span>} />
                       <Dropdown.Divider />
                       <Dropdown.Item><Link to={`/results/${testId}`} target="_blank"><Icon name={'linkify'} /> View Report</Link></Dropdown.Item>
-                      <Dropdown.Item disabled={resultsMatrix && resultsMatrix.high}><Link to={`/publish/${testId}?gh=${treeSha}&owner=${owner}&repo=${repo}&branch=${selectedBranch}`} target="_blank"><Icon name={'cloud upload'} /> Publish</Link></Dropdown.Item>
+                      <Dropdown.Item disabled={resultsMatrix && resultsMatrix.high}>
+                        <Link
+                          to={`/publish/${testId}?gh=${treeSha}&owner=${owner}&repo=${repo}&branch=${selectedBranch}`}
+                          target="_blank"
+                          onClick={() => {
+                            row.published = true
+                            this._updateTestingQueueItem(row)                            
+                          }}>
+                          <Icon name={'cloud upload'} /> Publish
+                        </Link>
+                      </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
                 )
@@ -1094,7 +1109,23 @@ export default class CQC extends Component {
                     
                     </Select>
                   </Table.Cell>
-                  <Table.Cell>{fileCount || '?'}</Table.Cell>
+                  <Table.Cell>
+                    <Label className={'grey'}
+                      style={{ display: fileCount ? 'inline-block' : 'none' }}>
+                      <Icon name="file" />
+                      {fileCount}
+                    </Label>
+                    <Link to={`/results/${testId}?published=1`} target="_blank"
+                      style={{
+                        display: published ? 'inline-block' : 'none'
+                      }}>
+                        <Icon inverted
+                          circular
+                          color='grey'
+                          name='globe'
+                          title="published" />
+                    </Link>
+                  </Table.Cell>
                   <Table.Cell>
                     <Loader style={{
                       display: (status && status !== constStatus.QUEUED && status !== constStatus.COMPLETE && this.state.runningQueue) ? 'inline-block' : 'none',
