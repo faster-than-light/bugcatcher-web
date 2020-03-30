@@ -40,7 +40,7 @@ const resetData = {
   fileCount: null,
   filesUploaded: null,
   percentComplete: null,
-  pr: null,
+  pullRequest: null,
   published: null,
   resultsMatrix: null,
   runningProcess: null,
@@ -1032,7 +1032,7 @@ export default class CQC extends Component {
                   treeSha,
                   owner,
                   percentComplete,
-                  pr,
+                  pullRequest,
                   projectName,
                   published,
                   repo,
@@ -1120,9 +1120,16 @@ export default class CQC extends Component {
                   </Table.Cell>
                   <Table.Cell>
                     <Label className={'grey'}
+                      title={`${fileCount} files uploaded`}
                       style={{ display: fileCount ? 'inline-block' : 'none' }}>
-                      <Icon name="file" />
-                      {fileCount}
+                      <span onClick={() => {
+                        window.open(`/project/${projectName}`)
+                      }} style={{
+                        cursor: 'pointer',
+                      }}>
+                        <Icon name="file" />
+                        {fileCount}
+                      </span>
                     </Label>
                     <Link to={`/results/${testId}?published=1`} target="_blank"
                       style={{
@@ -1134,6 +1141,16 @@ export default class CQC extends Component {
                           name='globe'
                           title="published" />
                     </Link>
+                    <a href={pullRequest || '#'} target="_blank"
+                      style={{
+                        display: pullRequest ? 'inline-block' : 'none'
+                      }}>
+                        <Icon inverted
+                          circular
+                          color='grey'
+                          name='code'
+                          title="pull request created" />
+                    </a>
                   </Table.Cell>
                   <Table.Cell>
                     <Loader style={{
