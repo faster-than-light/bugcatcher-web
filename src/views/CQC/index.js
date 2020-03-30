@@ -260,6 +260,7 @@ export default class CQC extends Component {
   }
 
   _fetchRepoList = async () => {
+    this._stopServices()
     let { branches = [] } = this.state
     // let fetchCustomRepoErrors = new Array()
     this.setState({ fetchCustomRepoErrors: [], showRepoInput: false })
@@ -306,8 +307,12 @@ export default class CQC extends Component {
           const owner = r[0][0]
           const repo = r[0][1]
           const repoPath = `${owner}/${repo}`
-          const projectName = this._projectName(r)
           const selectedBranch = existingRepo ? existingRepo.selectedBranch : 'master'
+          const projectName = this._projectName({
+            owner,
+            repo,
+            selectedBranch
+          })
           let existingRepo = branches.find(b => b.projectName === projectName)
           let repoBranches = r[1]
           const treeSha = repoBranches.find(b => b.name === selectedBranch)['commit']['sha']
@@ -340,9 +345,9 @@ export default class CQC extends Component {
         }
         branches.sort( compare )
         this._persistTestingQueue(branches)
-
       }
     }
+    this._startServices()
   }
 
   async _deleteProject(r, print) {
