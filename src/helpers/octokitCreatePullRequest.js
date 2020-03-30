@@ -9,7 +9,6 @@ export default (options) => {
     resultsMarkdown,
     selectedBranch,
     token,
-    treeSha: commit_sha,
   } = options
 
   
@@ -19,13 +18,13 @@ export default (options) => {
   
   // Returns a normal Octokit PR response
   // See https://octokit.github.io/rest.js/#octokit-routes-pulls-create
-  octokit
+  return octokit
     .createPullRequest({
       owner,
       repo,
       title: "BugCatcher Code Certification",
       body: "Your repository has passed BugCatcher's code certification process. Please merge this PR to include your test results as a markdown file.",
-      // base: "master" /* optional: defaults to default branch */,
+      base: selectedBranch,
       head: "bugcatcher-certification",
       changes: {
         files: {
@@ -34,6 +33,6 @@ export default (options) => {
         commit: "Publish static analysis test results from BugCatcher"
       }
     })
-    .then(pr => console.log(pr.data.number));
+    .then(pr => pr.data)
 
 }

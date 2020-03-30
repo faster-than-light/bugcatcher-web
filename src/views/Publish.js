@@ -126,11 +126,12 @@ export default class Publish extends Component {
     const {
       copiedLink,
       copiedMarkdown,
+      disablePrButton,
       failedToFetchError,
       loading,
       // markdownPayload,
-      pdfReady,
-      productCode,
+      // pdfReady,
+      // productCode,
       results,
       token,
     } = this.state
@@ -233,7 +234,7 @@ export default class Publish extends Component {
     if (results) {
       // parse out some data we want to display
       let { test_run: testRun = {}, test_run_result: testRunResult } = results
-      const status = testRun.status_msg
+      // const status = testRun.status_msg
       const { filetype: fileType, project } = testRun.codes[0]
       let languagesUsed = fileType !== 'None' ? [fileType] : []
       let testToolsUsed = []
@@ -399,8 +400,12 @@ ${certified ? badge : null}
                                 <h3>Create a Pull Request to Publish Results Markdown at {owner}/{repo}</h3>
                                 <StlButton
                                   onClick={async () => {
-                                    githubApi.createPullRequest({
-                                      username: 'retzion',
+                                    this.setState({
+                                      prError: null,
+                                      prSuccess: null,
+                                      disablePrButton: true,
+                                    })
+                                    const pr = await githubApi.createPullRequest({
                                       owner,
                                       repo,
                                       treeSha,
@@ -416,9 +421,22 @@ ${certified ? badge : null}
                                         }
                                       ],
                                     })
+                                    .catch(c => {
+                                      this.setState({
+                                        prError: c.message,
+                                        disablePrButton: null,
+                                      })
+                                    })
+                                    if (pr) this.setState({
+                                      prSuccess: pr.html_url,
+                                      disablePrButton: null,
+                                    })
                                   }}
-                                  disabled={!token}>Create GitHub Pull Request</StlButton>
-
+                                  disabled={!token || disablePrButton}>Create GitHub Pull Request</StlButton>
+                                <div style={{color: 'Red'}}>{this.state.prError}</div>
+                                <div className={{ display: this.state.prSuccess ? 'inline-block' : 'none' }}>
+                                  <a href={this.state.prSuccess}>{this.state.prSuccess}</a>
+                                </div>
                               </div>
 
                             </Table.Cell>

@@ -11,7 +11,7 @@ import {
   Select,
   Table,
   TextArea,
-  DropdownItem
+  // DropdownItem
 } from 'semantic-ui-react'
 import { sha256 } from 'js-sha256'
 
@@ -40,6 +40,8 @@ const resetData = {
   fileCount: null,
   filesUploaded: null,
   percentComplete: null,
+  pr: null,
+  published: null,
   resultsMatrix: null,
   runningProcess: null,
   status: null,
@@ -1017,7 +1019,7 @@ export default class CQC extends Component {
           <Table.Body>
             {
               branches.map(row => {
-                const {
+                let {
                   branches: repoBranches,
                   checked,
                   fileCount,
@@ -1097,10 +1099,12 @@ export default class CQC extends Component {
                     <Select options={repoBranches.map(b => ({ key: b.name, value: b.name, text: b.name }))}
                       defaultValue={selectedBranch}
                       onChange={e => {
-                        let row = branches.find(_r => _r.projectName === projectName)
+                        // let row = branches.find(_r => _r.projectName === projectName)
                         if (e.target.tagName === 'SPAN') row.selectedBranch = e.target.innerHTML
                         else row.selectedBranch = e.target.childNodes[0].innerHTML
-                        row.projectName = this._projectName(row)
+                        row.fileCount = fileCount = null
+                        row.projectName = projectName = this._projectName(row)
+                        row.published = published = null
                         this._updateTestingQueueItem(row)
                       }}
                       disabled={status}
