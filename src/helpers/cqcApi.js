@@ -34,6 +34,10 @@ export default {
     return response
   },
 
+  postPullRequestUrl: async (data) => {
+    return post(`/pr`, data)
+  },
+
 }
 
 /** @return Promises resolving to javascript objects */

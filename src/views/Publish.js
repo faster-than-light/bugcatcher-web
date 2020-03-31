@@ -40,6 +40,7 @@ export default class Publish extends Component {
     await api.setSid( getCookie("STL-SID") )
     const user = await this.context.actions.fetchUser()
     const fetchedResults = await this._fetchResults()
+    const fetchedJob = await this._fetchJob(user)
     
     let token = getCookie(tokenCookieName)
     if (token) {
@@ -48,6 +49,7 @@ export default class Publish extends Component {
 
     this.setState({
       ...fetchedResults,
+      fetchedJob,
       theme: getCookie("theme"),
       token,
       user,
@@ -57,6 +59,14 @@ export default class Publish extends Component {
   }
   
   /** @dev Component methods */
+  _fetchJob = async (user) => {
+    const { data: jobs } = await cqcApi.getJobsQueue(user)
+    return Array.isArray(jobs) ? jobs.find(j => 
+      j.testId === this.props.match.params.id &&
+      j.treeSha === queryString.parse(document.location.search)['gh']
+    ) : null
+  }
+
   _fetchResults = async () => {
     this.setState({ failedToFetchError: null })
     let { data: results } = await api.getTestResult({
@@ -128,6 +138,7 @@ export default class Publish extends Component {
       copiedMarkdown,
       disablePrButton,
       failedToFetchError,
+      fetchedJob,
       loading,
       // markdownPayload,
       // pdfReady,
@@ -135,6 +146,7 @@ export default class Publish extends Component {
       results,
       token,
     } = this.state
+    const prUrl = fetchedJob ? fetchedJob.pullRequest : null
     const ghTreeSha = queryString.parse(document.location.search)['gh']
     const owner = queryString.parse(document.location.search)['owner']
     const repo = queryString.parse(document.location.search)['repo']
@@ -385,7 +397,6 @@ ${certified ? badge : null}
                                   </StlButton>
                                 </CopyToClipboard>
                                 {copiedMarkdown ? <span style={{color: 'red'}}>&nbsp;Copied to clipboard.</span> : null}
-
                               </div>
 
                             </Table.Cell>
@@ -427,15 +438,27 @@ ${certified ? badge : null}
                                         disablePrButton: null,
                                       })
                                     })
-                                    if (pr) this.setState({
-                                      prSuccess: pr.html_url,
-                                      disablePrButton: null,
-                                    })
+                                    if (pr) {
+                                      const createdPR = await cqcApi.postPullRequestUrl({
+                                        prUrl: pr.html_url,
+                                        testId,
+                                        user,
+                                      })
+                                      console.log({createdPR})
+                                      this.setState({
+                                        prSuccess: pr.html_url,
+                                        disablePrButton: null,
+                                      })
+                                    }
                                   }}
                                   disabled={!token || disablePrButton}>Create GitHub Pull Request</StlButton>
                                 <div style={{color: 'Red'}}>{this.state.prError}</div>
-                                <div className={{ display: this.state.prSuccess ? 'inline-block' : 'none' }}>
-                                  <a href={this.state.prSuccess}>{this.state.prSuccess}</a>
+                                <div style={{
+                                  marginTop: 12,
+                                  display: prUrl || this.state.prSuccess ? 'block' : 'none',
+                                }}>
+                                  <strong>Pull Request Created:</strong><br />
+                                  <a href={prUrl || this.state.prSuccess}>{prUrl || this.state.prSuccess}</a>
                                 </div>
                               </div>
 

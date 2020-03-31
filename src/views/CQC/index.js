@@ -742,7 +742,6 @@ export default class CQC extends Component {
       if (shouldQueue && b.status === constStatus.COMPLETE)
         if (!window.confirm(`${b.projectName} is COMPLETE. Queue it again for another test?`))
           shouldQueue = false
-      console.log({shouldQueue})
       if (shouldQueue) return {
         ...b,
         ...resetData,
