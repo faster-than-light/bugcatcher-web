@@ -404,7 +404,7 @@ export default class CQC extends Component {
   _updateTestingQueueItem(updatedItem) {
     let { branches } = this.state
     let itemToUpdate = branches.find(
-      b => b.repoPath === updatedItem.repoPath
+      b => b.projectName === updatedItem.projectName
     )
     itemToUpdate = { ...updatedItem }
     this._persistTestingQueue(branches)
@@ -484,7 +484,7 @@ export default class CQC extends Component {
 
   async _startTestOnQueueItem(queueItem) {
     this._persistTestingQueue(this.state.branches.map(b => {
-      if (b.repoPath === queueItem.repoPath) return ({...b, status: 'INIT'})
+      if (b.projectName === queueItem.projectName) return ({...b, status: 'INIT'})
       else return b
     }))
   }
@@ -737,18 +737,15 @@ export default class CQC extends Component {
     let markQueued = this.state.branches.filter(b => b.checked && !ACTIVE_TESTING_STATUSES.includes(b.status))
     const branches = this.state.branches.map(b => {
       let shouldQueue = markQueued.find(m => {
-        return m.repoPath === b.repoPath
+        return m.projectName === b.projectName
       })
       if (shouldQueue && b.status === constStatus.COMPLETE)
-        if (!window.confirm(`${b.repoPath} is COMPLETE. Queue it again for another test?`))
+        if (!window.confirm(`${b.projectName} is COMPLETE. Queue it again for another test?`))
           shouldQueue = false
+      console.log({shouldQueue})
       if (shouldQueue) return {
         ...b,
-        checked: null,
-        fileCount: null,
-        published: null,
-        resultsMatrix: null,
-        runningProcess: null,
+        ...resetData,
         status: constStatus.QUEUED,
       }
       else return b
@@ -1042,7 +1039,7 @@ export default class CQC extends Component {
                   selectedBranch,
                   testId
                 } = row
-                const rowKey = `row_${owner}_${repo}`
+                const rowKey = `row_${projectName}`
                 const resultsBreakdown = resultsMatrix ? this.ResultsBreakdown(resultsMatrix) : 'unavailable'
                 const ActionsDropdown = () => (
                   <Dropdown
