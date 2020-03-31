@@ -260,7 +260,7 @@ export default class CQC extends Component {
   }
 
   _fetchRepoList = async () => {
-    this._stopServices()
+    this._serverPersistOff()
     let { branches = [] } = this.state
     // let fetchCustomRepoErrors = new Array()
     this.setState({ fetchCustomRepoErrors: [], showRepoInput: false })
@@ -347,7 +347,7 @@ export default class CQC extends Component {
         this._persistTestingQueue(branches)
       }
     }
-    this._startServices()
+    this._serverPersistOn()
   }
 
   async _deleteProject(r, print) {
@@ -391,15 +391,15 @@ export default class CQC extends Component {
 
     if (removedRows.find(r => r.runningProcess)) this._clearStatusCheck()
 
+    this._deleteTestingQueueItemsFromServer(removedRows)
+
     for (let i = 0; i < removedRows.length; i++) {
       setTimeout(
         () => { this._deleteProject(removedRows[i], true) },
         i*300
       )
     }
-     
-    this._deleteTestingQueueItemsFromServer(removedRows)
-  }
+   }
 
   _updateTestingQueueItem(updatedItem) {
     let { branches } = this.state
@@ -1102,7 +1102,6 @@ export default class CQC extends Component {
                     <Select options={repoBranches.map(b => ({ key: b.name, value: b.name, text: b.name }))}
                       defaultValue={selectedBranch}
                       onChange={e => {
-                        // let row = branches.find(_r => _r.projectName === projectName)
                         if (e.target.tagName === 'SPAN') row.selectedBranch = e.target.innerHTML
                         else row.selectedBranch = e.target.childNodes[0].innerHTML
                         row.fileCount = fileCount = null
