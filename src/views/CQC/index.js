@@ -1095,7 +1095,9 @@ export default class CQC extends Component {
                       this.setState({ disableQueueButtons })
                       this._persistTestingQueue(branches)
                     }} /></Table.Cell>
-                  <Table.Cell>{repoPath}</Table.Cell>
+                  <Table.Cell>
+                    <a href={`https://github.com/${owner}/${repo}/tree/${selectedBranch}`} target="_blank">{repoPath}</a>
+                  </Table.Cell>
                   <Table.Cell>
                     <Select options={repoBranches.map(b => ({ key: b.name, value: b.name, text: b.name }))}
                       defaultValue={selectedBranch}
