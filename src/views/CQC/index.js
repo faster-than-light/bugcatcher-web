@@ -136,7 +136,6 @@ class CQC extends Component {
       redirect = true
     }
     if (token) {
-      console.log('set token')
       await githubApi.setToken(token)
       if (!user) user = await this.fetchUser()
     }
@@ -1340,7 +1339,6 @@ class CQC extends Component {
   }
 
   fetchUser = async alertError => {
-    console.log('run fetchUser')
     let { user } = this.state
     if (!user) {
       try { user = await githubApi.getAuthenticated() }
@@ -1350,7 +1348,6 @@ class CQC extends Component {
         this._resetState()
       }
       else this.setState({ user })
-      console.log({user})
     }
     return user
   }
