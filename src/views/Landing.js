@@ -18,7 +18,9 @@ import { version } from '../../package.json'
 // images and styles
 import '../assets/css/Home.css'
 import bugCatcherLogo from '../assets/images/bugcatcher-white.png'
-import StlButton from '../components/StlButton'
+import FtlButton from '../components/FtlButton'
+import githubText from '../assets/images/github-inverted.png'
+import githubLogo from '../assets/images/github-logo-inverted.png'
 
 export default class Landing extends Component {
   constructor () {
@@ -98,7 +100,7 @@ export default class Landing extends Component {
               if (!user) return <React.Fragment>
                 <Loader show={this.state.loggingIn} text="logging in" />
                 <div id="signin">
-                  <this.Login
+                  {/* <this.Login
                     buttonText={'log in'}
                     actionName={'User Login'}
                     style={{ float:'left' }}
@@ -107,7 +109,15 @@ export default class Landing extends Component {
                     buttonText={'sign up'}
                     actionName={'User Signup'}
                     style={{ marginLeft: 15 }}
-                    setUser={setUser} />
+                    setUser={setUser} /> */}
+                  <a href={`https://github.com/login/oauth/authorize?client_id=${config.githubOauth.clientId}&type=user_agent&scope=user,user:email&redirect_uri=${config.appUrl}/github_oauth`}>
+                    <FtlButton className="github-button">
+                      Log In with&nbsp;&nbsp;
+                      <img src={githubLogo} alt="GitHub Logo" />
+                      <img src={githubText} alt="GitHub Text" />
+                    </FtlButton>
+                  </a>
+
                 </div>
                 <p className="lead product-description" style={{color: '#ddd', marginBottom: 18}}>
                   BugCatcher is a fast, easy static analysis tool for your Python and Java code.

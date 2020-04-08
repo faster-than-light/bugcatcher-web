@@ -104,7 +104,7 @@ let retryAttempts = 0,
   successfulUploads = 0,
   concurrentUploads = 0
 
-export default class CQC extends Component {
+class CQC extends Component {
   /** @dev Constructor and Lifecycle *******************************/
   constructor(props) {
     super(props)
@@ -136,8 +136,9 @@ export default class CQC extends Component {
       redirect = true
     }
     if (token) {
+      console.log('set token')
       await githubApi.setToken(token)
-      user = await this.fetchUser()
+      if (!user) user = await this.fetchUser()
     }
 
     // look for a queue in local storage
@@ -173,6 +174,7 @@ export default class CQC extends Component {
 
         let { branches = [] } = this.state
         if (
+          this.state.token &&
           branches.find(
             b => !lastPersistedBranches.includes(JSON.stringify(b))
           )
@@ -190,13 +192,15 @@ export default class CQC extends Component {
 
   /** @dev Functions *******************************/
   _serverPersistOn() {
-    if (this.state.persistToBackendInterval) clearInterval(this.state.persistToBackendInterval)
-    this.setState({
-      persistToBackendInterval: setInterval(
-        this._persistTestingQueueToServer,
-        MILISECOND_INTERVAL_FOR_SERVER_PERSISTENCE
-      )
-    })
+    if (this.state.token) {
+      if (this.state.persistToBackendInterval) this._serverPersistOff()
+      this.setState({
+        persistToBackendInterval: setInterval(
+          this._persistTestingQueueToServer,
+          MILISECOND_INTERVAL_FOR_SERVER_PERSISTENCE
+        )
+      })
+    }
   }
 
   _serverPersistOff() {
@@ -204,8 +208,10 @@ export default class CQC extends Component {
   }
 
   _startServices() {
-    this._startTestingQueue()
-    this._serverPersistOn()
+    if (this.state.token) {
+      this._startTestingQueue()
+      this._serverPersistOn()
+    }
   }
 
   _stopServices() {
@@ -917,20 +923,20 @@ export default class CQC extends Component {
     return null//<this.ApiButtons />
   }
   
-  ApiButtons = () => {
-    const { automateAuth } = this.state
-    const show = { display: !automateAuth ? 'inline-block' : 'none' }
+  // ApiButtons = () => {
+  //   const { automateAuth } = this.state
+  //   const show = { display: !automateAuth ? 'inline-block' : 'none' }
     
-    return <div style={{padding: '21px 0', textAlign: 'left'}}>
+  //   return <div style={{padding: '21px 0', textAlign: 'left'}}>
 
-      <this.FetchAccessToken style={show} />
+  //     <this.FetchAccessToken style={show} />
 
-      <this.FetchUserProfile style={show} />
+  //     <this.FetchUserProfile style={show} />
 
-      <this.FetchUserRepos />
+  //     <this.FetchUserRepos />
 
-    </div>
-  }
+  //   </div>
+  // }
 
   ResultsBreakdown = (resultsMatrix = {}) => (<span>
     <span style={{ color: resultsMatrix.high ? '#ff4747' : 'inherit' }}>{resultsMatrix.high} High</span>&nbsp;&nbsp;
@@ -938,7 +944,7 @@ export default class CQC extends Component {
     <span style={{ color: resultsMatrix.low ? '#29ab55' : 'inherit' }}>{resultsMatrix.low} Low</span>
   </span>)
 
-  TableExamplePositiveNegative = ({
+  QueueTable = ({
     branches,
     disableQueueButtons,
     runningQueue
@@ -990,7 +996,7 @@ export default class CQC extends Component {
               padding: 0
             }}><ToggleQueueRunning style={{fontSize: '60%', marginLeft: 9, marginRight: 18, fontWeight: 'normal'}} /></h2>
           </span>
-          Static Analysis Test Queue
+          GitHub Test Queue
         </h2>
         <Table size={'small'} celled>
           <Table.Header>
@@ -1118,7 +1124,10 @@ export default class CQC extends Component {
                   <Table.Cell>
                     <Label className={'grey'}
                       title={`${fileCount} files uploaded`}
-                      style={{ display: fileCount ? 'inline-block' : 'none' }}>
+                      style={{
+                        display: fileCount ? 'inline-block' : 'none',
+                        marginRight: 4.5,
+                      }}>
                       <span onClick={() => {
                         window.open(`/project/${projectName}`)
                       }} style={{
@@ -1183,30 +1192,30 @@ export default class CQC extends Component {
     }
   }
 
-  FetchAccessToken = (props) => <StlButton primary semantic disabled={Boolean(this.state.token)}
-    style={props.style}
-    onClick={async () => {
-      this.setState({ working: true })
-      await this.fetchToken(true)
-      this.setState({ working: false }) 
-    }}>Fetch Access Token &laquo;</StlButton>
+  // FetchAccessToken = (props) => <StlButton primary semantic disabled={Boolean(this.state.token)}
+  //   style={props.style}
+  //   onClick={async () => {
+  //     this.setState({ working: true })
+  //     await this.fetchToken(true)
+  //     this.setState({ working: false }) 
+  //   }}>Fetch Access Token &laquo;</StlButton>
 
-  FetchUserProfile = (props) => <StlButton primary semantic
-    disabled={Boolean(!this.state.token || this.state.user)}
-    style={props.style}
-    onClick={ async () => {
-      this.setState({ working: true })
-      await this.fetchUser(true)
-      this.setState({ working: false })
-    }}>Fetch User Profile &raquo;</StlButton>
+  // FetchUserProfile = (props) => <StlButton primary semantic
+  //   disabled={Boolean(!this.state.token || this.state.user)}
+  //   style={props.style}
+  //   onClick={ async () => {
+  //     this.setState({ working: true })
+  //     await this.fetchUser(true)
+  //     this.setState({ working: false })
+  //   }}>Fetch User Profile &raquo;</StlButton>
 
-  FetchUserRepos = () => <StlButton default
-    style={{
-      display: Boolean(!this.state.user || !this.state.branches) ?
-      'none' : 'block' }}
-    onClick={ async () => {
-      this.setState({ branches: [] })
-    }}>Add Repositories</StlButton>
+  // FetchUserRepos = () => <StlButton default
+  //   style={{
+  //     display: Boolean(!this.state.user || !this.state.branches) ?
+  //     'none' : 'block' }}
+  //   onClick={ async () => {
+  //     this.setState({ branches: [] })
+  //   }}>Add Repositories</StlButton>
 
   RepoList = () => {
     const {
@@ -1295,6 +1304,8 @@ export default class CQC extends Component {
   fetchToken = async alertError => {
     let token
     const code = queryString.parse(document.location.search)['code']
+    alert(code)
+    return
     try {
       token = await githubApi.getAccessToken(code)
     } catch(e) { console.error(e) }
@@ -1331,14 +1342,18 @@ export default class CQC extends Component {
   }
 
   fetchUser = async alertError => {
-    let user
-    try { user = await githubApi.getAuthenticated() }
-    catch(e) { console.error(e) }
+    console.log('run fetchUser')
+    let { user } = this.state
     if (!user) {
-      if (alertError) alert("There was a problem fetching your Profile. Please start over and try again.")
-      this._resetState()
+      try { user = await githubApi.getAuthenticated() }
+      catch(e) { console.error(e) }
+      if (!user) {
+        if (alertError) alert("There was a problem fetching your Profile. Please start over and try again.")
+        this._resetState()
+      }
+      else this.setState({ user })
+      console.log({user})
     }
-    else this.setState({ user })
     return user
   }
 
@@ -1391,11 +1406,11 @@ export default class CQC extends Component {
       // user,
       working,
     } = this.state
-    const onSuccess = response => {
-      const { code } = response
-      this.setState({ code, working: false })
-    }
-    const onFailure = response => console.error(response)
+    // const onSuccess = response => {
+    //   const { code } = response
+    //   this.setState({ code, working: false })
+    // }
+    // const onFailure = response => console.error(response)
 
     if (redirect) return <Redirect to={redirect} />
     else return <div id="github">
@@ -1432,7 +1447,7 @@ export default class CQC extends Component {
             {
               code || token ? <this.ApiFunctions /> : <React.Fragment>
                 <p><br />
-                  <a href={`https://github.com/login/oauth/authorize?client_id=${github.clientId}&type=user_agent&scope=user,repo&redirect_uri=${appUrl}/gh_auth?cqc=1`}>
+                  <a href={`https://github.com/login/oauth/authorize?client_id=${github.clientId}&type=user_agent&scope=user,user:email,repo&redirect_uri=${appUrl}/gh_auth?cqc=1`}>
                     <StlButton className="big"
                     onClick={
                       () => { this.setState({ working: true }) }
@@ -1465,7 +1480,7 @@ export default class CQC extends Component {
 
               <this.RepoList />
 
-              <this.TableExamplePositiveNegative branches={branches}
+              <this.QueueTable branches={branches}
                 disableQueueButtons={disableQueueButtons}
                 runningQueue={runningQueue} />
 
@@ -1484,3 +1499,5 @@ export default class CQC extends Component {
     </div>
   }
 }
+
+export default React.memo(CQC)

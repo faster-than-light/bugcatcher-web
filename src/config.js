@@ -76,7 +76,7 @@ module.exports = {
   //   process.env.REACT_APP_PROD_MIXPANEL_TOKEN :
   //     process.env.REACT_APP_STAGING_MIXPANEL_TOKEN,
 
-  // github oauth
+  // github
   github: {
     backend: ({
       production: 'https://ftl-node-github.herokuapp.com/',
@@ -94,6 +94,15 @@ module.exports = {
     tokenCookieName: 'github-ftl-token',
   },
   
+  // github oauth
+  githubOauth: {
+    clientId: ({
+      production: '',
+      development: '',
+      local: 'a8782caa3ffdc5157640',
+    })[process.env.REACT_APP_FTL_ENV],
+  },
+
   // google oauth
   googleLoginId: process.env.REACT_APP_GOOGLE_LOGIN_ID,
 
