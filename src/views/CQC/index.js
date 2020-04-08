@@ -1304,8 +1304,6 @@ class CQC extends Component {
   fetchToken = async alertError => {
     let token
     const code = queryString.parse(document.location.search)['code']
-    alert(code)
-    return
     try {
       token = await githubApi.getAccessToken(code)
     } catch(e) { console.error(e) }
