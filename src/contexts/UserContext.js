@@ -90,7 +90,7 @@ export class UserProvider extends Component {
         return extendUser(user)
       }
     },
-    setUser: user => {console.log('set user', user)
+    setUser: user => {
       user = extendUser(user)
       LocalStorage.User.setUser(user)
       this.setState({ user })

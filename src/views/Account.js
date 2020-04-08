@@ -58,7 +58,7 @@ export default class Account extends Component {
   render() {
     const { userDataLoaded } = this.props
     const { updatingSubscription = false, user } = this.state
-    const subscriptions = user ? user.subscriptions : []
+    const { subscriptions = [] } = user
     const activeSubscription = subscriptions.find(s => s.status === 'active')
     const subscription = activeSubscription || subscriptions[0]
     const { payment_method: paymentMethod } = subscription || {}
