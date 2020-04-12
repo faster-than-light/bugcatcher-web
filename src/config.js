@@ -97,7 +97,7 @@ module.exports = {
   // github oauth
   githubOauth: {
     clientId: ({
-      production: '',
+      production: '81dc757d84dc1ec9e4f7',
       development: 'b97282422bba8db5f3fa',
       local: 'a8782caa3ffdc5157640',
     })[process.env.REACT_APP_FTL_ENV],
