@@ -1446,7 +1446,7 @@ class CQC extends Component {
                     <StlButton className="big"
                     onClick={
                       () => { this.setState({ working: true }) }
-                    }>Connect to GitHub</StlButton>
+                    }>Browse GitHub Repos</StlButton>
                   </a>
                   {/* <GitHubLogin className="big btn"
                     clientId={github.clientId}

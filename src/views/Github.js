@@ -414,12 +414,12 @@ export default class Github extends Component {
         <div className="white-block" style={{ textAlign: 'center', marginTop: 111, padding: 18 }}>
           <div className="block-content">
 
-            {
+            {/* {
               !code && !token ? null :
                 <Link to={'/github'}
                   onClick={this.resetState}
                   style={{float: 'left'}}>&laquo; start over</Link>
-            }
+            } */}
 
             <h2>Test Your GitHub Repos</h2>
 
@@ -458,7 +458,7 @@ export default class Github extends Component {
                     <StlButton className="big"
                     onClick={
                       () => { this.setState({ working: true }) }
-                    }>Connect BugCatcher to GitHub</StlButton>
+                    }>Browse GitHub Repos</StlButton>
                   </a>
                   {/* <GitHubLogin className="big btn"
                     clientId={github.clientId}

@@ -4,7 +4,8 @@ module.exports = {
   appUrl: ({
     production: 'https://bugcatcher.fasterthanlight.dev',
     development: 'https://staging.tiger.sohotokenlabs.com',
-    local: 'http://localhost:3000'
+    bat: 'http://localhost:3000',
+    local: 'http://localhost:3000',
   })[process.env.REACT_APP_FTL_ENV],
   
   // company/sales site
@@ -58,16 +59,18 @@ module.exports = {
   subscriberEntitlementName: 'bug_catcher_subscriber',
 
   // bugcatcher backend
-  apiUrl: process.env.REACT_APP_FTL_ENV === 'production' ?
-    process.env.REACT_APP_PROD_API_URI :
-      process.env.REACT_APP_FTL_ENV === 'bat' ?
-        process.env.REACT_APP_BAT_API_URI :
-          process.env.REACT_APP_STAGING_API_URI,
+  apiUrl: ({
+    production: process.env.REACT_APP_PROD_API_URI,
+    development: process.env.REACT_APP_STAGING_API_URI,
+    bat: process.env.REACT_APP_BAT_API_URI,
+    local: process.env.REACT_APP_BAT_API_URI,
+  })[process.env.REACT_APP_FTL_ENV],
 
   // cqc backend
   cqcApiUrl: ({
     production: 'https://certification-api.fasterthanlight.dev',
     development: 'https://certification-api.fasterthanlight.dev',
+    bat: 'http://localhost:3001',
     local: 'http://localhost:3001',
   })[process.env.REACT_APP_FTL_ENV],
 
@@ -81,6 +84,7 @@ module.exports = {
     backend: ({
       production: 'https://ftl-node-github.herokuapp.com/',
       development: 'https://ftl-node-github.herokuapp.com/',
+      bat: 'http://localhost:3003',
       local: 'http://localhost:3003',
     })[process.env.REACT_APP_FTL_ENV],
     enterpriseUri: 'http://github.at.home/api/v3',
@@ -88,6 +92,7 @@ module.exports = {
     clientId: ({
       production: 'bf803b9cb69105c1c66f',
       development: '37647c8bd2536e298348',
+      bat: 'c7208e5474b2d9d81af3',
       local: 'c7208e5474b2d9d81af3',
     })[process.env.REACT_APP_FTL_ENV],
     automateCookieName: 'automate-gh_auth',
@@ -99,6 +104,7 @@ module.exports = {
     clientId: ({
       production: '81dc757d84dc1ec9e4f7',
       development: 'b97282422bba8db5f3fa',
+      bat: 'a8782caa3ffdc5157640',
       local: 'a8782caa3ffdc5157640',
     })[process.env.REACT_APP_FTL_ENV],
   },

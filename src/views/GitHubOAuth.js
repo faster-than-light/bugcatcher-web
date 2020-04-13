@@ -17,8 +17,13 @@ class GitHubOAuth extends Component {
     if (code && !isFetchingToken) {
       isFetchingToken = true
       const user = await this.fetchSidFromGithubCode(code)
-      if (user) await this.props.setUser(user)
-      document.location.href = '/'
+      if (!user) {
+        alert('There was a problem fetching a token. Please try again.')
+      }  
+      else {
+        await this.props.setUser(user)
+        document.location.href = '/'
+      }
     }
   }
 
@@ -33,9 +38,6 @@ class GitHubOAuth extends Component {
         state: 'login'
       })
     } catch(e) { console.error(e) }
-    if (!sid) {
-      alert('There was a problem fetching a token. Please try again.')
-    }
     if (sid) return sid['data']
     else return
   }
