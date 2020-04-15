@@ -110,7 +110,7 @@ export default class Landing extends Component {
                     actionName={'User Signup'}
                     style={{ marginLeft: 15 }}
                     setUser={setUser} /> */}
-                  <a href={`https://github.com/login/oauth/authorize?client_id=${config.githubOauth.clientId}&type=user_agent&scope=user,user:email&redirect_uri=${config.appUrl}/github_oauth`}>
+                  <a href={`https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&type=user_agent&scope=user:email&redirect_uri=${config.appUrl}/github/oauth`}>
                     <FtlButton className="github-button">
                       Log In with&nbsp;&nbsp;
                       <img src={githubLogo} alt="GitHub Logo" />

@@ -5,19 +5,19 @@ import { Icon, Input, Table } from 'semantic-ui-react'
 import { Loader } from 'semantic-ui-react'
 
 // components
-import FtlLoader from '../components/Loader'
-import Menu from '../components/Menu'
+import FtlLoader from '../../components/Loader'
+import Menu from '../../components/Menu'
 
 // helpers
-import { appUrl, github } from '../config'
-import { getCookie, setCookie } from '../helpers/cookies'
-import githubApi from '../helpers/githubApi'
+import { appUrl, github } from '../../config'
+import { getCookie, setCookie } from '../../helpers/cookies'
+import githubApi from '../../helpers/githubApi'
 
 // images & styles
-import bugcatcherShield from '../assets/images/bugcatcher-shield-square.png'
-import githubLogo from '../assets/images/github-logo.png'
-import StlButton from '../components/StlButton'
-import '../assets/css/Github.css'
+import bugcatcherShield from '../../assets/images/bugcatcher-shield-square.png'
+import githubLogo from '../../assets/images/github-logo.png'
+import StlButton from '../../components/StlButton'
+import '../../assets/css/Github.css'
 
 /** Constants */
 const initialState = {
@@ -36,7 +36,7 @@ const initialState = {
 }
 const { automateCookieName, tokenCookieName } = github
 
-export default class Github extends Component {
+export default class GitHub extends Component {
   constructor(props) {
     super(props)
 
@@ -138,7 +138,8 @@ export default class Github extends Component {
   fetchToken = async alertError => {
     let token
     try {
-      token = await githubApi.getAccessToken(this.state.code)
+      const getAccessToken = await githubApi.getAccessToken(this.state.code)
+      token = getAccessToken['token']
     } catch(e) { console.error(e) }
     if (!token) {
       if (alertError) alert('There was a problem fetching a token. Please try again.')
@@ -454,7 +455,7 @@ export default class Github extends Component {
             {
               code || token ? <this.ApiFunctions /> : <React.Fragment>
                 <p>
-                  <a href={`https://github.com/login/oauth/authorize?client_id=${github.clientId}&type=user_agent&scope=user,repo&redirect_uri=${appUrl}/gh_auth`}>
+                  <a href={`https://github.com/login/oauth/authorize?client_id=${github.clientId}&type=user_agent&scope=user%3Aemail%2Crepo&redirect_uri=${appUrl}/github/gh_auth`}>
                     <StlButton className="big"
                     onClick={
                       () => { this.setState({ working: true }) }

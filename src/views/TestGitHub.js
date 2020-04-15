@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import queryString from 'query-string'
-import { Form, Icon, Table, TextArea } from 'semantic-ui-react'
+import { Icon, Input, Table } from 'semantic-ui-react'
 import { Loader } from 'semantic-ui-react'
 
 // components
@@ -34,10 +34,9 @@ const initialState = {
   user: null,
   working: false,
 }
-const automateCookieName = 'automate-gh_auth'
-const tokenCookieName = github.tokenCookieName
+const { automateCookieName, tokenCookieName } = github
 
-export default class BulkGithub extends Component {
+export default class Github extends Component {
   constructor(props) {
     super(props)
 
@@ -60,21 +59,41 @@ export default class BulkGithub extends Component {
   async componentWillMount() {
     this.setState({ working: true })
     const code = queryString.parse(document.location.search)['code']
-    let { token, user } = this.state
-    if (!token && code) {
-      token = await this.fetchToken()
+    const cqc = queryString.parse(document.location.search)['cqc']
+    if (cqc) this.setState({ redirect: `/cqc?code=${code}`})
+    else {
+      let { token, user } = this.state
+      if (!token && code) {
+        token = await this.fetchToken()
+      }
+      if (token) {
+        await githubApi.setToken(token)
+        user = await this.fetchUser()
+      }
+      this.setState({
+        code: !user && code ? code : null,
+        user,
+        working: false,
+      })
     }
-    if (token) {
-      await githubApi.setToken(token)
-      user = await this.fetchUser()
-    }
-    this.setState({
-      code: !user && code ? code : null,
-      user,
-      working: false,
-    })
   }
 
+  componentDidMount() {
+    document.addEventListener("keydown", this.fetchRepoKeydownEvent)
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.fetchRepoKeydownEvent)
+  }
+
+  fetchRepoKeydownEvent = event => {
+    if (
+      event.target["id"] === 'custom_repo' && (
+        event.code === 'Enter' || event.keyCode === 13
+      )
+    ) this.fetchCustomRepo()
+  }
+  
   async toggleAutomateOption(event) {
     const automate = event.target.checked
     await setCookie(automateCookieName, automate)
@@ -105,7 +124,7 @@ export default class BulkGithub extends Component {
     const { automateAuth } = this.state
     const show = { display: !automateAuth ? 'inline-block' : 'none' }
 
-    return <div style={{padding: '0', textAlign: 'left'}}>
+    return <div style={{padding: '21px 0', textAlign: 'left'}}>
 
       <this.FetchAccessToken style={show} />
 
@@ -188,62 +207,55 @@ export default class BulkGithub extends Component {
 
   RepoList = () => {
     const specifyRepo = <React.Fragment>
-      <h2 style={{
-        marginTop: 0, paddingTop: 0
-      }}>Test Multiple GitHub Repositories</h2>
-      <p>One <code>:owner/:repo</code> per line <i>(ex: <code>faster-than-light/bugcatcher-ci</code>)</i></p>
-      <Form>
-        <TextArea id='repo_list' type="text"
-          placeholder=":owner/:repo&#xa;:owner/:repo&#xa;:owner/:repo"
-          style={{ height: 222 }} />
-        <StlButton onClick={this.fetchRepoList}>fetch</StlButton>
-      </Form>
+      <h3>Specify a Repo</h3>
+      <Input id='custom_repo' type="text" placeholder=":owner/:repo" />
+      <StlButton onClick={this.fetchCustomRepo}>Fetch Branches</StlButton>
+      <div className="error">{this.state.fetchCustomRepoError}</div>
     </React.Fragment>
 
-    // if (this.state.repos && !this.state.branches) {
-    //   const repos = this.state.repos ? this.state.repos.map((repo, k) => <Table.Row key={k}>
-    //     <Table.Cell><a onClick={() => this.getBranches(repo)}>
-    //       {repo}
-    //     </a></Table.Cell>
-    //   </Table.Row>) : <Table.Row key={0}>
-    //     <Table.Cell>Not found.</Table.Cell>
-    //   </Table.Row>
-    //   return <div className="repo-list">
-    //     <div style={{
-    //       width: 'auto',
-    //       float: 'right',
-    //       paddingTop: 15,
-    //     }}>
-    //       Sort:&nbsp;
-    //       <select onChange={this.sortOptionChange}>
-    //         <option value={'full_name'}
-    //           selected={this.state.sortReposBy === 'full_name'}>name</option>
-    //         <option value={'created'}
-    //           selected={this.state.sortReposBy === 'created'}>created</option>
-    //         <option value={'updated'}
-    //           selected={this.state.sortReposBy === 'updated'}>updated</option>
-    //         <option value={'pushed'}
-    //           selected={this.state.sortReposBy === 'pushed'}>pushed</option>
-    //       </select>&nbsp;
-    //       <select onChange={this.sortDirectionChange}>
-    //         <option value={'asc'}
-    //           selected={this.state.sortReposDirection === 'asc'}>asc</option>
-    //         <option value={'desc'}
-    //           selected={this.state.sortReposDirection === 'desc'}>desc</option>
-    //       </select>
-    //     </div>
-    //     <h3>Your Repositories</h3>
-    //     <Table celled striped className={'data-table'}>
-    //       <Table.Body>
-    //         { repos }
-    //       </Table.Body>
-    //     </Table>
-
-    //     {specifyRepo}
-    //   </div>
-    // }
-    // else return null
-    return specifyRepo
+    if (this.state.repos && !this.state.branches) {
+      const repos = this.state.repos ? this.state.repos.map((repo, k) => <Table.Row key={k}>
+        <Table.Cell><a onClick={() => this.getBranches(repo)}>
+          {repo}
+        </a></Table.Cell>
+      </Table.Row>) : <Table.Row key={0}>
+        <Table.Cell>Not found.</Table.Cell>
+      </Table.Row>
+      return <div className="repo-list">
+        {specifyRepo}
+        <hr />
+        <div style={{
+          width: 'auto',
+          float: 'right',
+          paddingTop: 15,
+        }}>
+          Sort:&nbsp;
+          <select onChange={this.sortOptionChange}>
+            <option value={'full_name'}
+              selected={this.state.sortReposBy === 'full_name'}>name</option>
+            <option value={'created'}
+              selected={this.state.sortReposBy === 'created'}>created</option>
+            <option value={'updated'}
+              selected={this.state.sortReposBy === 'updated'}>updated</option>
+            <option value={'pushed'}
+              selected={this.state.sortReposBy === 'pushed'}>pushed</option>
+          </select>&nbsp;
+          <select onChange={this.sortDirectionChange}>
+            <option value={'asc'}
+              selected={this.state.sortReposDirection === 'asc'}>asc</option>
+            <option value={'desc'}
+              selected={this.state.sortReposDirection === 'desc'}>desc</option>
+          </select>
+        </div>
+        <h3>Your Repositories</h3>
+        <Table celled striped className={'data-table'}>
+          <Table.Body>
+            { repos }
+          </Table.Body>
+        </Table>
+      </div>
+    }
+    else return null
   }
 
   sortOptionChange = e => {
@@ -262,13 +274,13 @@ export default class BulkGithub extends Component {
     })
   }
 
-  getBranches = async repoList => {
+  getBranches = async currentRepo => {
     window.scrollTo({ top: 0 })
     this.setState({ working: true })
-    const [ owner, repo ] = repoList.split('/')
+    const [ owner, repo ] = currentRepo.split('/')
     let branches = await githubApi.getBranches(owner, repo)
     branches = branches.map(b => b.name)
-    this.setState({ branches, working: false })
+    this.setState({ branches, currentRepo, working: false })
   }
 
   BranchList = () => {
@@ -343,17 +355,30 @@ export default class BulkGithub extends Component {
     else return null
   }
 
-  fetchRepoList = async () => {
-    let repoList = document.getElementById("repo_list").value
-    repoList = repoList.split('\n').filter(r => r.length)
-    /** @todo: Build a data table with branch options, etc. */
-    const [ owner, repo ] = repoList[0].split('/')
-    let branches = await githubApi.getBranches(owner, repo)
+  fetchCustomRepo = async () => {
+    this.setState({ fetchCustomRepoError: null })
+    const badPatternError = new Error('The :owner/:repo pattern is not valid.')
+    const currentRepo = document.getElementById("custom_repo").value
+    const throwError = err => {
+      err = err || new Error(`There was an error fetching branches for \`${currentRepo}\``)
+      console.error(err)
+      this.setState({
+        fetchCustomRepoError: err.message
+      })
+    }
+    if (!currentRepo) return throwError(new Error('No :owner/:repo pattern was entered.'))
+
+    if ((currentRepo.match(/\//g) || []).length !== 1) return throwError(badPatternError)
+    const [ owner, repo ] = currentRepo.split('/')
+    if (!owner || !repo) return throwError(badPatternError)
+    
+    let branches = await githubApi.getBranches(owner, repo).catch(e => { return throwError(e) })
+    if (!branches) return throwError(new Error(`No branches were found for \`${currentRepo}\``))
+    
     branches = branches.map(b => b.name)
     this.setState({
       branches,
-      currentRepo: repoList[0],
-      repoList,
+      currentRepo,
       working: false
     })
   }
@@ -365,11 +390,19 @@ export default class BulkGithub extends Component {
 
   render() {
     const {
+      automateAuth,
       code,
       redirect,
+      repos,
       token,
+      user,
       working,
     } = this.state
+    const onSuccess = response => {
+      const { code } = response
+      this.setState({ code, working: false })
+    }
+    const onFailure = response => console.error(response)
 
     if (redirect) return <Redirect to={redirect} />
     else return <div id="github">
@@ -377,10 +410,47 @@ export default class BulkGithub extends Component {
       <FtlLoader show={working} text="working" />
       <div style={{
         maxWidth: 720,
-        margin: '150px auto',
+        margin: 'auto',
       }}>
-        <div className="white-block" style={{ textAlign: 'center', padding: 18 }}>
+        <div className="white-block" style={{ textAlign: 'center', marginTop: 111, padding: 18 }}>
           <div className="block-content">
+
+            {/* {
+              !code && !token ? null :
+                <Link to={'/github'}
+                  onClick={this.resetState}
+                  style={{float: 'left'}}>&laquo; start over</Link>
+            } */}
+
+            <h2>Test Your GitHub Repos</h2>
+
+            <p className="oauth-images">
+              <img src={bugcatcherShield} alt="BugCatcher" />
+              <div className="center-check">
+                <div className="icon-box">
+                  <Icon name="chevron circle right" size="big" style={{ color: 'green' }} />
+                </div>
+              </div>
+              <img src={githubLogo} alt="GitHub" />
+            </p>
+
+            {/* <div style={{ display: automateAuth ? 'none' : 'block'}}>
+            { 
+              code && !token ? <React.Fragment>
+                <div className={'well'}>TEMPORARY CODE: {code}</div>
+              </React.Fragment> : null
+            }
+            { 
+              token && !user ? <React.Fragment>
+                <div className={'well'}>ACCESS TOKEN: {token}</div>
+              </React.Fragment> : null
+            }
+            { 
+              user ? <React.Fragment>
+                <div className={'well'}>USER LOGIN: {user.login}</div>
+              </React.Fragment> : null
+            }
+            </div> */}
 
             {
               code || token ? <this.ApiFunctions /> : <React.Fragment>
@@ -389,8 +459,15 @@ export default class BulkGithub extends Component {
                     <StlButton className="big"
                     onClick={
                       () => { this.setState({ working: true }) }
-                    }>Connect BugCatcher to GitHub</StlButton>
+                    }>Browse GitHub Repos</StlButton>
                   </a>
+                  {/* <GitHubLogin className="big btn"
+                    clientId={github.clientId}
+                    redirectUri=''
+                    scope="user repo"
+                    buttonText="Option 2&raquo;In New Tab"
+                    onSuccess={onSuccess}
+                    onFailure={onFailure}/> */}
                 </p>
 
                 <label htmlFor="automate" style={{ zoom: 1.2, display: 'none' }} className="well">
@@ -399,6 +476,11 @@ export default class BulkGithub extends Component {
                   &nbsp;Automate all steps of the authentication process
                 </label>
 
+                {/* <ul style={{textAlign: 'left', margin: 18}}>
+                  <li>Option 1 is redirecting you straight to Github in this window.</li>
+                  <li>Option 2 is using a React JS component library to use a new window/tab to log in.</li>
+                </ul>
+                <p>Both options result in a temporary <code>code</code> being returned from GitHub. This code can be used with the GitHub API for 10 minutes to retrieve an <code>Access Token</code>. The access token can then be used to interact with GitHub on behalf of the user for 1 hour or until the user logs out of GitHub.</p> */}
               </React.Fragment>
             }
 

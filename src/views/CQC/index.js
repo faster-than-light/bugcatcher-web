@@ -1304,7 +1304,8 @@ class CQC extends Component {
     let token
     const code = queryString.parse(document.location.search)['code']
     try {
-      token = await githubApi.getAccessToken(code)
+      const getAccessToken = await githubApi.getAccessToken(code)
+      token = getAccessToken['token']
     } catch(e) { console.error(e) }
     if (!token) {
       if (alertError) alert('There was a problem fetching a token. Please try again.')
@@ -1442,7 +1443,7 @@ class CQC extends Component {
             {
               code || token ? <this.ApiFunctions /> : <React.Fragment>
                 <p><br />
-                  <a href={`https://github.com/login/oauth/authorize?client_id=${github.clientId}&type=user_agent&scope=user,user:email,repo&redirect_uri=${appUrl}/gh_auth?cqc=1`}>
+                  <a href={`https://github.com/login/oauth/authorize?client_id=${github.clientId}&type=user_agent&scope=user%3Aemail%2Crepo&redirect_uri=${appUrl}/github/gh_auth?cqc=1`}>
                     <StlButton className="big"
                     onClick={
                       () => { this.setState({ working: true }) }

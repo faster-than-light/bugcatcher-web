@@ -34,7 +34,7 @@ class GitHubOAuth extends Component {
     try {
       sid = await api.getSidFromGithubToken({
         code,
-        redirectUri: `${appUrl}/github_oauth`,
+        redirectUri: `${appUrl}/github/oauth`,
         state: 'login'
       })
     } catch(e) { console.error(e) }
