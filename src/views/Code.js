@@ -84,7 +84,7 @@ const constStatus = {
     [constStatus.RUNNING]: 'Running Tests...',
     [constStatus.SETUP]: 'Setting up Tests...',
   },
-  tokenCookieName = 'github-ftl-token'
+  tokenCookieName = config.github.tokenCookieName
 
 let retryAttempts = 0,
   lastPercentComplete = 0,

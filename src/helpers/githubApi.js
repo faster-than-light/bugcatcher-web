@@ -14,9 +14,9 @@ function getToken() { return token }
  */
 function setToken(newToken) {
   // set our local token variable
-  token = newToken
+  token = newToken['token'] ? newToken['token'] : newToken
   // set the token in octokit helper
-  octokit.setToken(newToken)
+  octokit.setToken(token)
 
   return newToken
 }
