@@ -180,7 +180,7 @@ export default class Code extends Component {
 
   /** @dev Component methods */
   _fetchProductCode = async () => {
-    const { data = {} } = await api.getProject(projectName).catch(() => ({}))
+    const { data = {} } = await api.getProject(cleanProjectName(projectName)).catch(() => ({}))
     const { response: projectOnServer = {} } = data
     const { code: codeOnServer = [] } = projectOnServer
     this.setState({
@@ -228,6 +228,7 @@ export default class Code extends Component {
   }
 
   _assessFiles = async (files) => {
+    console.log(`begin assessing files: ${projectName}`)
     const dirName = files[0].path.substring(0,1) === '/' ?
       '/' + files[0].path.split('/')[1] : null
     const removeDirName = !dirName ? false :
@@ -325,7 +326,8 @@ export default class Code extends Component {
     return assessedFiles
   }
 
-  _uploadFiles = async (project) => {
+  _uploadFiles = async () => {
+    console.log(`begin uploading files: ${cleanProjectName(projectName)}`)
     const thisUploadQueue = currentUploadQueue = new Date().getTime()
     let {
       codeOnServer = [],
@@ -388,7 +390,7 @@ export default class Code extends Component {
       api.putCode({
         name: thisCodeOnClient.name,
         code,
-        project
+        project: cleanProjectName(projectName)
       })
       .then(apiResponse => {
         successfulUploads++
@@ -433,6 +435,7 @@ export default class Code extends Component {
   }
 
   _runTests = async () => {
+    console.log(`begin testing repo: ${cleanProjectName(projectName)}`)
     clearTimeout( statusCheck )
     clearInterval( startCounting )
     statusCheck = null
@@ -466,7 +469,9 @@ export default class Code extends Component {
       console.error(err)
       return null
     }
-    const runTests = await api.postTestProject({ projectName }).catch(runTestsError)
+    const runTests = await api.postTestProject({
+      projectName: cleanProjectName(projectName)
+    }).catch(runTestsError)
     if (runTests) {
       const { stlid } = runTests.data
       // window.mixpanel.track('Test Run',
@@ -700,11 +705,11 @@ export default class Code extends Component {
 
   /** @title GitHub */
   _fetchGithubRepo = async () => {
-    const { projectName } = this.state
 
     /** @dev Fetch GitHub repo if querystring param is found */
     ghTreeSha = queryString.parse(document.location.search)['gh']
     if (ghTreeSha) {
+      console.log(`begin fetching github repo: ${projectName}`)
       const token = getCookie(tokenCookieName)
       if (token) {
         githubApi.setToken(token)
@@ -732,9 +737,9 @@ export default class Code extends Component {
   }
 
   _testGithubRepo = async () => {
+    console.log(`begin uploading files: ${cleanProjectName(projectName)}`)
     const { owner, repo, ghTree } = this.state
     const thisUploadQueue = currentUploadQueue = new Date().getTime()
-    projectName = cleanProjectName(projectName)
     await this._fetchProductCode()
 
     // clear then show status messages
@@ -818,7 +823,7 @@ export default class Code extends Component {
           api.putCode({
             name: file.path,
             code,
-            project: encodeURIComponent(projectName),
+            project: encodeURIComponent(cleanProjectName(projectName)),
           })
           .then(res => {putCodeCallback(res, file)})
           .catch(err => apiError(err, file))
@@ -996,7 +1001,7 @@ export default class Code extends Component {
 
               <section style={{ marginTop: 12 }}>
                 <h2 style={{ display: 'inline-block' }}>
-                  {`Project: ${projectName}`}
+                  {`Project: ${cleanProjectName(projectName)}`}
                 </h2>
                 <this.Instructions {...this.state} {...this.props} style={{ marginTop: 30 }} />
               </section>
@@ -1091,7 +1096,7 @@ export default class Code extends Component {
                       verticalAlign: 'middle',
                       marginRight: 12,
                     }}
-                    onClick={() => { this._uploadFiles(projectName) }}>
+                    onClick={() => { this._uploadFiles() }}>
                     { binaryFilesToUpload.length ? `Upload ${binaryFilesToUpload.length} File${appendS(binaryFilesToUpload.length)}` : 'Upload Files' }
                   </StlButton>
                 </div>
