@@ -40,14 +40,7 @@ export default class GitHub extends Component {
   constructor(props) {
     super(props)
 
-    let token = getCookie(tokenCookieName)
-    token = token.length ? token : null
-    this.state = {
-      ...initialState,
-      automateAuth: true,
-      // automateAuth: getCookie(automateCookieName) == 'true',
-      token,
-    }
+    this.state = initialState
 
     this.toggleAutomateOption = this.toggleAutomateOption.bind(this)
     this.ApiFunctions = this.ApiFunctions.bind(this)
@@ -60,6 +53,9 @@ export default class GitHub extends Component {
     this.setState({ working: true })
     const code = queryString.parse(document.location.search)['code']
     const cqc = queryString.parse(document.location.search)['cqc']
+    let token = getCookie(tokenCookieName)
+    token = token.length ? token : null
+
     if (cqc) this.setState({ redirect: `/cqc?code=${code}`})
     else {
       let { token, user } = this.state
@@ -72,6 +68,7 @@ export default class GitHub extends Component {
       }
       this.setState({
         code: !user && code ? code : null,
+        token,
         user,
         working: false,
       })
@@ -97,7 +94,6 @@ export default class GitHub extends Component {
   async toggleAutomateOption(event) {
     const automate = event.target.checked
     await setCookie(automateCookieName, automate)
-    await this.setState({ automateAuth: automate })
   }
   
   resetState = () => {
@@ -113,28 +109,9 @@ export default class GitHub extends Component {
   }
   
   ApiFunctions = () => {
-    const { automateAuth } = this.state
-    if (automateAuth) {
-      this.runApiFunctions()
-    }
-    return this.ApiButtons()
+    this.runApiFunctions()
   }
   
-  ApiButtons = () => {
-    const { automateAuth } = this.state
-    const show = { display: !automateAuth ? 'inline-block' : 'none' }
-
-    return <div style={{padding: '21px 0', textAlign: 'left'}}>
-
-      <this.FetchAccessToken style={show} />
-
-      <this.FetchUserProfile style={show} />
-
-      <this.FetchUserRepos />
-
-    </div>
-  }
-
   fetchToken = async alertError => {
     let token
     try {
@@ -390,7 +367,6 @@ export default class GitHub extends Component {
 
   render() {
     const {
-      automateAuth,
       code,
       redirect,
       repos,
@@ -434,24 +410,6 @@ export default class GitHub extends Component {
               <img src={githubLogo} alt="GitHub" />
             </p>
 
-            <div style={{ display: automateAuth ? 'none' : 'block'}}>
-            { 
-              code && !token ? <React.Fragment>
-                <div className={'well'}>TEMPORARY CODE: {code}</div>
-              </React.Fragment> : null
-            }
-            { 
-              token && !user ? <React.Fragment>
-                <div className={'well'}>ACCESS TOKEN: {token}</div>
-              </React.Fragment> : null
-            }
-            { 
-              user ? <React.Fragment>
-                <div className={'well'}>USER LOGIN: {user.login}</div>
-              </React.Fragment> : null
-            }
-            </div>
-
             {
               code || token ? <this.ApiFunctions /> : <React.Fragment>
                 <p>
@@ -461,26 +419,8 @@ export default class GitHub extends Component {
                       () => { this.setState({ working: true }) }
                     }>Browse GitHub Repos</StlButton>
                   </a>
-                  {/* <GitHubLogin className="big btn"
-                    clientId={github.clientId}
-                    redirectUri=''
-                    scope="user repo"
-                    buttonText="Option 2&raquo;In New Tab"
-                    onSuccess={onSuccess}
-                    onFailure={onFailure}/> */}
                 </p>
 
-                <label htmlFor="automate" style={{ zoom: 1.2, display: 'none' }} className="well">
-                  <input id="automate" type="checkbox" onChange={this.toggleAutomateOption}
-                    checked={this.state.automateAuth} />
-                  &nbsp;Automate all steps of the authentication process
-                </label>
-
-                {/* <ul style={{textAlign: 'left', margin: 18}}>
-                  <li>Option 1 is redirecting you straight to Github in this window.</li>
-                  <li>Option 2 is using a React JS component library to use a new window/tab to log in.</li>
-                </ul>
-                <p>Both options result in a temporary <code>code</code> being returned from GitHub. This code can be used with the GitHub API for 10 minutes to retrieve an <code>Access Token</code>. The access token can then be used to interact with GitHub on behalf of the user for 1 hour or until the user logs out of GitHub.</p> */}
               </React.Fragment>
             }
 
