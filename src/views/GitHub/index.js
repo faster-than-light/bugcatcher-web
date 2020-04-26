@@ -58,9 +58,13 @@ export default class GitHub extends Component {
 
     if (cqc) this.setState({ redirect: `/cqc?code=${code}`})
     else {
-      let { token, user } = this.state
+      let { user } = this.state
       if (!token && code) {
         token = await this.fetchToken()
+        if (window.history.pushState) {
+          const newurl = `${window.location.protocol}//${window.location.host}/github`
+          window.history.pushState({path: newurl}, '', newurl)
+        }
       }
       if (token) {
         await githubApi.setToken(token)
@@ -110,6 +114,7 @@ export default class GitHub extends Component {
   
   ApiFunctions = () => {
     this.runApiFunctions()
+    return null
   }
   
   fetchToken = async alertError => {
