@@ -17,7 +17,8 @@ import { UserContext } from '../contexts/UserContext'
 import api from '../helpers/api'
 import cqcApi from '../helpers/cqcApi'
 import { getCookie } from '../helpers/cookies'
-import { base64ToBlob, severities, testStatusToColor } from '../helpers/strings'
+import { base64ToBlob, testStatusToColor } from '../helpers/strings'
+import { groupedResultsJson } from '../helpers/data'
 import { helpEmail } from '../config'
 import { durationBreakdown } from '../helpers/moment'
 
@@ -25,12 +26,6 @@ import { durationBreakdown } from '../helpers/moment'
 import '../assets/css/Results.css'
 import ftlLogo from '../assets/images/logo-1-line-black-text.png'
 import ThemeLogo from '../components/ThemeLogo'
-
-// constants
-const sortRowsByFileLine = (a, b) =>
-  String(a.code.name + a.start_line).localeCompare(
-    String(b.code.name + b.start_line)
-  )
 
 export default class Results extends Component {
   static contextType = UserContext
@@ -181,94 +176,7 @@ export default class Results extends Component {
     } = this.state
     const published = queryString.parse(document.location.search)['published']
     const ghTreeSha = queryString.parse(document.location.search)['gh']
-    let certified = true
-    const groupedResultsJson = (testRunResult, project) => {
-      /**
-       * @dev Arrange results into Grouped Rows
-       */
 
-      const reducedResults = testRunResult.reduce((acc, item) => {
-        const { test_suite_test: test } = item
-        const { ftl_severity: severity } = test
-        if (severity === 'high') certified = false
-        acc[severity] = acc[severity] || []
-        acc[severity].push(item)
-        return acc
-      }, {})
-      severities.forEach(s => {
-        if (!reducedResults[s]) reducedResults[s] = []
-      })
-
-      /** @dev Sort results */
-      const titleReducer = (acc, item) => {
-        const { test_suite_test: test } = item
-        const { ftl_short_description: title } = test
-        acc[title] = acc[title] || []
-        acc[title].push(item)
-        return acc
-      }
-
-      reducedResults.high = new Map(Object.entries(reducedResults.high.reduce(titleReducer, {}))) || []
-      reducedResults.medium = new Map(Object.entries(reducedResults.medium.reduce(titleReducer, {}))) || []
-      reducedResults.low = new Map(Object.entries(reducedResults.low.reduce(titleReducer, {}))) || []
-      reducedResults.info = new Map(Object.entries(reducedResults.info.reduce(titleReducer, {}))) || []
-
-      const descriptionReducer = (acc, item) => {
-        const { test_suite_test: test } = item
-        const { ftl_long_description: description } = test
-        acc[description] = acc[description] || []
-        acc[description].push(item)
-        return acc
-      }
-      let groupedResults = {}
-      Object.entries(reducedResults).forEach(r => {
-        const key = r[0]
-        const value = r[1]
-        let m = new Map()
-        Array.from(value).forEach(v => {
-          m.set(v[0], v[1].reduce(descriptionReducer, {}))
-        })
-        groupedResults[key] = m
-      })
-
-      const groupedResultsArray = [].concat(
-        groupedResults.high,
-        groupedResults.medium,
-        groupedResults.low,
-        groupedResults.info
-      )
-
-      let rows = []
-      groupedResultsArray.forEach((titlesGroup, i) => {
-        const titles = Array.from(titlesGroup)
-        if (titles && titles.length)
-          titles.forEach(t => {
-            const hits = Object.entries(t[1]).map(d => {
-              return {
-                project,
-                testId: d[1][0]['test_suite_test']['ftl_test_id'],
-                testResultId: d[1][0]['test_run_result_id'],
-                annotation: d[1][0]['project_annotation'],
-                severity: severities[i],
-                title: t[0],
-                description: d[0],
-                location: d[1].sort(sortRowsByFileLine).map(f => ([
-                  `${f.code.name} (lines ${f.start_line} - ${f.end_line})`,
-                  f.commentary
-                ])),
-                resources: d[1].map(h =>
-                  typeof h.test_suite_test.more_information_uris === 'object' ?
-                  JSON.parse(
-                    h.test_suite_test.more_information_uris.replace(/'/g, '"')
-                  ) : []
-                )[0],
-              }
-            })
-            rows.push(hits)
-          })
-      })
-      return rows.flat()
-    }
     return <div>
       <section id="results">
         <UserContext.Consumer>
@@ -291,8 +199,8 @@ export default class Results extends Component {
               let testToolsUsed = []
               if (!Array.isArray(testRunResult)) testRunResult = []
 
-              let groupedResults = groupedResultsJson(testRunResult, project)
-
+              let [groupedResults, certified] = groupedResultsJson(testRunResult, project)
+              console.log([groupedResults, certified])
               const GroupedResults = () => {
                 const rows = groupedResults
                 if (!rows.length) return <h1 style={{ color: 'green' }}>Passing all tests!</h1>
@@ -364,7 +272,7 @@ export default class Results extends Component {
                       <Table.Row>
                         <Table.HeaderCell colSpan={2}>
                           <span style={{fontSize:'120%'}}>Project: </span>
-                          <span style={{fontSize:'150%'}} className={'dont-break-out'}>{project}</span>
+                          <a href={`https://github.com/${decodeURIComponent(project)}`} target="_blank" style={{fontSize:'150%'}} className={'dont-break-out'}>{decodeURIComponent(project)}</a>
                         </Table.HeaderCell>
                         <Table.HeaderCell>
                           <Label ribbon={'right'} color={color} style={{fontSize: '120%', display: published ? 'none' : 'inline-block' }}>Testing: {status}</Label>

@@ -158,7 +158,7 @@ SEVERITY_THRESHOLD=${severity}`
 
     const newProject = () => {
       let projectName = prompt('What is the name of your project?')
-      projectName = cleanProjectName(projectName)
+      // projectName = cleanProjectName(projectName)
       if (projectName.length) this.setState({
         addNewProject: encodeURIComponent(
           projectName.trim().replace(/\s\s+/g, ' ')
@@ -194,13 +194,13 @@ SEVERITY_THRESHOLD=${severity}`
     }
     
     if (!this.props.user) return <Redirect to={'/'} />
-    else if (addNewProject) return <Redirect to={`/project/${addNewProject}`} />
+    else if (addNewProject) return <Redirect to={`/code/${addNewProject}`} />
     else return <div id="dashboard">
       <Menu />
       <div style={{
         maxWidth: 720,
         margin: 'auto',
-        paddingTop: 111,
+        paddingTop: 30,
       }}>
         {/* <Link to="/cqc"><h1>CQC</h1></Link> */}
 
@@ -221,7 +221,7 @@ SEVERITY_THRESHOLD=${severity}`
                 onClick={newProject}>
                 Upload &amp; Test A Project
               </FtlButton>,
-              <Link to={'/github'}>
+              <Link to={'/github/repos'}>
                 <FtlButton className="github-button">
                   Fetch and Test a&nbsp;&nbsp;
                   <img src={githubLogo} alt="GitHub Logo" />

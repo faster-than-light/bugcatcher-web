@@ -6,7 +6,8 @@ import Loader from '../components/Loader'
 
 // helpers
 import api from '../helpers/api'
-import { appUrl } from '../config'
+import { appUrl, github } from '../config'
+import { setCookie } from '../helpers/cookies'
 
 var isFetchingToken
 
@@ -30,16 +31,18 @@ class GitHubOAuth extends Component {
 
   /** @dev Network Data ******************************/
   fetchSidFromGithubCode = async code => {
-    let sid
     try {
-      sid = await api.getSidFromGithubToken({
+      const { data } = await api.getSidFromGithubToken({
         code,
         redirectUri: `${appUrl}/github/oauth`,
         state: 'login'
       })
-    } catch(e) { console.error(e) }
-    if (sid) return sid['data']
-    else return
+      if (data) {
+        setCookie(github.tokenCookieName, data['github_token'])
+        return data
+      }
+      else return
+    } catch(e) { console.error(e); return }
   }
 
 

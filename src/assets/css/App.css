@@ -63,12 +63,17 @@ code, pre {
 }
 
 /* containers */
+.ftl-section {
+  max-width: 1236px;
+  margin: auto;
+  text-align: left;
+}
 .theme {
   min-height: 100vh;
   background-color: var(--color-background);
 }
 .contents {
-  padding: 90px 24px 0 24px;
+  padding: 0 24px;
   max-width: 900px;
   margin: auto;
 }

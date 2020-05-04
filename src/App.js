@@ -3,17 +3,19 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 // components
 import Account from './views/Account'
-// import BulkGithub from './views/BulkGithub'
 import Code from './views/Code'
 import CookiesAlert from './components/CookiesAlert'
 import CQC from './views/CQC'
+import Dashboard from './views/Dashboard'
 import FAQ from './views/FAQ/FAQ'
 import GitHub from './views/GitHub'
 import GitHubOAuth from './views/GitHubOAuth'
 import Home from './views/Home'
 // import Pricing from './views/Pricing'
 import Project from './views/Project'
+import Projects from './views/Projects'
 import Publish from './views/Publish'
+import Repositories from './views/GitHub/Repositories'
 import Results from './views/Results'
 import SetSid from './views/SetSid'
 import Tests from './views/Tests'
@@ -102,17 +104,20 @@ class App extends Component {
             <Route path="/account" component={() => <Account {...props} />} exact />
             {/* <Route path="/bulkgithub" component={() => <BulkGithub {...props} />} exact /> */}
             <Route path="/cqc" component={() => <CQC {...props} />} exact />
+            <Route path="/code/:id" component={Code} exact />
+            <Route path="/dashboard" component={() => <Dashboard {...props} />} exact />
             <Route path="/faq" component={() => <FAQ {...props} />} exact />
             <Route path="/github/gh_auth" component={() => <GitHub {...props} />} exact />
             <Route path="/github" component={() => <GitHub {...props} />} exact />
             <Route path="/github/oauth" component={() => <GitHubOAuth {...props} />} exact />
             {/* <Route path="/pricing" component={() => <Pricing {...props} />} exact /> */}
-            <Route path="/projects" component={() => <Project {...props} />} exact />
+            <Route path="/projects" component={() => <Projects {...props} />} exact />
             <Route path="/tests" component={() => <Tests {...props} />} exact />
             <Route path="/thankyou" component={() => <ThankYou {...props} />} exact />
             <Route path="/tour" component={() => <Tour {...props} />} exact />
-            <Route path="/project/:id" component={Code} exact />
+            <Route path="/project/:id" component={Project} exact />
             <Route path="/publish/:id" component={Publish} exact />
+            <Route path="/github/repos" component={() => <Repositories {...props} />} exact />
             <Route path="/results/:id" component={Results} exact />
             <Route path="/sid/:sid" component={SetSid} exact />
           </Switch>

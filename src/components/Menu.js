@@ -53,7 +53,7 @@ export default class Menu extends Component {
 
     return (
       <nav id="ftl_navbar"
-        className={`navbar navbar-expand-lg navbar-light bg-light menu${showMobileMenu ? ' mobile-menu' : ''}`}
+        className={`navbar navbar-expand-lg navbar-light bg-light ftl-menu${showMobileMenu ? ' mobile-menu' : ''}`}
         {...this.props}>
         <Link className="navbar-brand home-link" to={`/`}>
           <img src={logoOnly} alt="Faster Than Light" /> <span className="logo-text">Faster Than Light</span>
@@ -90,13 +90,13 @@ export default class Menu extends Component {
                   onClick={() =>{
                     // window.mixpanel.track('Log Out', { version })
                     setUser(null)
-                    this.logoutButton.signOut()
+                    // this.logoutButton.signOut()
                     setTimeout(
                       () => window.location.reload(),
                       999
                     )
                   }}>log out</button>
-                  <GoogleLogout
+                  {/* <GoogleLogout
                     buttonText="log out"
                     className={'link'}
                     id="google_login"
@@ -105,7 +105,7 @@ export default class Menu extends Component {
                       visibility: 'hidden',
                       position: 'absolute',
                     }}
-                  />
+                  /> */}
                 </React.Fragment>
                 else return <React.Fragment>
                   <Welcome />

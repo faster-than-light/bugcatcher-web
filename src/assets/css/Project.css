@@ -1,0 +1,126 @@
+#project {
+  /* margin-top: 111px; */
+  padding-bottom: 90px;
+  text-align: center;
+}
+.project-container {
+  background: var(--color-background-offset);
+  color: var(--color-dark-text);
+  box-shadow: 1px 1px 4.5px #bbb;
+  /* border-radius: 9px; */
+  margin: 18px auto;
+  padding: 18px;
+}
+#project .lead i {
+  color: brown;
+}
+#project .btn {
+  font-size: 15px;
+  line-height: 1.8rem;
+}
+#project .btn.small {
+  padding: 3px 9px;
+  font-size: 90%;
+}
+
+#project .or {
+  font-size: large;
+  color: var(--color-dark-text);
+  padding-bottom: 15px;
+}
+
+#project .overview-segment .segment {
+  min-height: 234px;
+}
+
+#project .issues-table td:nth-child(2) {
+  text-align: center;
+}
+#project .issues-table th {
+  font-size: 90%;
+  border: none;
+  color: rgb(112, 112, 112);
+}
+#project .issues-table .red {
+  color: rgb(133, 14, 14);
+  background: rgb(270, 234, 234);
+  font-weight: bold;
+  font-size: 111%;
+}
+#project .issues-table .orange {
+  color: rgb(168, 100, 22);
+  background: rgb(255, 238, 205);
+  font-weight: bold;
+  font-size: 111%;
+}
+#project .issues-table .yellow {
+  color: rgb(133, 125, 14);
+  background: rgb(255, 255, 218);
+  font-weight: bold;
+  font-size: 111%;
+}
+
+@media (min-width: 768px) {
+  .overview-segment {
+    width: 48%;
+    min-height: auto;
+    float: left;
+    margin: 0 0.5% !important;
+  }
+  #project .github-button {
+    float: right;
+  }
+}
+@media (max-width: 768px) {
+  #project .github-button {
+    margin-left: 9px;
+  }
+}
+
+
+/**
+ * Upload status blocks
+ */
+.upload-status {
+  margin-bottom: 21px;
+  font-size: 100%;
+}
+.upload-status .icon {
+  font-size: 123%;
+  margin-right: 12px;
+}
+.upload-status div.error,
+.upload-status div.success,
+.upload-status div.info {
+  padding: 6px;
+  margin: 9px 0;
+  opacity: 0.81;
+  border-radius: 9px;
+}
+.upload-status div.error {
+  background: var(--color-file-status-bg-error);
+  color: var(--color-file-status-text-error);
+}
+.upload-status div.success {
+  background: var(--color-file-status-bg-success);
+  color: var(--color-file-status-text-success);
+}
+.upload-status div.info {
+  background: var(--color-file-status-bg-info);
+  color: var(--color-file-status-text-info);
+}
+
+
+/** Tabs */
+.ftl-tabs .ui.secondary.pointing.menu {
+  margin: 12px 18px 0 18px;
+  border-bottom: 0;
+}
+.ftl-tabs .ui.secondary.pointing.menu .active.item {
+  color: var(--color-primary);
+  border-color: var(--color-secondary);
+}
+.ftl-tabs .ui.segment {
+  border-radius: 0 !important;
+  margin-top: 2px !important;
+}

@@ -14,7 +14,7 @@
   color: var(--color-dark-text);
   box-shadow: 1px 1px 4.5px #bbb;
   border-radius: 9px;
-  margin: 12px auto;
+  /* margin: 12px auto; */
   padding: 12px;
 }
 #upload .lead i {

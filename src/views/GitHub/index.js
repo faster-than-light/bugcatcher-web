@@ -198,7 +198,7 @@ export default class GitHub extends Component {
     if (this.state.repos && !this.state.branches) {
       const repos = this.state.repos ? this.state.repos.map((repo, k) => <Table.Row key={k}>
         <Table.Cell><a onClick={() => this.getBranches(repo)}>
-          {repo}
+          {repo.full_name}
         </a></Table.Cell>
       </Table.Row>) : <Table.Row key={0}>
         <Table.Cell>Not found.</Table.Cell>
@@ -257,12 +257,14 @@ export default class GitHub extends Component {
   }
 
   getBranches = async currentRepo => {
-    window.scrollTo({ top: 0 })
-    this.setState({ working: true })
-    const [ owner, repo ] = currentRepo.split('/')
-    let branches = await githubApi.getBranches(owner, repo)
-    branches = branches.map(b => b.name)
-    this.setState({ branches, currentRepo, working: false })
+    if (typeof currentRepo === 'object') {
+      window.scrollTo({ top: 0 })
+      this.setState({ working: true })
+      const [ owner, repo ] = currentRepo.full_name.split('/')
+      let branches = await githubApi.getBranches(owner, repo)
+      branches = branches.map(b => b.name)
+      this.setState({ branches, currentRepo, working: false })
+    }
   }
 
   BranchList = () => {
@@ -276,7 +278,7 @@ export default class GitHub extends Component {
         <Table.Cell>Not found.</Table.Cell>
       </Table.Row>
       return <div className="repo-list">
-        <h3>Choose a branch of <code>{this.state.currentRepo}</code></h3>
+        <h3>Choose a branch of <code>{this.state.currentRepo.full_name}</code></h3>
         <Table celled striped className={'data-table'}>
           <Table.Body>
             { branches }
@@ -290,7 +292,7 @@ export default class GitHub extends Component {
   getTree = async branchName => {
     window.scrollTo({ top: 0 })
     this.setState({ working: true })
-    const [ owner, repo ] = this.state.currentRepo.split('/')
+    const [ owner, repo ] = this.state.currentRepo.full_name.split('/')
     const data = await this._getTree(
       owner,
       repo,
@@ -301,7 +303,7 @@ export default class GitHub extends Component {
 
   RepoContents = () => {
     const { branchName, currentRepo, showFiles, tree } = this.state
-    let newProjectPath = `${this.state.currentRepo}/${this.state.branchName}`
+    let newProjectPath = currentRepo && branchName ? `${currentRepo.full_name}/${branchName}` : ''
     newProjectPath = '/project/' + newProjectPath.replace(/\//g,'%2F')
     if (tree) newProjectPath += '?gh=' + tree.sha
     if (tree) {
@@ -314,7 +316,7 @@ export default class GitHub extends Component {
         <Table.Cell>Not found.</Table.Cell>
       </Table.Row>
       return <div className="repo-list">
-        <h3 style={{ padding: 0 }}>GitHub Repo: <code>{currentRepo}</code></h3>
+        <h3 style={{ padding: 0 }}>GitHub Repo: <code>{currentRepo.full_name}</code></h3>
         <h3 style={{ padding: 0, margin: 0 }}>Branch: <code>{branchName}</code></h3>
         <p style={{ marginTop: 15 }}>GitHub Tree SHA: <code>{tree.sha}</code></p>
         <p>
@@ -354,7 +356,7 @@ export default class GitHub extends Component {
     const [ owner, repo ] = currentRepo.split('/')
     if (!owner || !repo) return throwError(badPatternError)
     
-    let branches = await githubApi.getBranches(owner, repo).catch(e => { return throwError(e) })
+    let branches = await githubApi.getBranches(owner, repo.name).catch(e => { return throwError(e) })
     if (!branches) return throwError(new Error(`No branches were found for \`${currentRepo}\``))
     
     branches = branches.map(b => b.name)

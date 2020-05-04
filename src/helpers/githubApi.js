@@ -40,7 +40,7 @@ async function getAccessToken(code) {
  */
 async function getRepos(sort, direction) {
   const { data: repos } = await get(`/user/repos?sort=${sort}&direction=${direction}`)
-  return repos.map(r => r.full_name)
+  return repos.map(r => r)
 }
 
 async function getBranch(owner, repo, branch) {
