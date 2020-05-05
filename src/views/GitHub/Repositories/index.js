@@ -287,7 +287,6 @@ export default class Repositories extends Component {
 
   getBranches = async currentRepo => {
     const { default_branch: defaultBranch, full_name: fullName } = currentRepo
-    console.log(currentRepo)
     window.scrollTo({ top: 0 })
     this.setState({ working: true })
     const [ owner, repo ] = fullName.split('/')

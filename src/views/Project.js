@@ -245,7 +245,6 @@ export default class Project extends Component {
     // if (results && (results.status_msg === 'COMPUTING_PDF' || results.status_msg === 'COMPLETE')) results.percent_complete = 100
         
     if (!results) {
-      console.log('no results')
       results = testResultSid = null
       this.setState({
         results,
@@ -1301,13 +1300,17 @@ export default class Project extends Component {
                             const { data } = await api.getProject()
                             const projects = data.response
                             projects.forEach(p => {
-                              LocalStorage.ProjectTestResults.setIds(decodeURIComponent(p))
-                              projectsToDelete.push(
-                                api.deleteProjectPromise(uriEncodeProjectName(decodeURIComponent(p))).catch(() => null)
-                              )
+                              const projectRepoIdentifier = projectName.split('/tree/')[0] + '/tree/'
+                              if (decodeURIComponent(p).startsWith(projectRepoIdentifier)) {
+                                LocalStorage.ProjectTestResults.setIds(decodeURIComponent(p))
+                                projectsToDelete.push(
+                                  api.deleteProjectPromise(uriEncodeProjectName(decodeURIComponent(p))).catch(() => null)
+                                )
+                              }
                             })
+                            await Promise.all(projectsToDelete)
                           }
-                          await Promise.all(projectsToDelete)
+                          else await api.deleteProjectPromise(uriEncodeProjectName(projectName)).catch(() => null)
                           this.setState({redirect: '/'})
                         }
                       }}>Delete Project</StlButton></p>
