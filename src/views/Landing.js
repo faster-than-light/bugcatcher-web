@@ -123,7 +123,7 @@ export default class Landing extends Component {
                   BugCatcher is a fast, easy static analysis tool for your Python and Java code.
                 </p>
                 <p>
-                  <Link to="/tests" className="primary-color"
+                  <Link to="/about" className="primary-color"
                     style={linkStyle}>Documentation</Link>
                   &nbsp;|&nbsp;
                   <Link to="/faq" className="primary-color"
