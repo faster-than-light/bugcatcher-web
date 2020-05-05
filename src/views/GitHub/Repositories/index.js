@@ -190,8 +190,8 @@ export default class Repositories extends Component {
         })
         if (wasTested) return null
         const clickFn = () => { this.setState({ redirect: `/project/${project}` }) }
-        return <Table.Row key={k} style={{ display: !wasTested || addingProjects ? 'block' : 'none' }}>
-          <Table.Cell style={{ borderLeft: !wasTested ? '6px solid #2185d0' : 'normal', width: '100%', display: 'block' }}>
+        return <Table.Row key={k}>
+          <Table.Cell style={{ borderLeft: !wasTested ? '6px solid #2185d0' : 'normal', width: '100%' }}>
             
               <StlButton onClick={clickFn} semantic primary
                 className="small" style={{
@@ -207,11 +207,13 @@ export default class Repositories extends Component {
       const RepoRows = repos.map((repo, k) => {
         const wasTested = projects.find(p => p.startsWith(repo.full_name.replace(/\//g, '%2F') + '%2Ftree%2F'))
         const clickFn = !wasTested ? () => { this.getBranches(repo) } : () => { this.setState({ redirect: `/project/${encodeURIComponent(wasTested)}`}) }
-        return <Table.Row key={k} style={{ display: (wasTested || addingProjects) ? 'block' : 'none' }}>
+        const display = wasTested || addingProjects
+
+        if (!display) return null
+        else return <Table.Row key={k}>
           <Table.Cell style={{
               borderLeft: wasTested ? '6px solid #2185d0' : 'normal',
               width: '100%',
-              display: 'block',
               color: '#666',
             }}>
             

@@ -54,7 +54,6 @@ class ProjectTestResults {
     sids = Array.isArray(sids) ? sids.filter( (item, i, ar) => ar.indexOf(item) === i ) : null
     if (window.localStorage) {
       let projectStlIds = this.getIds()
-      console.log({projectStlIds})
       if (!sids) delete projectStlIds[project]
       else projectStlIds[project] = sids
       window.localStorage.setItem('projectStlIds', JSON.stringify(projectStlIds))

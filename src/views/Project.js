@@ -133,7 +133,6 @@ export default class Project extends Component {
     projectName = this.props.match ? decodeURIComponent(this.props.match.params.id) : null
 
     const selectedBranch = projectName.split('/tree/')[1]
-    console.log({projectName,selectedBranch})
     let branchesOptions
     if (selectedBranch) {
       const token = getCookie(tokenCookieName)
@@ -1177,13 +1176,13 @@ export default class Project extends Component {
 
               const Overview = () => <div>
                 {
-                  !selectedBranch ? null : <p>
+                  !selectedBranch ? null : <div style={{ paddingBottom: 18 }}>
                     Branch&nbsp;
                     <Select options={branchesOptions} defaultValue={selectedBranch}
                       onChange={(e) => {
                         console.log(e.target)
                       }} />
-                  </p>
+                  </div>
                 }
                 <OverviewContents />
               </div>
