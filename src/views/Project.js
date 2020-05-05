@@ -1325,7 +1325,8 @@ export default class Project extends Component {
               )
             
               return <div className={'ftl-tabs ftl-section'}>
-                <a href={`https://github.com/${projectName}`} target="_blank">
+                <a href={`https://github.com/${projectName}`} target="_blank"
+                  style={{ display: projectName.match('/test/') ? 'inline-block' : 'none' }}>
                   <StlButton link className="github-button">
                     View on&nbsp;&nbsp;
                     <img src={githubLogo} alt="GitHub Logo" />
