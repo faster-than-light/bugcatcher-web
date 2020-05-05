@@ -14,7 +14,7 @@ import pythonLogo from '../assets/images/languages/python.png'
 import banditLogo from '../assets/images/tools/bandit.png'
 import findbugsLogo from '../assets/images/tools/findbugs.png'
 
-export default class Tests extends Component {
+export default class About extends Component {
   state = {}
 
   toggleSection(section) {
@@ -32,30 +32,30 @@ export default class Tests extends Component {
       <Menu />
       <section id="tools" className="contents">
         <div className="tools-box">
-          <h1>BugCatcher Supported Languages &amp; Tools</h1>
+          <h1>About BugCatcher Static Analysis</h1>
           <br />
 
-          <p>Faster Than Light is built on top of existing open source tools. Our aim is to make these tools easier to use, and ideally to give back to the open source ecosystem with pull requests and other contributions.</p>
+          <p>BugCatcher is built to help keep your projects bug-free by running static analysis testing on your code and generating reports of possible issues found. BugCatcher can be implemented in your continuous integration workflows by adding our <a href="https://github.com/marketplace/actions/ftl-bugcatcher" target="_blank">GitHub Action</a> to your repositories.</p>
 
-          <p>Our aim is to develop capabilities for a range of languages. As of June 2019, we can run tests on Python and Java code. For Python, we run tests using <a href={'https://github.com/PyCQA/bandit'} target={'_blank'}>Bandit</a>. The complete list of Bandit tests can be found on their &quot;<a href={'https://bandit.readthedocs.io/en/latest/plugins/index.html#complete-test-plugin-listing'} target={'_blank'}>Bandit Test Plugins</a>&quot; page. For Java, we use <a href={'http://findbugs.sourceforge.net'} target={'_blank'}>FindBugs</a>.</p>
+          <p>Our aim is to develop capabilities for a range of languages. As of May 2020, we can run tests on Python code. For Python, we run tests using <a href={'https://github.com/PyCQA/bandit'} target={'_blank'}>Bandit</a> (see below).</p>
 
-          <p>The next item on our roadmap is static analysis testing for Android development. (If you have a preferred open source tool for Android, please email us to let us know!)</p>
+          <p>BugCatcher Web is optimized for Chrome, and for up to approximately 1000 files at a time. For larger projects, you may want to try the <a href="https://github.com/marketplace/actions/ftl-bugcatcher" target="_blank">GitHub Action</a> for a better experience.</p>
 
-          <p>BugCatcher Web is optimized for Chrome, and for up to approximately 1000 files at a time. Our lightning fast technology for large code bases will be available in a few weeks, so be sure to sign up for updates!</p>
+          {/* <p>Here are the tests that we run on your code:</p> */}
 
-          <p>Here are the tests that we run on your code:</p>
-
-          <ul className="tests-toc">
+          {/* <ul className="tests-toc">
             <li style={{ listStyle: 'none', marginLeft: 15 }}>
               <i><small>jump to:</small></i>
             </li>
             <li><button className="link" onClick={() => { scrollTo('java', true, document.getElementById('ftl_navbar').offsetHeight) }}>Java</button></li>
             <li><button className="link" onClick={() => { scrollTo('python', true, document.getElementById('ftl_navbar').offsetHeight) }}>Python</button></li>
-          </ul>
+          </ul> */}
         </div>
 
+        <br />
+        <h1>Tools &amp; Supported Languages</h1>
         <ul>
-          <li id="java">
+          {/* <li id="java">
             <img src={javaLogo} alt={'Java'} />
             <div className="hr" />
             <ul>
@@ -69,7 +69,7 @@ export default class Tests extends Component {
               <li>&nbsp;</li>
               <li>The complete list of FindBugs tests can be found on their &quot;<a href={'http://findbugs.sourceforge.net/bugDescriptions.html'} target={'_blank'}>FindBugs Bug Descriptions</a>&quot; page.</li>
             </ul>
-          </li>
+          </li> */}
           <li id="python">
             <img src={pythonLogo} alt={'Python'} />
             <div className="hr" />

@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 // components
+import About from './views/About'
 import Account from './views/Account'
 import Code from './views/Code'
 import CookiesAlert from './components/CookiesAlert'
@@ -18,7 +19,6 @@ import Publish from './views/Publish'
 import Repositories from './views/GitHub/Repositories'
 import Results from './views/Results'
 import SetSid from './views/SetSid'
-import Tests from './views/Tests'
 import ThankYou from './views/ThankYou'
 import Tour from './views/Tour'
 
@@ -101,6 +101,7 @@ class App extends Component {
         <div id="top" className="app">
           <Switch>
             <Route path="/" component={() => <Home {...props} />} exact />
+            <Route path="/about" component={() => <About {...props} />} exact />
             <Route path="/account" component={() => <Account {...props} />} exact />
             {/* <Route path="/bulkgithub" component={() => <BulkGithub {...props} />} exact /> */}
             <Route path="/cqc" component={() => <CQC {...props} />} exact />
@@ -112,7 +113,6 @@ class App extends Component {
             <Route path="/github/oauth" component={() => <GitHubOAuth {...props} />} exact />
             {/* <Route path="/pricing" component={() => <Pricing {...props} />} exact /> */}
             <Route path="/projects" component={() => <Projects {...props} />} exact />
-            <Route path="/tests" component={() => <Tests {...props} />} exact />
             <Route path="/thankyou" component={() => <ThankYou {...props} />} exact />
             <Route path="/tour" component={() => <Tour {...props} />} exact />
             <Route path="/project/:id" component={Project} exact />

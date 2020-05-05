@@ -19,7 +19,7 @@ import '../assets/css/components/Menu.css'
 class NavLinks extends Component {
   render() {
     return <ul className={'nav-links navbar-nav mr-auto mt-2 mt-lg-0'}>
-      <li className="nav-item"><Link to={'/tests'}>Tests</Link></li>
+      <li className="nav-item"><Link to={'/about'}>About</Link></li>
       <li className="nav-item"><Link to={'/faq'}>FAQ</Link></li>
       <li className="nav-item"><a href={`${ftlWebUrl}/contact`}>Feedback</a></li>
     </ul>
