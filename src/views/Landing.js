@@ -124,7 +124,7 @@ export default class Landing extends Component {
                 </p>
                 <p>
                   <Link to="/about" className="primary-color"
-                    style={linkStyle}>Documentation</Link>
+                    style={linkStyle}>About</Link>
                   &nbsp;|&nbsp;
                   <Link to="/faq" className="primary-color"
                     style={linkStyle}>FAQ</Link>
