@@ -948,7 +948,9 @@ export default class Project extends Component {
 
         <div className="ftl-section">
 
-          <h2 style={{ display: 'inline-block', margin: '18px 18px 0 18px' }}>
+          <br /><Link to={'/'} style={{ margin: 18 }}>&laquo; back to Projects</Link>
+
+          <h2 style={{ display: 'block', margin: '18px 18px 0 18px' }}>
             <Icon name={projectName.match('/tree/') ? 'code branch' : 'code'} />&nbsp;
             {projectName.split('/tree/')[0]}
           </h2>
