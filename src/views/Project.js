@@ -1078,7 +1078,7 @@ export default class Project extends Component {
                   <h3>Testing Results Breakdown</h3>
                   <Segment color="blue">
 
-                    <Table basic='very' celled collapsin className="issues-table">
+                    <Table basic='very' celled className="issues-table">
                       <Table.Header>
                         <Table.Row>
                           <Table.HeaderCell style={{borderTop: 'none'}}>Issue Severity</Table.HeaderCell>
