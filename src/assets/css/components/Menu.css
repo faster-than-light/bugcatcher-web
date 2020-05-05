@@ -1,6 +1,6 @@
-.menu {
-  position: fixed;
-  top: 0;
+.ftl-menu {
+  /* position: fixed; */
+  /* top: 0; */
   z-index: 999;
   color: var(--color-dark-text);
   background-color: var(--color-background-offset);
@@ -22,16 +22,16 @@
   top: 0;
   width: 100%;
 }
-.menu a {
+.ftl-menu a {
   color: var(--color-dark-text);
   cursor: pointer;
   text-decoration: none;
 }
-.menu .link {
+.ftl-menu .link {
   color: var(--color-dark-text);
 }
-.menu a:hover,
-.menu .link:hover {
+.ftl-menu a:hover,
+.ftl-menu .link:hover {
   color: #00acc9;
 }
 .menu-menu > .link:first-child {
@@ -42,36 +42,36 @@
   color: var(--color-dark-text);
 }
 
-.menu .avatar {
+.ftl-menu .avatar {
   width: 36px;
   height: 36px;
   margin-right: 9px;
   vertical-align: middle;
 }
 
-.menu .home-link {
+.ftl-menu .home-link {
   float: left;
   font-size: 1.23rem;
 }
-.menu .home-link img {
+.ftl-menu .home-link img {
   width: 33px;
   height: 33px;
   vertical-align: middle;
   margin-right: 12px;
 }
 
-.menu .logo-text {
+.ftl-menu .logo-text {
   font-family: StarTrek;
   letter-spacing: 0.0321em;
   font-size: 150%;
 }
 
-.menu .nav-links {
+.ftl-menu .nav-links {
   padding-left: 21px;
   float: left;
 }
-.menu .nav-links a,
-.menu .nav-links .btn {
+.ftl-menu .nav-links a,
+.ftl-menu .nav-links .btn {
   display: inline-block;
   padding: 9px 21px;
   cursor: pointer;
@@ -117,11 +117,11 @@
   }
 }
 @media (max-width: 768px) {
-  .menu .nav-links {
+  .ftl-menu .nav-links {
     padding-left: 12px;
   }
-  .menu .nav-links a,
-  .menu .nav-links .btn {
+  .ftl-menu .nav-links a,
+  .ftl-menu .nav-links .btn {
     padding: 4.5px 12px;
   }
 }

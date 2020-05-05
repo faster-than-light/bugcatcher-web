@@ -52,7 +52,7 @@ import { scrollTo } from '../helpers/scrollTo'
 import githubApi from '../helpers/githubApi'
 
 // images and styles
-import '../assets/css/components/Code.css'
+import '../assets/css/UploadFiles.css'
 import '../assets/css/Results.css'
 
 // constants and global variables
@@ -978,16 +978,17 @@ export default class Code extends Component {
 
     if (droppingFiles) return <Loader text={evaluatingFilesLoaderText} />
     else if (deletingFiles) return <Loader text={`Deleting ${numFilesToDelete} Files`} />
-    else if (redirect) return <Redirect to={redirect} />
+    else if (redirect) return <Redirect to={`/github`} />
     else if (working) return <Loader text={`working`} />
     else if (reconnecting) return <Loader text={`Re-establishing Network Connection...`} />
     else return <div className={`theme`}>
       <Menu />
-      <section id="code" className="contents">
+      <section id="upload" className="contents">
+        <h3 style={{ textAlign: 'center', margin: '36px 0' }}>Feedback or bug reports about the BugCatcher beta? Email <a href={`mailto:${config.helpEmail}`}>{config.helpEmail}</a></h3>
         <UserContext.Consumer>
           {(userContext) => {
             const { user } = userContext ? userContext.state : {}
-            if (user && (user.isSubscriber || !process.env.REACT_APP_USE_PAYWALL)) return <div className="project-container">
+            if (user && (user.isSubscriber || !process.env.REACT_APP_USE_PAYWALL)) return <div className="upload-container">
 
               <div style={{
                 fontSize: 24,
@@ -1144,9 +1145,7 @@ export default class Code extends Component {
                         'block' : 'none',
                   }}
                   className={'full-width'}
-                  onClick={() => { this.setState({
-                    redirect: `/project/${uriEncodeProjectName(projectName)}?start_test=1`
-                  }) }}>Run Tests</StlButton>
+                  onClick={this._runTests}>Run Tests</StlButton>
 
                 {/* setup */}
                 <StlButton className="btn working secondary full-width center-text"

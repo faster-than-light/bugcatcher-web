@@ -40,6 +40,22 @@ export class UserProvider extends Component {
     }
   }
 
+  setUser = user => {
+    user = extendUser(user)
+    LocalStorage.User.setUser(user)
+    this.setState({ user })
+    if (user && typeof user === 'object') {
+      setCookie('session', user.sid)
+      api.setSid(user.sid)
+    }
+    else {
+      setCookie('session', '')
+      setCookie('tokenId', '')
+      setCookie(github.tokenCookieName, '')
+      api.setSid(null)
+    }
+  }
+
   actions = {
     fetchUser: async (clearStorage) => {
       this.setState({ userDataLoaded: false })
@@ -90,21 +106,14 @@ export class UserProvider extends Component {
         return extendUser(user)
       }
     },
-    setUser: user => {
-      user = extendUser(user)
-      LocalStorage.User.setUser(user)
-      this.setState({ user })
-      if (user && typeof user === 'object') {
-        setCookie('session', user.sid)
-        api.setSid(user.sid)
-      }
-      else {
-        setCookie('session', '')
-        setCookie('tokenId', '')
-        setCookie(github.tokenCookieName, '')
-        api.setSid(null)
-      }
-    },
+    setUser: this.setUser,
+    logOut: () => {
+      this.setUser(null)
+      setTimeout(
+        () => window.location.reload(),
+        999
+      )
+    }
   }
 
   render() {

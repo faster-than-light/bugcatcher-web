@@ -21,6 +21,7 @@ import Menu from '../../components/Menu'
 
 // helpers
 import api from '../../helpers/api'
+import { buildResultsMatrix } from '../../helpers/data'
 import { appUrl, github } from '../../config'
 import { getCookie, setCookie } from '../../helpers/cookies'
 import githubApi from '../../helpers/githubApi'
@@ -656,17 +657,7 @@ class CQC extends Component {
         const results = await this.fetchTestResults(queueItem)//.catch(() => null)
         if (results) {
           const { data } = results
-          let resultsMatrix = {
-            low: 0,
-            medium: 0,
-            high: 0,
-          }
-          data.test_run_result.forEach(hit => {
-            const test_suite_test = hit['test_suite_test']
-            const ftl_severity = test_suite_test['ftl_severity']
-            resultsMatrix[ftl_severity]++
-          })
-          queueItem.resultsMatrix = resultsMatrix
+          queueItem.resultsMatrix = buildResultsMatrix(data)
         }
 
         queueItem.status = constStatus.COMPLETE
