@@ -26,10 +26,6 @@ export default [
     </React.Fragment>
   },
   {
-    q: `Why do you charge?`,
-    a: <p>We&apos;re a small team and we appreciate the support. This lets us focus on making sure that you - not advertisers or investors or consulting clients or any outside third parties -  are our top priority.</p>
-  },
-  {
     q: `How do I cancel my account?`,
     a: <p>You can turn off auto-renewal easily in the Settings. You can also choose to cancel and request a refund for your most recent payment at any time for any reason. That said, we&apos;d rather you stay! If you are unhappy or would like to see improvements, let us know at {emailLink}. A member of the founding team will read your email, and we&apos;ll usually reply the same day.</p>
   }
