@@ -1122,7 +1122,7 @@ export default class Project extends Component {
                   <h3>Testing Information</h3>
                   <Segment color="blue">
 
-                    <Table basic='very' celled collapsin className="tests-table">
+                    <Table basic='very' celled className="tests-table">
                       <Table.Body>
                         <Table.Row>
                           <Table.Cell>
