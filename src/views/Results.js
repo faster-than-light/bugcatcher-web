@@ -313,7 +313,7 @@ export default class Results extends Component {
                           </a>
                         </Table.Cell>
                       </Table.Row>
-                      <Table.Row>
+                      {/* <Table.Row>
                         <Table.Cell className="grey-color light-grey-bg-color">Download Results</Table.Cell>
                         <Table.Cell colSpan={2}>
                           <StlButton semantic primary
@@ -322,7 +322,7 @@ export default class Results extends Component {
                           &nbsp;&nbsp;
                           <StlButton semantic onClick={this._fetchJSON}>JSON</StlButton>
                        </Table.Cell>
-                      </Table.Row>
+                      </Table.Row> */}
                     </Table.Body>
                   </Table>
 
