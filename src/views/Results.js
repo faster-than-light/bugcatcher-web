@@ -272,7 +272,11 @@ export default class Results extends Component {
                       <Table.Row>
                         <Table.HeaderCell colSpan={2}>
                           <span style={{fontSize:'120%'}}>Project: </span>
-                          <a href={`https://github.com/${decodeURIComponent(project)}`} target="_blank" style={{fontSize:'150%'}} className={'dont-break-out'}>{decodeURIComponent(project)}</a>
+                          {
+                            decodeURIComponent(project).match('/tree/') ?
+                            <a href={`https://github.com/${decodeURIComponent(project)}`} target="_blank" style={{fontSize:'150%'}} className={'dont-break-out'}>{decodeURIComponent(project)}</a> :
+                            <Link to={`/project/${decodeURIComponent(project)}`} style={{fontSize:'150%'}} className={'dont-break-out'}>{decodeURIComponent(project)}</Link>
+                          }
                         </Table.HeaderCell>
                         <Table.HeaderCell>
                           <Label ribbon={'right'} color={color} style={{fontSize: '120%', display: published ? 'none' : 'inline-block' }}>Testing: {status}</Label>
