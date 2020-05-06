@@ -199,7 +199,7 @@ export default class Repositories extends Component {
                   display: !wasTested ? 'none' : 'inline-block'
                 }}><Icon name="add" />&nbsp;Add</StlButton>
               <Icon name={!wasTested ? 'code' : 'code branch'} style={{ color: !wasTested ? '#2185d0' : 'inherit' }} />&nbsp;
-              <a onClick={clickFn}>{project}</a>
+              <a onClick={clickFn}>{uriDecodeProjectName(project)}</a>
           </Table.Cell>
         </Table.Row>
       })
