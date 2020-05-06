@@ -275,7 +275,7 @@ export default class Results extends Component {
                           {
                             decodeURIComponent(project).match('/tree/') ?
                             <a href={`https://github.com/${decodeURIComponent(project)}`} target="_blank" style={{fontSize:'150%'}} className={'dont-break-out'}>{decodeURIComponent(project)}</a> :
-                            <Link to={`/project/${decodeURIComponent(project)}`} style={{fontSize:'150%'}} className={'dont-break-out'}>{decodeURIComponent(project)}</Link>
+                            <Link to={`/project/${project}`} style={{fontSize:'150%'}} className={'dont-break-out'}>{decodeURIComponent(project)}</Link>
                           }
                         </Table.HeaderCell>
                         <Table.HeaderCell>
