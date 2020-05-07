@@ -12,13 +12,11 @@ import FAQ from './views/FAQ/FAQ'
 import GitHub from './views/GitHub'
 import GitHubOAuth from './views/GitHubOAuth'
 import Home from './views/Home'
-// import Pricing from './views/Pricing'
 import Project from './views/Project'
 import Projects from './views/Projects'
 import Publish from './views/Publish'
 import Repositories from './views/GitHub/Repositories'
 import Results from './views/Results'
-import SetSid from './views/SetSid'
 import ThankYou from './views/ThankYou'
 import Tour from './views/Tour'
 
@@ -103,7 +101,6 @@ class App extends Component {
             <Route path="/" component={() => <Home {...props} />} exact />
             <Route path="/about" component={() => <About {...props} />} exact />
             <Route path="/account" component={() => <Account {...props} />} exact />
-            {/* <Route path="/bulkgithub" component={() => <BulkGithub {...props} />} exact /> */}
             <Route path="/cqc" component={() => <CQC {...props} />} exact />
             <Route path="/code/:id" component={Code} exact />
             <Route path="/dashboard" component={() => <Dashboard {...props} />} exact />
@@ -111,7 +108,6 @@ class App extends Component {
             <Route path="/github/gh_auth" component={() => <GitHub {...props} />} exact />
             <Route path="/github" component={() => <GitHub {...props} />} exact />
             <Route path="/github/oauth" component={() => <GitHubOAuth {...props} />} exact />
-            {/* <Route path="/pricing" component={() => <Pricing {...props} />} exact /> */}
             <Route path="/projects" component={() => <Projects {...props} />} exact />
             <Route path="/thankyou" component={() => <ThankYou {...props} />} exact />
             <Route path="/tour" component={() => <Tour {...props} />} exact />
@@ -119,7 +115,6 @@ class App extends Component {
             <Route path="/publish/:id" component={Publish} exact />
             <Route path="/github/repos" component={() => <Repositories {...props} />} exact />
             <Route path="/results/:id" component={Results} exact />
-            <Route path="/sid/:sid" component={SetSid} exact />
           </Switch>
           <CookiesAlert />
         </div>

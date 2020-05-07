@@ -173,7 +173,7 @@ export default class Repositories extends Component {
     }}>Fetch User Profile &raquo;</StlButton>
 
   RepoList = () => {
-    let { addingProjects, branches, branchName, projects, repos } = this.state
+    let { addingProjects, branches, projects, repos } = this.state
 
     if (projects && repos && !branches) {
       const ProjectsRows = projects.map((project, k) => {
@@ -225,6 +225,26 @@ export default class Repositories extends Component {
       })
 
       return <div className="repo-list">
+        <StlButton style={{
+            float: 'right',
+            marginRight: 6,
+            marginBottom: 12,
+            display: addingProjects && !branches ? 'inline-block' : 'none'
+          }}
+          semantic
+          primary
+          className="small"
+          onClick={() => {
+            let projectName = prompt('Please create a name for your project.')
+            if (projectName && projectName.length) this.setState({
+              addNewProject: encodeURIComponent(
+                projectName.trim().replace(/\s\s+/g, ' ')
+              )
+            })
+          }}>
+            <Icon name="upload" />
+          Upload Project
+        </StlButton>
         <h2 style={{ margin: 0, padding: 0 }}>Projects</h2>
         {
           projects && !projects.length ? <p className="well">
@@ -359,26 +379,7 @@ export default class Repositories extends Component {
           onClick={() => {
             this.setState({ addingProjects: false })
           }}>
-          Done
-        </StlButton>
-        <StlButton style={{
-            float: 'right',
-            marginRight: 6,
-            marginBottom: 12,
-            display: addingProjects && !branches ? 'inline-block' : 'none'
-          }}
-          semantic
-          primary
-          className="small"
-          onClick={() => {
-            let projectName = prompt('Please create a name for your project.')
-            if (projectName && projectName.length) this.setState({
-              addNewProject: encodeURIComponent(
-                projectName.trim().replace(/\s\s+/g, ' ')
-              )
-            })
-          }}>
-          Upload Project
+          Done Adding
         </StlButton>
         <div className="white-block" style={{ clear: 'both', textAlign: 'center', padding: 18 }}>
           <div className="block-content">
