@@ -12,7 +12,7 @@ import StlButton from '../../../components/StlButton'
 import api from '../../../helpers/api'
 import { github } from '../../../config'
 import { getCookie, setCookie } from '../../../helpers/cookies'
-import { uriDecodeProjectName } from '../../../helpers/strings'
+import { uriDecodeProjectName, uriEncodeProjectName } from '../../../helpers/strings'
 import githubApi from '../../../helpers/githubApi'
 
 // images & styles
@@ -325,24 +325,32 @@ export default class Repositories extends Component {
     let { addingProjects, branches, projects, repos } = this.state
 
     if (projects && repos && !branches) {
-      const ProjectsRows = projects.map((project, k) => {
-        const wasTested = repos.find(r => {
-          return project.startsWith(r.full_name.replace(/\//g, '%2F') + '%2Ftree%2F')
+      let projectsToMakeRows = new Array()
+      let ProjectsRows = new Array()
+      projects.forEach((project, k) => {
+        project = uriDecodeProjectName(project)
+        const isMyRepo = repos.find(r => {
+          const repoName = uriDecodeProjectName(r.full_name)
+          if (project.startsWith(repoName + '/tree/')) console.log({ repoName, project })
+          return project.startsWith(repoName + '/tree/')
         })
-        if (wasTested) return null
-        const clickFn = () => { this.setState({ redirect: `/project/${project}` }) }
-        return <Table.Row key={k}>
-          <Table.Cell style={{ borderLeft: !wasTested ? '6px solid #2185d0' : 'normal', width: '100%' }}>
-            
-              <StlButton onClick={clickFn} semantic primary
-                className="small" style={{
-                  float: 'right',
-                  display: !wasTested ? 'none' : 'inline-block'
-                }}><Icon name="add" />&nbsp;Add</StlButton>
-              <Icon name={!wasTested ? 'code' : 'code branch'} style={{ color: !wasTested ? '#2185d0' : 'inherit' }} />&nbsp;
-              <a onClick={clickFn}>{uriDecodeProjectName(project)}</a>
-          </Table.Cell>
-        </Table.Row>
+        if (isMyRepo) return null
+        const clickFn = () => { this.setState({ redirect: `/project/${uriEncodeProjectName(project)}` }) }
+        if (!projectsToMakeRows.includes(project.split('/tree/')[0])) {
+          projectsToMakeRows.push(project.split('/tree/')[0])
+          ProjectsRows.push(<Table.Row key={k}>
+            <Table.Cell style={{ borderLeft: !isMyRepo ? '6px solid #2185d0' : 'normal', width: '100%' }}>
+              
+                <StlButton onClick={clickFn} semantic primary
+                  className="small" style={{
+                    float: 'right',
+                    display: !isMyRepo ? 'none' : 'inline-block'
+                  }}><Icon name="add" />&nbsp;Add</StlButton>
+                <Icon name={!isMyRepo ? 'code' : 'code branch'} style={{ color: !isMyRepo ? '#2185d0' : 'inherit' }} />&nbsp;
+                <a onClick={clickFn}>{project.split('/tree/')[0]}</a>
+            </Table.Cell>
+          </Table.Row>)
+        }
       })
 
       const RepoRows = repos.map((repo, k) => {
