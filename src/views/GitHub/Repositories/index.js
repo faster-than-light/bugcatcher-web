@@ -212,6 +212,17 @@ export default class Repositories extends Component {
     this.setState({ ...data, working: false })
   }
 
+  showEphemeralFetchError = (errMessage) => {
+    this.setState({
+      fetchCustomRepoError: errMessage
+    })
+    setTimeout(() => {
+      this.setState({
+        fetchCustomRepoError: null
+      })
+    }, 6000)
+  }
+
   fetchCustomRepo = async () => {
     this.setState({ fetchCustomRepoError: null })
     const badPatternError = new Error('The :owner/:repo pattern is not valid.')
@@ -219,14 +230,7 @@ export default class Repositories extends Component {
     const throwError = err => {
       err = err || new Error(`There was an error fetching branches for \`${customRepo}\``)
       console.error(err)
-      this.setState({
-        fetchCustomRepoError: err.message
-      })
-      setTimeout(() => {
-        this.setState({
-          fetchCustomRepoError: null
-        })
-      }, 6000)
+      this.showEphemeralFetchError(err.message)
     }
     if (!customRepo) return throwError(new Error('No :owner/:repo pattern was entered.'))
 
@@ -239,9 +243,7 @@ export default class Repositories extends Component {
       repo
     }).catch(() => ({}))
 
-    if (!fetchedRepo) this.setState({
-      fetchCustomRepoError: 'Repo was not found'
-    })
+    if (!fetchedRepo) this.showEphemeralFetchError('Repo was not found')
     else this.getBranches(fetchedRepo)
 
   }
