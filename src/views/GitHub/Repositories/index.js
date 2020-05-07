@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 import queryString from 'query-string'
-import { Icon, Table } from 'semantic-ui-react'
+import { Icon, Input, Table } from 'semantic-ui-react'
 
 // components
 import FtlLoader from '../../../components/Loader'
@@ -16,6 +16,9 @@ import { uriDecodeProjectName } from '../../../helpers/strings'
 import githubApi from '../../../helpers/githubApi'
 
 // images & styles
+import githubText from '../../../assets/images/github.png'
+import githubLogo from '../../../assets/images/github-logo.png'
+import githubLogoWhite from '../../../assets/images/github-logo-inverted.png'
 import '../../../assets/css/Github.css'
 
 /** Constants */
@@ -172,6 +175,150 @@ export default class Repositories extends Component {
       this.setState({ working: false })
     }}>Fetch User Profile &raquo;</StlButton>
 
+  sortOptionChange = e => {
+    const sortReposBy = e.target.value
+    if (sortReposBy != this.state.sortReposBy) this.setState({
+      sortReposBy,
+      repos: null,
+    })
+  }
+
+  sortDirectionChange = e => {
+    const sortReposDirection = e.target.value
+    if (sortReposDirection != this.state.sortReposDirection) this.setState({
+      sortReposDirection,
+      repos: null,
+    })
+  }
+
+  getBranches = async currentRepo => {
+    const { default_branch: defaultBranch, full_name: fullName } = currentRepo
+    this.setState({ working: true })
+    const [ owner, repo ] = fullName.split('/')
+    let branches = await githubApi.getBranches(owner, repo)
+    branches = branches.map(b => b.name)
+    this.setState({ branches, currentRepo: fullName })
+    this.getTree(defaultBranch)
+  }
+
+  getTree = async branchName => {
+    this.setState({ working: true })
+    const [ owner, repo ] = this.state.currentRepo.split('/')
+    const data = await this._getTree(
+      owner,
+      repo,
+      branchName,
+    )
+    this.setState({ ...data, working: false })
+  }
+
+  fetchCustomRepo = async () => {
+    this.setState({ fetchCustomRepoError: null })
+    const badPatternError = new Error('The :owner/:repo pattern is not valid.')
+    const customRepo = document.getElementById("custom_repo").value
+    const throwError = err => {
+      err = err || new Error(`There was an error fetching branches for \`${customRepo}\``)
+      console.error(err)
+      this.setState({
+        fetchCustomRepoError: err.message
+      })
+      setTimeout(() => {
+        this.setState({
+          fetchCustomRepoError: null
+        })
+      }, 6000)
+    }
+    if (!customRepo) return throwError(new Error('No :owner/:repo pattern was entered.'))
+
+    if ((customRepo.match(/\//g) || []).length !== 1) return throwError(badPatternError)
+    const [ owner, repo ] = customRepo.split('/')
+    if (!owner || !repo) return throwError(badPatternError)
+    
+    const { data: fetchedRepo } = await githubApi.octokit.repos.get({
+      owner,
+      repo
+    }).catch(() => ({}))
+
+    if (!fetchedRepo) this.setState({
+      fetchCustomRepoError: 'Repo was not found'
+    })
+    else this.getBranches(fetchedRepo)
+
+  }
+
+  AddProjects = () => {
+    let { addingProjects, fetchCustomRepo, fetchCustomRepoError } = this.state
+
+    if (!addingProjects) return null
+
+    else if (fetchCustomRepo) return <div style={{
+      float: 'right',
+      paddingBottom: 12,
+      verticalAlign: 'middle',
+    }}>
+      <Input id="custom_repo"
+        style={{
+          verticalAlign: 'middle',
+        }}
+        placeholder=":owner/:repo" />
+      <StlButton className="github-button"
+        style={{
+          verticalAlign: 'middle',
+          marginLeft: 9,
+        }}
+        onClick={this.fetchCustomRepo}>
+          <img src={githubLogoWhite} alt="GitHub Logo" />&nbsp;
+          Add Repo
+      </StlButton>
+      <StlButton semantic style={{
+        verticalAlign: 'middle',
+        marginLeft: 9,
+      }}
+      onClick={() => {
+        this.setState({ fetchCustomRepo: null })
+      }}>cancel</StlButton>
+      <div className="error"
+        style={{ display: fetchCustomRepoError ? 'block' : 'none' }}>{fetchCustomRepoError}</div>
+    </div>
+
+    else return <div>
+      <StlButton style={{
+          float: 'right',
+          marginRight: 6,
+          marginBottom: 12,
+        }}
+        semantic
+        primary
+        onClick={() => {
+          let projectName = prompt('Please create a name for your project.')
+          if (projectName && projectName.length) this.setState({
+            addNewProject: encodeURIComponent(
+              projectName.trim().replace(/\s\s+/g, ' ')
+            )
+          })
+        }}>
+          <Icon name="upload" />
+          Upload Project
+      </StlButton>
+      <StlButton className="github-button"
+          link
+          style={{
+          float: 'right',
+          marginRight: 9,
+        }}
+        onClick={() => {
+          this.setState({ fetchCustomRepo: true })
+        }}>
+          <Icon name="add" />
+          Add Public&nbsp;&nbsp;
+          <img src={githubLogo} alt="GitHub Logo" />
+          <img src={githubText} alt="GitHub Text" />
+          Repository
+      </StlButton>
+    </div>
+
+  }
+  
   RepoList = () => {
     let { addingProjects, branches, projects, repos } = this.state
 
@@ -225,26 +372,7 @@ export default class Repositories extends Component {
       })
 
       return <div className="repo-list">
-        <StlButton style={{
-            float: 'right',
-            marginRight: 6,
-            marginBottom: 12,
-            display: addingProjects && !branches ? 'inline-block' : 'none'
-          }}
-          semantic
-          primary
-          className="small"
-          onClick={() => {
-            let projectName = prompt('Please create a name for your project.')
-            if (projectName && projectName.length) this.setState({
-              addNewProject: encodeURIComponent(
-                projectName.trim().replace(/\s\s+/g, ' ')
-              )
-            })
-          }}>
-            <Icon name="upload" />
-          Upload Project
-        </StlButton>
+        <this.AddProjects />
         <h2 style={{ margin: 0, padding: 0 }}>Projects</h2>
         {
           projects && !projects.length ? <p className="well">
@@ -262,85 +390,28 @@ export default class Repositories extends Component {
     else return null
   }
 
-  sortOptionChange = e => {
-    const sortReposBy = e.target.value
-    if (sortReposBy != this.state.sortReposBy) this.setState({
-      sortReposBy,
-      repos: null,
-    })
-  }
-
-  sortDirectionChange = e => {
-    const sortReposDirection = e.target.value
-    if (sortReposDirection != this.state.sortReposDirection) this.setState({
-      sortReposDirection,
-      repos: null,
-    })
-  }
-
-  getBranches = async currentRepo => {
-    const { default_branch: defaultBranch, full_name: fullName } = currentRepo
-    window.scrollTo({ top: 0 })
-    this.setState({ working: true })
-    const [ owner, repo ] = fullName.split('/')
-    let branches = await githubApi.getBranches(owner, repo)
-    branches = branches.map(b => b.name)
-    this.setState({ branches, currentRepo: fullName })
-    this.getTree(defaultBranch)
-  }
-
-  getTree = async branchName => {
-    window.scrollTo({ top: 0 })
-    this.setState({ working: true })
-    const [ owner, repo ] = this.state.currentRepo.split('/')
-    const data = await this._getTree(
-      owner,
-      repo,
-      branchName,
-    )
-    this.setState({ ...data, working: false })
-  }
-
-  fetchCustomRepo = async () => {
-    this.setState({ fetchCustomRepoError: null })
-    const badPatternError = new Error('The :owner/:repo pattern is not valid.')
-    const currentRepo = document.getElementById("custom_repo").value
-    const throwError = err => {
-      err = err || new Error(`There was an error fetching branches for \`${currentRepo}\``)
-      console.error(err)
-      this.setState({
-        fetchCustomRepoError: err.message
-      })
-    }
-    if (!currentRepo) return throwError(new Error('No :owner/:repo pattern was entered.'))
-
-    if ((currentRepo.match(/\//g) || []).length !== 1) return throwError(badPatternError)
-    const [ owner, repo ] = currentRepo.split('/')
-    if (!owner || !repo) return throwError(badPatternError)
-    
-    let branches = await githubApi.getBranches(owner, repo).catch(e => { return throwError(e) })
-    if (!branches) return throwError(new Error(`No branches were found for \`${currentRepo}\``))
-    
-    branches = branches.map(b => b.name)
-    this.setState({
-      branches,
-      currentRepo,
-      working: false
-    })
-  }
-
   render() {
-    const {
+    let {
       addingProjects,
       addNewProject,
       branches,
+      branchName,
       code,
+      currentRepo,
       projects,
       redirect,
       repos,
       token,
+      tree,
       working,
     } = this.state
+
+    if (tree) {	
+      let newProjectPath = `${currentRepo}/tree/${branchName}`	
+      newProjectPath = '/project/' + newProjectPath.replace(/\//g,'%2F')	
+      newProjectPath += '?gh=' + tree.sha	
+      redirect = newProjectPath	
+    }
 
     if (redirect) return <Redirect to={redirect} />
     else if (working || (!code && !token) || (token && !repos && !working)) return <FtlLoader show={true} />

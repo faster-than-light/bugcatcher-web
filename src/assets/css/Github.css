@@ -59,6 +59,9 @@
   max-height: 18px;
   margin-top: -3px;
 }
+.github-button.link:hover {
+  color: var(--color-primary-accent);
+}
 
 
 
