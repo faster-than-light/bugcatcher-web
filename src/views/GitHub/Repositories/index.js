@@ -46,7 +46,6 @@ export default class Repositories extends Component {
     this.state = initialState
 
     this.toggleAutomateOption = this.toggleAutomateOption.bind(this)
-    this.RepoList = this.RepoList.bind(this)
     this._getTree = githubApi.getTree.bind(this)
   }
 
@@ -339,13 +338,8 @@ export default class Repositories extends Component {
         if (!projectsToMakeRows.includes(project.split('/tree/')[0])) {
           projectsToMakeRows.push(project.split('/tree/')[0])
           ProjectsRows.push(<Table.Row key={k}>
-            <Table.Cell style={{ borderLeft: !isMyRepo ? '6px solid #2185d0' : 'normal', width: '100%' }}>
-              <StlButton onClick={clickFn} semantic primary
-                className="small" style={{
-                  float: 'right',
-                  display: !isMyRepo ? 'none' : 'inline-block'
-                }}><Icon name="add" />&nbsp;Add</StlButton>
-              <Icon name={(!isMyRepo && !isRepo) ? 'code' : 'code branch'} style={{ color: !isMyRepo ? '#2185d0' : 'inherit' }} />&nbsp;
+            <Table.Cell style={{ borderLeft: '6px solid #2185d0', width: '100%' }}>
+              <Icon name={!isRepo ? 'code' : 'code branch'} style={{ color: '#2185d0' }} />&nbsp;
               <a onClick={clickFn}>{project.split('/tree/')[0]}</a>
             </Table.Cell>
           </Table.Row>)
@@ -370,7 +364,7 @@ export default class Repositories extends Component {
                   float: 'right',
                   display: wasTested ? 'none' : 'inline-block'
                 }}><Icon name="add" />&nbsp;Add</StlButton>
-              <Icon name={wasTested ? 'code branch' : 'code branch'} style={{ color: wasTested ? '#2185d0' : 'inherit' }} />&nbsp;
+              <Icon name={'code branch'} style={{ color: wasTested ? '#2185d0' : 'inherit' }} />&nbsp;
               
               {
                 wasTested ? <a onClick={clickFn}>{repo.full_name}</a> : repo.full_name
@@ -384,7 +378,7 @@ export default class Repositories extends Component {
         <this.AddProjects />
         <h2 style={{ margin: 0, padding: 0 }}>Projects</h2>
         {
-          projects && !projects.length ? <p className="well">
+          !projects.length ? <p className="well">
             You have no projects configured. Please add a GitHub project below, or upload a project using the &quot;Upload Project&quot; button.
           </p> : null
         }
