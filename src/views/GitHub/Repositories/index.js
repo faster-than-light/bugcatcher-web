@@ -329,9 +329,9 @@ export default class Repositories extends Component {
       let ProjectsRows = new Array()
       projects.forEach((project, k) => {
         project = uriDecodeProjectName(project)
+        const isRepo = project.match('/tree/')
         const isMyRepo = repos.find(r => {
           const repoName = uriDecodeProjectName(r.full_name)
-          if (project.startsWith(repoName + '/tree/')) console.log({ repoName, project })
           return project.startsWith(repoName + '/tree/')
         })
         if (isMyRepo) return null
@@ -340,14 +340,13 @@ export default class Repositories extends Component {
           projectsToMakeRows.push(project.split('/tree/')[0])
           ProjectsRows.push(<Table.Row key={k}>
             <Table.Cell style={{ borderLeft: !isMyRepo ? '6px solid #2185d0' : 'normal', width: '100%' }}>
-              
-                <StlButton onClick={clickFn} semantic primary
-                  className="small" style={{
-                    float: 'right',
-                    display: !isMyRepo ? 'none' : 'inline-block'
-                  }}><Icon name="add" />&nbsp;Add</StlButton>
-                <Icon name={!isMyRepo ? 'code' : 'code branch'} style={{ color: !isMyRepo ? '#2185d0' : 'inherit' }} />&nbsp;
-                <a onClick={clickFn}>{project.split('/tree/')[0]}</a>
+              <StlButton onClick={clickFn} semantic primary
+                className="small" style={{
+                  float: 'right',
+                  display: !isMyRepo ? 'none' : 'inline-block'
+                }}><Icon name="add" />&nbsp;Add</StlButton>
+              <Icon name={(!isMyRepo && !isRepo) ? 'code' : 'code branch'} style={{ color: !isMyRepo ? '#2185d0' : 'inherit' }} />&nbsp;
+              <a onClick={clickFn}>{project.split('/tree/')[0]}</a>
             </Table.Cell>
           </Table.Row>)
         }
