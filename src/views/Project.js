@@ -22,7 +22,7 @@
 
 import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
-import { Header, Icon, Progress, Tab, Table, Segment, Select } from 'semantic-ui-react'
+import { Icon, Progress, Tab, Table, Segment, Select } from 'semantic-ui-react'
 import { sha256 } from 'js-sha256'
 import moment from 'moment'
 import queryString from 'query-string'
@@ -30,6 +30,7 @@ import queryString from 'query-string'
 // components
 // import CodeListNav from '../components/CodeListNav'
 // import ProjectHelpModal from '../components/ProjectHelpModal'
+import GitHubActionModal from '../components/GitHubActionModal'
 import Loader from '../components/Loader'
 import Menu from '../components/Menu'
 import { durationBreakdown } from '../helpers/moment'
@@ -1281,6 +1282,15 @@ export default class Project extends Component {
                   menuItem: tabTitles[3],
                   render: () => <Tab.Pane attached={false}>
                     <Segment>
+                      <h3>Set up automated testing of your project by integrating with the BugCatcher GitHub Action</h3>
+                      <p>You can use BugCatcher in your Continuous Integration / Continuous Deployment workflows on GitHub.</p>
+                      <p>Using the <strong><a href="https://github.com/marketplace/actions/ftl-bugcatcher" target="_blank">BugCatcher GitHub Action</a></strong> is as easy as following the instructions found in the <a href="https://github.com/faster-than-light/github-action/blob/master/README.md" target="_blank">Action README instructions</a>.</p>
+                      <GitHubActionModal triggerStyle={{
+                        float: 'none'
+                      }} />
+                    </Segment>
+
+                    <Segment>
                       
                       {
                         projectName.match('/tree/') ?
@@ -1313,7 +1323,10 @@ export default class Project extends Component {
                           else await api.deleteProjectPromise(uriEncodeProjectName(projectName)).catch(() => null)
                           this.setState({redirect: '/'})
                         }
-                      }}>Delete Project</StlButton></p>
+                      }}>
+                        <Icon name="warning circle" />
+                        Delete Project
+                      </StlButton></p>
                      </Segment>
                   </Tab.Pane>,
                 },

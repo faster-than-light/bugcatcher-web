@@ -61,7 +61,8 @@ export default class GitHubActionModal extends Component {
     
     return <FtlModal
       title={`Setting Up the GitHub BugCatcher Action`}
-      modalTrigger={<FtlButton className="github-button">
+      modalTrigger={<FtlButton className="github-button"
+        style={this.props.triggerStyle}>
         Set Up the&nbsp;&nbsp;
         <img src={githubLogo} alt="GitHub Logo" />
         <img src={githubText} alt="GitHub Text" />
