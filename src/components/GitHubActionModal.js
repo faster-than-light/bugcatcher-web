@@ -96,7 +96,7 @@ export default class GitHubActionModal extends Component {
             {copied.clear ? `Copied to clipboard` : null}
           </div>
         </div>
-        <p>After adding your <code>BUGCATCHER_TOKEN</code> token to your repository&apos;s Secrets, all you need to do is configure your repo to use the Action by adding it to your workflow <code>yaml</code> file.</p>
+        <p>After adding your <code>BUGCATCHER_TOKEN</code> token to your repository&apos;s Secrets, all you need to do is configure your repo to use the Action by adding a workflow <code>yaml</code> file.</p>
         <p>
           Example <code>.github/workflows/bugcatcher.yml</code> file:<br />
           <div style={{
