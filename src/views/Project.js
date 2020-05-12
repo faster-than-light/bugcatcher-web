@@ -1281,7 +1281,7 @@ export default class Project extends Component {
                 {
                   menuItem: tabTitles[3],
                   render: () => <Tab.Pane attached={false}>
-                    <Segment>
+                    <Segment style={{ display: projectName.match('/tree/') ? 'normal' : 'none' }}>
                       <h3>Set up automated testing of your project by integrating with the BugCatcher GitHub Action</h3>
                       <p>You can use BugCatcher in your Continuous Integration / Continuous Deployment workflows on GitHub.</p>
                       <p>Using the <strong><a href="https://github.com/marketplace/actions/ftl-bugcatcher" target="_blank">BugCatcher GitHub Action</a></strong> is as easy as following the instructions found in the <a href="https://github.com/faster-than-light/github-action/blob/master/README.md" target="_blank">Action README instructions</a>.</p>
