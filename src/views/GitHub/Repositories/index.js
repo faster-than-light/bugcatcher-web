@@ -20,13 +20,16 @@ import githubText from '../../../assets/images/github.png'
 import githubLogo from '../../../assets/images/github-logo.png'
 import githubLogoWhite from '../../../assets/images/github-logo-inverted.png'
 import '../../../assets/css/Github.css'
+import CqcApi from '../../../helpers/cqcApi'
 
 /** Constants */
+const cqcApi = CqcApi(getCookie("session"))
 const initialState = {
   code: null,
   currentRepo: null,
   branches: null,
   branchName: null,
+  githubUser: null,
   projects: null,
   redirect: null,
   repos: null,
@@ -34,7 +37,6 @@ const initialState = {
   sortReposDirection: 'asc',
   token: null,
   tree: null,
-  user: null,
   working: false,
 }
 const { automateCookieName, tokenCookieName } = github
@@ -57,7 +59,7 @@ export default class Repositories extends Component {
     let token = getCookie(tokenCookieName)
     token = token.length ? token : null
 
-    let { user } = this.state
+    let { githubUser } = this.state
     if (!token && code) {
       token = await this.fetchToken()
       if (window.history.pushState) {
@@ -67,14 +69,14 @@ export default class Repositories extends Component {
     }
     if (token) {
       await githubApi.setToken(token)
-      user = await this.fetchUser(true)
+      githubUser = await this.fetchGithubUser(true)
     }
-    if (!token && !user && !code) this.props.setUser(null)
+    if (!token && !githubUser && !code) this.props.setUser(null)
     else this.setState({
       addingProjects: projects && !projects.length,
-      code: !user && code ? code : null,
+      code: !githubUser && code ? code : null,
       token,
-      user,
+      githubUser,
       working: false,
     })
 
@@ -109,10 +111,11 @@ export default class Repositories extends Component {
   }
 
   runApiFunctions = async () => {
-    const { code, repos, token, user } = this.state
+    const { code, repos, token, githubUser, webhookSubscriptions } = this.state
     if (code && !token) await this.fetchToken()
-    if (!user) await this.fetchUser(true)
+    if (!githubUser) await this.fetchGithubUser(true)
     if (!repos) await this.fetchRepos()
+    if (!webhookSubscriptions) await this.fetchWebhookSubscriptions()
   }
   
   fetchToken = async alertError => {
@@ -132,15 +135,15 @@ export default class Repositories extends Component {
     return token
   }
 
-  fetchUser = async alertError => {
-    let user = await githubApi.getAuthenticated() 
+  fetchGithubUser = async alertError => {
+    let githubUser = await githubApi.getAuthenticated() 
       .catch(e => { console.error(e);return null })
-    if (!user) {
+    if (!githubUser) {
       if (alertError) alert("There was a problem fetching your Profile. Please start over and try again.")
       this.resetState()
     }
-    else this.setState({ user })
-    return user
+    else this.setState({ githubUser })
+    return githubUser
   }
 
   fetchRepos = async alertError => {
@@ -153,8 +156,21 @@ export default class Repositories extends Component {
     }
     catch(e) { console.error(e) }
     if (!repos && alertError) alert("There was a problem fetching your Repository List. Please start over and try again.")
-    else this.setState({ repos, contents: null })
+    else this.setState({ repos })
     return repos
+  }
+
+  fetchWebhookSubscriptions = async alertError => {
+    let webhookSubscriptions
+    try {
+      webhookSubscriptions = await cqcApi.getWebhookSubscriptions(
+        this.props.user
+      )
+    }
+    catch(e) { console.error(e) }
+    if (!webhookSubscriptions && alertError) alert("There was a problem fetching your Repository List. Please start over and try again.")
+    else this.setState({ webhookSubscriptions })
+    return webhookSubscriptions
   }
 
   FetchAccessToken = (props) => <StlButton primary semantic disabled={Boolean(this.state.token)}
@@ -166,11 +182,11 @@ export default class Repositories extends Component {
     }}>Fetch Access Token &laquo;</StlButton>
 
   FetchUserProfile = (props) => <StlButton primary semantic
-    disabled={Boolean(!this.state.token || this.state.user)}
+    disabled={Boolean(!this.state.token || this.state.githubUser)}
     style={props.style}
     onClick={ async () => {
       this.setState({ working: true })
-      await this.fetchUser(true)
+      await this.fetchGithubUser(true)
       this.setState({ working: false })
     }}>Fetch User Profile &raquo;</StlButton>
 
@@ -321,57 +337,88 @@ export default class Repositories extends Component {
   }
   
   RepoList = () => {
-    let { addingProjects, branches, projects, repos } = this.state
+    let { addingProjects, branches, projects, repos, webhookSubscriptions = [] } = this.state
 
-    if (projects && repos && !branches) {
-      let projectsToMakeRows = new Array()
-      let ProjectsRows = new Array()
-      projects.forEach((project, k) => {
-        project = uriDecodeProjectName(project)
-        const isRepo = project.match('/tree/')
-        const isMyRepo = repos.find(r => {
-          const repoName = uriDecodeProjectName(r.full_name)
-          return project.startsWith(repoName + '/tree/')
-        })
-        if (isMyRepo) return null
-        const clickFn = () => { this.setState({ redirect: `/project/${uriEncodeProjectName(project)}` }) }
-        if (!projectsToMakeRows.includes(project.split('/tree/')[0])) {
-          projectsToMakeRows.push(project.split('/tree/')[0])
-          ProjectsRows.push(<Table.Row key={k}>
+    if (webhookSubscriptions.length && projects && repos && !branches) {
+
+      let repoList = new Array()
+
+      // Add rows for webhook results
+      webhookSubscriptions.forEach(r => {
+        const scanId = r['scan']['_id']
+        const branch = r.ref.replace('refs/heads/','')
+        const projectName = encodeURIComponent(r.repository)
+        const projectNameWithBranch = encodeURIComponent(r.repository + '/tree/' + branch)
+        repoList.push([
+          r.repository,
+          <Table.Row key={projectName}>
             <Table.Cell style={{ borderLeft: '6px solid #2185d0', width: '100%' }}>
-              <Icon name={!isRepo ? 'code' : 'code branch'} style={{ color: '#2185d0' }} />&nbsp;
-              <a onClick={clickFn}>{project.split('/tree/')[0]}</a>
+              <Icon name={'code branch'} style={{ color: '#2185d0' }} />&nbsp;
+              <a onClick={() => {
+                this.setState({ redirect: `/project/${projectNameWithBranch}?webhook=${scanId}`})
+              }}>{r.repository}</a>
             </Table.Cell>
-          </Table.Row>)
-        }
+          </Table.Row>
+        ])
       })
 
-      const RepoRows = repos.map((repo, k) => {
-        const wasTested = projects.find(p => p.startsWith(repo.full_name.replace(/\//g, '%2F') + '%2Ftree%2F'))
+      // Add rows for github repos not found in webhook results
+      repos.forEach(repo => {
+        const projectName = encodeURIComponent(repo.full_name)
+        const isInList = repoList.map(r => r[0]).includes(repo.full_name)
+        const wasTested = projects.find(p => 
+          p.startsWith(repo.full_name.replace(/\//g, '%2F') + '%2Ftree%2F')
+        ) || isInList
         const clickFn = !wasTested ? () => { this.getBranches(repo) } : () => { this.setState({ redirect: `/project/${encodeURIComponent(wasTested)}`}) }
-        const display = wasTested || addingProjects
+        const display = !wasTested && addingProjects
 
-        if (!display) return null
-        else return <Table.Row key={k}>
-          <Table.Cell style={{
-              borderLeft: wasTested ? '6px solid #2185d0' : 'normal',
-              width: '100%',
-              color: '#666',
-            }}>
-            
-              <StlButton onClick={clickFn} semantic
-                className="small" style={{
-                  float: 'right',
-                  display: wasTested ? 'none' : 'inline-block'
-                }}><Icon name="add" />&nbsp;Add</StlButton>
-              <Icon name={'code branch'} style={{ color: wasTested ? '#2185d0' : 'inherit' }} />&nbsp;
+        if (display) repoList.push([
+          repo.full_name,
+          <Table.Row key={projectName}>
+            <Table.Cell style={{
+                borderLeft: wasTested ? '6px solid #2185d0' : 'normal',
+                width: '100%',
+                color: '#666',
+              }}>
               
-              {
-                wasTested ? <a onClick={clickFn}>{repo.full_name}</a> : repo.full_name
-              }
-              
-          </Table.Cell>
-        </Table.Row>
+                <StlButton onClick={clickFn} semantic
+                  className="small" style={{
+                    float: 'right',
+                    display: wasTested ? 'none' : 'inline-block'
+                  }}><Icon name="add" />&nbsp;Add</StlButton>
+                <Icon name={'code branch'} style={{ color: wasTested ? '#2185d0' : 'inherit' }} />&nbsp;
+                
+                {
+                  wasTested ? <a onClick={clickFn}>{repo.full_name}</a> : repo.full_name
+                }
+                
+            </Table.Cell>
+          </Table.Row>
+        ]) 
+      })
+
+      // Add rows for projects not found in repoList
+      projects.forEach((project, k) => {
+        project = uriDecodeProjectName(project)
+        const isInList = repoList.map(r => r[0]).includes(project)
+        const isRepo = project.match('/tree/')
+        const repoName = project.split('/tree/')[0]
+        const isMyRepo = repos.find(r => {
+          const name = uriDecodeProjectName(r.full_name)
+          return project.startsWith(name + '/tree/')
+        })
+        if (!isMyRepo && !isInList) {
+          const clickFn = () => { this.setState({ redirect: `/project/${uriEncodeProjectName(project)}` }) }
+          repoList.push([
+            project,
+            <Table.Row key={k}>
+              <Table.Cell style={{ borderLeft: '6px solid #2185d0', width: '100%' }}>
+                <Icon name={!isRepo ? 'code' : 'code branch'} style={{ color: '#2185d0' }} />&nbsp;
+                <a onClick={clickFn}>{repoName}</a>
+              </Table.Cell>
+            </Table.Row>
+          ])
+        }
       })
 
       return <div className="repo-list">
@@ -384,11 +431,13 @@ export default class Repositories extends Component {
         }
         <Table celled striped className={'data-table'}>
           <Table.Body>
-            { RepoRows }
-            { ProjectsRows }
+            { repoList.map(r => r[1]) }
+            {/* { RepoRows }
+            { ProjectsRows } */}
           </Table.Body>
         </Table>
       </div>
+    
     }
     else return null
   }
@@ -406,6 +455,7 @@ export default class Repositories extends Component {
       repos,
       token,
       tree,
+      webhookSubscriptions = [],
       working,
     } = this.state
 
@@ -417,7 +467,7 @@ export default class Repositories extends Component {
     }
 
     if (redirect) return <Redirect to={redirect} />
-    else if (working || (!code && !token) || (token && !repos && !working)) return <FtlLoader show={true} />
+    else if (working || (!code && !token) || (token && (!webhookSubscriptions.length || !repos) && !working)) return <FtlLoader show={true} />
     else if (addNewProject) return <Redirect to={`/code/${addNewProject}`} />
     else return <div id="github">
       <Menu />

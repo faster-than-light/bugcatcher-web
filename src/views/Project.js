@@ -58,6 +58,7 @@ import config from '../config'
 import LocalStorage from '../helpers/LocalStorage'
 import { scrollTo } from '../helpers/scrollTo'
 import githubApi from '../helpers/githubApi'
+import CqcApi from '../helpers/cqcApi'
 
 // images & styles
 import githubText from '../assets/images/github.png'
@@ -66,6 +67,7 @@ import '../assets/css/Project.css'
 import '../assets/css/Results.css'
 
 // constants and global variables
+const cqcApi = CqcApi(getCookie("session"))
 const initialState = {
   binaryFilesToUpload: [],
   codeOnServer: null,
@@ -131,6 +133,8 @@ export default class Project extends Component {
 
   /** @dev Lifecycle methods */
   async componentWillMount() {
+    const isWebhookScan = queryString.parse(document.location.search)['webhook']
+
     projectName = this.props.match ? decodeURIComponent(this.props.match.params.id) : null
 
     const selectedBranch = projectName.split('/tree/')[1]
@@ -161,8 +165,10 @@ export default class Project extends Component {
     }
     this.setState({
       branchesOptions,
+      isWebhookScan,
       projectName,
       selectedBranch,
+      working: true,
     })
 
 
@@ -178,11 +184,13 @@ export default class Project extends Component {
     if (fetchedUser && api.getStlSid()) this._fetchProductCode()
     else setTimeout(this._fetchProductCode, 1000)
 
-    let testResultSid = LocalStorage.ProjectTestResults.getIds(projectName)
-    testResultSid = testResultSid[0]
-
-    this.fetchLastTest( testResultSid )
-    this._fetchGithubRepo()
+    if (queryString.parse(document.location.search)['gh']) this._fetchGithubRepo()
+    else if (isWebhookScan) this._fetchGithubScan(isWebhookScan)
+    else {
+      let testResultSid = LocalStorage.ProjectTestResults.getIds(projectName)
+      testResultSid = testResultSid[0]
+      if (testResultSid) this._fetchLastTest( testResultSid )
+    }
 
     const startTest = queryString.parse(document.location.search)['start_test']
     if (startTest) {
@@ -193,7 +201,7 @@ export default class Project extends Component {
       }
     }
 
-    if (!this.state.results && this.state.testResultSid) this.fetchResults(
+    if (!this.state.results && this.state.testResultSid) this._fetchResults(
       this.state.testResultSid
     )
 
@@ -225,12 +233,13 @@ export default class Project extends Component {
   }
   
   
-  async fetchResults(stlid) {
+  /** @dev Component methods */
+  async _fetchResults(stlid) {
     const { data: results } = await api.getTestResult({ stlid })
-    this.setState({ results })
+    this.setState({ results, working: false })
   }
 
-  async fetchLastTest(testResultSid) {
+  async _fetchLastTest(testResultSid) {
     this.setState({ fetchingLastTest: true, testResultSid })
 
     const getLastTest = async (stlid) => {
@@ -261,7 +270,15 @@ export default class Project extends Component {
     // else this.setState({ fetchingLastTest: false, results })
   }
 
-  /** @dev Component methods */
+  async _fetchGithubScan(scanId) {
+    if (!scanId) return
+    const githubScan = await cqcApi.getWebhookScan(scanId)
+    this.setState({
+      results: githubScan['testResults'],
+      working: false,
+    })
+  }
+
   _fetchProductCode = async () => {
     const { data = {} } = await api.getProject(uriEncodeProjectName(projectName)).catch(() => ({}))
     const { response: projectOnServer = {} } = data
@@ -499,7 +516,7 @@ export default class Project extends Component {
       if (results.status_msg === 'COMPUTING_PDF' || results.status_msg === 'COMPLETE') {
         clearInterval( startCounting )
         testTimeElapsed = 0
-        this.fetchResults(stlid)
+        this._fetchResults(stlid)
         this.setState({ step: 8 })
       }
       else this._initCheckTestStatus(stlid)

@@ -14,7 +14,7 @@ import { UserContext } from '../contexts/UserContext'
 
 // helpers
 import api from '../helpers/api'
-import cqcApi from '../helpers/cqcApi'
+import CqcApi from '../helpers/cqcApi'
 import githubApi from '../helpers/githubApi'
 import { getCookie } from '../helpers/cookies'
 import { severities } from '../helpers/strings'
@@ -25,6 +25,7 @@ import { durationBreakdown } from '../helpers/moment'
 import '../assets/css/Results.css'
 
 // constants
+const cqcApi = CqcApi(getCookie("session"))
 const sortRowsByFileLine = (a, b) =>
   String(a.code.name + a.start_line).localeCompare(
     String(b.code.name + b.start_line)

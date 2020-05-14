@@ -8,12 +8,15 @@ import StlButton from './StlButton'
 
 // helpers
 import api from '../helpers/api'
+import { getCookie } from '../helpers/cookies'
 import { appUrl } from '../config'
 import { durationBreakdown } from '../helpers/moment'
-import cqcApi from '../helpers/cqcApi'
+import CqcApi from '../helpers/cqcApi'
 
 // styles & images
 import '../assets/css/components/Modal.css'
+
+const cqcApi = CqcApi(getCookie("session"))
 
 export default class CopyResultsModal extends Component {
   constructor () {

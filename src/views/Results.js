@@ -15,7 +15,7 @@ import { UserContext } from '../contexts/UserContext'
 
 // helpers
 import api from '../helpers/api'
-import cqcApi from '../helpers/cqcApi'
+import CqcApi from '../helpers/cqcApi'
 import { getCookie } from '../helpers/cookies'
 import { base64ToBlob, testStatusToColor } from '../helpers/strings'
 import { groupedResultsJson } from '../helpers/data'
@@ -27,6 +27,8 @@ import '../assets/css/Results.css'
 import ftlLogo from '../assets/images/logo-1-line-black-text.png'
 import ThemeLogo from '../components/ThemeLogo'
 
+const cqcApi = CqcApi(getCookie("session"))
+
 export default class Results extends Component {
   static contextType = UserContext
   state = {}
@@ -34,6 +36,7 @@ export default class Results extends Component {
   /** @dev Lifecycle methods */
   async componentWillMount() {
     await api.setSid( getCookie("STL-SID") )
+    await cqcApi.setSid( getCookie("STL-SID") )
     const fetchedUser = await this.context.actions.fetchUser()
     this.setState({
       theme: getCookie("theme"),
@@ -44,7 +47,7 @@ export default class Results extends Component {
   
   async componentDidMount() {
     const published = queryString.parse(document.location.search)['published']
-    let state = await this._fetchResults(published)
+    let state = await this._fetchResults()
     if (state && !state.results) state.results = false
     if (state && state.results && state.project) {
       let pdfReady = false
@@ -62,7 +65,7 @@ export default class Results extends Component {
       // log the failure
       this._failedToFetch(state ? state.project : null)
       // and try again
-      this.setState(await this._fetchResults(published))
+      this.setState(await this._fetchResults())
     }
   }
 
@@ -85,24 +88,33 @@ export default class Results extends Component {
     }, 4500)
     
   }
-  _fetchResults = async (published) => {
+
+  _fetchResults = async () => {
+    const published = queryString.parse(document.location.search)['published']
+    const webhook = queryString.parse(document.location.search)['webhook']
     this.setState({ failedToFetchError: null })
     let results
-    if (!published) {
-      const { data: bugcatcherResults } = await api.getTestResult({
-        stlid: this.props.match.params.id,
-      }).catch(this._failedToFetch)
-      results = bugcatcherResults
-    }
-    else {
+    if (published) {
       const { data: publishedResults } = await cqcApi.getResults(
         this.props.match.params.id
       ).catch(this._failedToFetch)
       results = publishedResults
     }
+    else if (webhook) {
+      const webhookScan = await cqcApi.getWebhookScan().catch(this._failedToFetch)
+      console.log({webhookScan})
+    }
+    else {
+      const { data: bugcatcherResults } = await api.getTestResult({
+        stlid: this.props.match.params.id,
+      }).catch(this._failedToFetch)
+      results = bugcatcherResults
+    }
 
     let { test_run: testRun = {} } = results || {}
-    const { codes = [{}] } = testRun
+    const { codes } = testRun
+    if (!codes || !codes.length) return this._failedToFetch()
+
     const { project } = codes[0]
     if (results && project) {
       // window.mixpanel.track('Fetched Results', {
@@ -200,7 +212,6 @@ export default class Results extends Component {
               if (!Array.isArray(testRunResult)) testRunResult = []
 
               let [groupedResults, certified] = groupedResultsJson(testRunResult, project)
-              console.log([groupedResults, certified])
               const GroupedResults = () => {
                 const rows = groupedResults
                 if (!rows.length) return <h1 style={{ color: 'green' }}>Passing all tests!</h1>

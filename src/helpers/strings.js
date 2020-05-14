@@ -69,7 +69,7 @@ module.exports = {
     }
     catch(e) { return projectName.split('/') }
   },
-  uriEncodeProjectName: (projectName) => encodeURIComponent(cleanProjectName(projectName)),//.replace(/%2F/g, '%252F'),
+  uriEncodeProjectName: (projectName) => encodeURIComponent(cleanProjectName(projectName)),
   uriDecodeProjectName: (projectName) => projectName.replace(/%2F/g, '/'),
   noLeadingSlash: (s) => (s && s.substring(0, 1) === '/') ? s.substring(1) : s,
 }

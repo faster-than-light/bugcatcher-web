@@ -32,9 +32,10 @@ import bugcatcherShield from '../../assets/images/bugcatcher-shield-square.png'
 import githubLogo from '../../assets/images/github-logo.png'
 import StlButton from '../../components/StlButton'
 import '../../assets/css/CQC.css'
-import cqcApi from '../../helpers/cqcApi'
+import CqcApi from '../../helpers/cqcApi'
 
 /** Constants */
+const cqcApi = CqcApi(getCookie("session"))
 const uploadsPerSecond = 0 // 0 = unlimited
 const resetData = {
   checked: false,

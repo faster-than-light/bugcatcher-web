@@ -41,6 +41,7 @@ class App extends Component {
     console.log(`Running BugCatcher v${version} in the ${String(process.env.REACT_APP_FTL_ENV).toUpperCase()} environment`)
     
     const user = await this.fetchUser()
+    this.setUser(user)
     
     // Initialize Intercom script
     intercom(user)
