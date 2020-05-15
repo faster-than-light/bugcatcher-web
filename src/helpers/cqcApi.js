@@ -46,7 +46,6 @@ export default function(ftlSID) {
   }
 
   const getWebhookScan = async (scan) => {
-    // ftlSID = user['sid']
     const { data: getWebhookScan } = await get(`/webhook/scan/github/${scan}`)
     return getWebhookScan
   }
