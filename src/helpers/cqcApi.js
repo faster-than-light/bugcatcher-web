@@ -41,7 +41,7 @@ export default function(ftlSID) {
 
   const getWebhookSubscriptions = async (user) => {
     if (!user) return
-    const { data: getWebhookSubscriptions } = await get(`/webhook/subscriptions/github/${user.sid}`)
+    const { data: getWebhookSubscriptions } = await get(`/webhook/subscriptions/github/${process.env.REACT_APP_FTL_ENV === 'development' ? 'staging' : process.env.REACT_APP_FTL_ENV}`)
     return getWebhookSubscriptions
   }
 
