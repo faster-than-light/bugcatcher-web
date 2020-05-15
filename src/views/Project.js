@@ -273,7 +273,12 @@ export default class Project extends Component {
   async _fetchGithubScan(scanId) {
     if (!scanId) return
     const githubScan = await cqcApi.getWebhookScan(scanId)
-    this.setState({
+    if (githubScan) this.setState({
+      codeOnServer: githubScan['tree'].map(c => ({
+        name: c.path,
+        sha256: c.sha,
+        status: 'code'
+      })),
       results: githubScan['testResults'],
       working: false,
     })
@@ -288,6 +293,7 @@ export default class Project extends Component {
         ...c,
         status: 'code'
       })),
+      working: false,
     })
   }
 
