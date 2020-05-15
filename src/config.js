@@ -69,7 +69,7 @@ module.exports = {
   // cqc backend
   cqcApiUrl: ({
     production: 'https://certification-api.fasterthanlight.dev',
-    development: 'https://certification-api.fasterthanlight.dev',
+    development: 'https://certification-api-staging.fasterthanlight.dev',
     bat: 'http://localhost:3001',
     local: 'http://localhost:3001',
   })[process.env.REACT_APP_FTL_ENV],
