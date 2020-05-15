@@ -345,7 +345,7 @@ export default class Repositories extends Component {
 
       // Add rows for webhook results
       webhookSubscriptions.forEach(r => {
-        const scanId = r['scan']['_id']
+        const scanId = r['scan'] ? r['scan']['_id'] : null
         const branch = r.ref.replace('refs/heads/','')
         const projectName = encodeURIComponent(r.repository)
         const projectNameWithBranch = encodeURIComponent(r.repository + '/tree/' + branch)
