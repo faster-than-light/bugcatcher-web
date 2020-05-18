@@ -50,6 +50,42 @@ export default function(ftlSID) {
     return getWebhookScan
   }
 
+  const putWebhookSubscription = async (data) => {
+    const {
+      channel = 'github',
+      environment = 'production',
+      ref,
+      repository,
+      sid,
+    } = data
+    if (!data || !channel || !environment || !ref || !repository || !sid) return
+  
+    const { data: subscription } = await post(`/webhook/subscription/${channel}/${environment}`, {
+      ref,
+      repository,
+      sid,
+    })
+    return subscription
+  }
+
+  const deleteWebhookSubscription = async (data) => {
+    const {
+      channel = 'github',
+      environment = 'production',
+      ref,
+      repository,
+      sid,
+    } = data
+    if (!data || !channel || !environment || !ref || !repository || !sid) return
+  
+    const { data: deletedSubscription } = await del(`/webhook/subscription/${channel}/${environment}`, {
+      ref,
+      repository,
+      sid,
+    })
+    return deletedSubscription
+  }
+
   /** @return Promises resolving to javascript objects */
   async function get(endpoint, options) {
     let headers
@@ -89,15 +125,17 @@ export default function(ftlSID) {
   }
 
   return {
-    setSid,
-    getResults,
-    putResults,
-    getJobsQueue,
-    putJobsQueue,
     deleteJobsQueueItems,
-    postPullRequestUrl,
-    getWebhookSubscriptions,
+    deleteWebhookSubscription,
+    getJobsQueue,
+    getResults,
     getWebhookScan,
+    getWebhookSubscriptions,
+    putJobsQueue,
+    postPullRequestUrl,
+    putResults,
+    putWebhookSubscription,
+    setSid,
   }
 
 }

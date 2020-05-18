@@ -180,16 +180,15 @@ export default class Project extends Component {
     // }
     // setCookie("lastProjectsAccessed", JSON.stringify(newList))
 
-    const fetchedUser = await this.context.actions.fetchUser()
-    if (fetchedUser && api.getStlSid()) this._fetchProductCode()
-    else setTimeout(this._fetchProductCode, 1000)
-
     if (queryString.parse(document.location.search)['gh']) this._fetchGithubRepo()
     else if (isWebhookScan) this._fetchGithubScan(isWebhookScan)
     else {
       let testResultSid = LocalStorage.ProjectTestResults.getIds(projectName)
       testResultSid = testResultSid[0]
       if (testResultSid) this._fetchLastTest( testResultSid )
+      const fetchedUser = await this.context.actions.fetchUser()
+      if (fetchedUser && api.getStlSid()) this._fetchProductCode()
+      else setTimeout(this._fetchProductCode, 1000)
     }
 
     const startTest = queryString.parse(document.location.search)['start_test']
@@ -711,7 +710,7 @@ export default class Project extends Component {
   /** @title GitHub */
   _fetchGithubRepo = async () => {
 
-    /** @dev Fetch GitHub repo if querystring param is found */
+    /** @dev Fetch GitHub repo or lastScan if querystring param is found */
     ghTreeSha = queryString.parse(document.location.search)['gh']
     if (ghTreeSha) {
       if (window.history.pushState) {
@@ -730,16 +729,51 @@ export default class Project extends Component {
           branchName,
         )
         if (tree && tree.tree) {
-          this.setState({
-            activeTabIndex: 2,
-            ghTree: tree,
-            branchName,
-            repo,
-            owner,
-            step: 4,
-            working: false,
+
+          // Subscribe to GitHub webhook event
+          const webhookSubscription = await cqcApi.putWebhookSubscription({
+            channel: 'github',
+            environment: process.env['REACT_APP_FTL_ENV'],
+            ref: `refs/heads/${branchName}`,
+            repository: `${owner}/${repo}`,
+            sid: getCookie("session"),
           })
-          this._testGithubRepo()    
+          console.log({webhookSubscription})
+
+          if (!webhookSubscription || webhookSubscription.testNeededOnTreeSha) {
+            this.setState({
+              activeTabIndex: 2,
+              ghTree: tree,
+              branchName,
+              repo,
+              owner,
+              step: 4,
+              working: false,
+            })
+            this._testGithubRepo() 
+          }
+          else if (webhookSubscription['lastScan']) {
+            this.setState({
+              codeOnServer: webhookSubscription['lastScan']['tree'] ? webhookSubscription['lastScan']['tree'].map(c => ({
+                name: c.path,
+                sha256: c.sha,
+                status: 'code'
+              })) : null,
+              results: webhookSubscription['lastScan']['testResults'] ? webhookSubscription['lastScan']['testResults'] : null,
+              working: false,
+            })
+          }
+          else {
+            this.setState({
+              codeOnServer: webhookSubscription['tree'] ? webhookSubscription['tree'].map(c => ({
+                name: c.path,
+                sha256: c.sha,
+                status: 'code'
+              })) : null,
+              results: webhookSubscription['testResults'] ? webhookSubscription['testResults'] : null,
+              working: false,
+            })
+          }
         }
       }
     }    
@@ -1328,20 +1362,36 @@ export default class Project extends Component {
                         if (conf) {
                           e.target.disabled = true
                           this.setState({working: true})
-                          let projectsToDelete = new Array()
                           if (projectName.match('/tree/')) {
-                            const { data } = await api.getProject()
-                            const projects = data.response
+                            let projectsToDelete = new Array()
+                            const { data: getProjects } = await api.getProject()
+                            const { response: projects } = getProjects
                             projects.forEach(p => {
                               const projectRepoIdentifier = projectName.split('/tree/')[0] + '/tree/'
                               if (decodeURIComponent(p).startsWith(projectRepoIdentifier)) {
+                                console.log({p})
                                 LocalStorage.ProjectTestResults.setIds(decodeURIComponent(p))
                                 projectsToDelete.push(
                                   api.deleteProjectPromise(uriEncodeProjectName(decodeURIComponent(p))).catch(() => null)
                                 )
+                                // subscriptionsToDelete.push(
+                                //   cqcApi.deleteWebhookSubscription({
+                                //     channel: 'github',
+                                //     environment: process.env['REACT_APP_FTL_ENV'],
+                                //     ref: `refs/heads/${branchName}`,
+                                //     repository: `${owner}/${repo}`,
+                                //     sid: getCookie("session"),
+                                //   })
+                                // )
                               }
                             })
-                            await Promise.all(projectsToDelete)
+                            await Promise.all([...projectsToDelete, cqcApi.deleteWebhookSubscription({
+                              channel: 'github',
+                              environment: process.env['REACT_APP_FTL_ENV'],
+                              ref: `refs/heads/${selectedBranch}`,
+                              repository: `${projectName.split('/')[0]}/${projectName.split('/')[1]}`,
+                              sid: getCookie("session"),
+                            })])
                           }
                           else await api.deleteProjectPromise(uriEncodeProjectName(projectName)).catch(() => null)
                           this.setState({redirect: '/'})

@@ -337,15 +337,15 @@ export default class Repositories extends Component {
   }
   
   RepoList = () => {
-    let { addingProjects, branches, projects, repos, webhookSubscriptions = [] } = this.state
+    let { addingProjects, branches, projects, repos, webhookSubscriptions } = this.state
 
-    if (webhookSubscriptions.length && projects && repos && !branches) {
+    if (webhookSubscriptions && projects && repos && !branches) {
 
       let repoList = new Array()
 
       // Add rows for webhook results
       webhookSubscriptions.forEach(r => {
-        const scanId = r['scan'] ? r['scan']['_id'] : null
+        const scanId = r['scan'] ? r['scan']['_id'] : ''
         const branch = r.ref.replace('refs/heads/','')
         const projectName = encodeURIComponent(r.repository)
         const projectNameWithBranch = encodeURIComponent(r.repository + '/tree/' + branch)
@@ -353,7 +353,7 @@ export default class Repositories extends Component {
           r.repository,
           <Table.Row key={projectName}>
             <Table.Cell style={{ borderLeft: '6px solid #2185d0', width: '100%' }}>
-              <Icon name={'code branch'} style={{ color: '#2185d0' }} />&nbsp;
+              <Icon name={'code branch'} style={{ color: 'red' }} />&nbsp;
               <a onClick={() => {
                 this.setState({ redirect: `/project/${projectNameWithBranch}?webhook=${scanId}`})
               }}>{r.repository}</a>
@@ -455,7 +455,7 @@ export default class Repositories extends Component {
       repos,
       token,
       tree,
-      webhookSubscriptions = [],
+      webhookSubscriptions,
       working,
     } = this.state
 
@@ -467,7 +467,7 @@ export default class Repositories extends Component {
     }
 
     if (redirect) return <Redirect to={redirect} />
-    else if (working || (!code && !token) || (token && (!webhookSubscriptions.length || !repos) && !working)) return <FtlLoader show={true} />
+    else if (working || (!code && !token) || (token && (!webhookSubscriptions || !repos) && !working)) return <FtlLoader show={true} />
     else if (addNewProject) return <Redirect to={`/code/${addNewProject}`} />
     else return <div id="github">
       <Menu />

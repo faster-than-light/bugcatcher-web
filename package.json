@@ -1,6 +1,6 @@
 {
   "name": "bugcatcher-web",
-  "version": "1.0.148",
+  "version": "1.0.149",
   "repository": {
     "type": "git",
     "url": "https://github.com/faster-than-light/bugcatcher-web.git"
@@ -45,7 +45,7 @@
     "start:local": "REACT_APP_STL_INTERNAL_SID=$STL_INTERNAL_SID REACT_APP_API_URI='http://localhost' REACT_APP_FTL_ENV=local react-scripts start",
     "build": "REACT_APP_FTL_ENV=development react-scripts build",
     "build:prod": "REACT_APP_FTL_ENV=production react-scripts build",
-    "build:bat": "REACT_APP_FTL_ENV=bat react-scripts build",
+    "build:bat": "REACT_APP_FTL_ENV=devbat react-scripts build",
     "fbdeploy": "npm run build && firebase use default && firebase deploy",
     "fbdeploy:prod": "npm run build:prod && firebase use production && firebase deploy",
     "fbdeploy:dev-bat": "npm run build:dev-bat && firebase use dev-bat && firebase deploy",
