@@ -236,6 +236,7 @@ export default class Project extends Component {
   async _fetchResults(stlid) {
     const { data: results } = await api.getTestResult({ stlid })
     this.setState({ results, working: false })
+    if (ghTreeSha) console.log(this.state)
   }
 
   async _fetchLastTest(testResultSid) {
@@ -738,7 +739,6 @@ export default class Project extends Component {
             repository: `${owner}/${repo}`,
             sid: getCookie("session"),
           })
-          console.log({webhookSubscription})
 
           if (!webhookSubscription || webhookSubscription.testNeededOnTreeSha) {
             this.setState({
@@ -962,7 +962,6 @@ export default class Project extends Component {
       step,
       testResultSid,
       ghTree = {},
-      ghTreeSha,
       ghUploaded = 0,
       ghFileCount = 0,
       uploadErrors = [],
