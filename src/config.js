@@ -1,4 +1,17 @@
+const appEnvironments = {
+  devbat: 'devbat',
+  development: 'staging',
+  local: 'local',
+  production: 'production',
+  staging: 'staging',
+}
+
+const appEnvironment = appEnvironments[process.env['REACT_APP_FTL_ENV']]
+
 module.exports = {
+
+  appEnvironment,
+  appEnvironments,
 
   // app url
   appUrl: ({

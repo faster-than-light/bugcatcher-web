@@ -733,7 +733,7 @@ export default class Project extends Component {
           // Subscribe to GitHub webhook event
           const webhookSubscription = await cqcApi.putWebhookSubscription({
             channel: 'github',
-            environment: process.env['REACT_APP_FTL_ENV'],
+            environment: config.appEnvironment,
             ref: `refs/heads/${branchName}`,
             repository: `${owner}/${repo}`,
             sid: getCookie("session"),
@@ -1369,25 +1369,15 @@ export default class Project extends Component {
                             projects.forEach(p => {
                               const projectRepoIdentifier = projectName.split('/tree/')[0] + '/tree/'
                               if (decodeURIComponent(p).startsWith(projectRepoIdentifier)) {
-                                console.log({p})
                                 LocalStorage.ProjectTestResults.setIds(decodeURIComponent(p))
                                 projectsToDelete.push(
                                   api.deleteProjectPromise(uriEncodeProjectName(decodeURIComponent(p))).catch(() => null)
                                 )
-                                // subscriptionsToDelete.push(
-                                //   cqcApi.deleteWebhookSubscription({
-                                //     channel: 'github',
-                                //     environment: process.env['REACT_APP_FTL_ENV'],
-                                //     ref: `refs/heads/${branchName}`,
-                                //     repository: `${owner}/${repo}`,
-                                //     sid: getCookie("session"),
-                                //   })
-                                // )
                               }
                             })
                             await Promise.all([...projectsToDelete, cqcApi.deleteWebhookSubscription({
                               channel: 'github',
-                              environment: process.env['REACT_APP_FTL_ENV'],
+                              environment: config.appEnvironment,
                               ref: `refs/heads/${selectedBranch}`,
                               repository: `${projectName.split('/')[0]}/${projectName.split('/')[1]}`,
                               sid: getCookie("session"),

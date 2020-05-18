@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { cqcApiUrl } from '../config'
+import { appEnvironment, cqcApiUrl } from '../config'
 
 export default function(ftlSID) {
 
@@ -41,7 +41,7 @@ export default function(ftlSID) {
 
   const getWebhookSubscriptions = async (user) => {
     if (!user) return
-    const { data: getWebhookSubscriptions } = await get(`/webhook/subscriptions/github/${process.env.REACT_APP_FTL_ENV === 'development' ? 'staging' : process.env.REACT_APP_FTL_ENV}`)
+    const { data: getWebhookSubscriptions } = await get(`/webhook/subscriptions/github/${appEnvironment}`)
     return getWebhookSubscriptions
   }
 

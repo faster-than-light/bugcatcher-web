@@ -1,6 +1,6 @@
 import axios from 'axios'
 import octokit from './octokit'
-import { github } from '../config'
+import { appEnvironment, github } from '../config'
 import octokitCreatePullRequest from './octokitCreatePullRequest'
 
 let token
@@ -29,8 +29,7 @@ function setToken(newToken) {
  * @returns {string} Access token
  */
 async function getAccessToken(code) {
-  const env = process.env.REACT_APP_FTL_ENV
-  const getToken = await axios.get(`${github.backend}?code=${code}&env=${env}`)
+  const getToken = await axios.get(`${github.backend}?code=${code}&env=${appEnvironment}`)
   const { data: accessToken } = getToken
   return setToken(accessToken)
 }

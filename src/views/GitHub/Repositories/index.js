@@ -349,6 +349,7 @@ export default class Repositories extends Component {
         const branch = r.ref.replace('refs/heads/','')
         const projectName = encodeURIComponent(r.repository)
         const projectNameWithBranch = encodeURIComponent(r.repository + '/tree/' + branch)
+
         repoList.push([
           r.repository,
           <Table.Row key={projectName}>
