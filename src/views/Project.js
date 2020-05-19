@@ -234,9 +234,10 @@ export default class Project extends Component {
   
   /** @dev Component methods */
   async _fetchResults(stlid) {
+    const { isWebhookScan } = this.state
     const { data: results } = await api.getTestResult({ stlid })
     this.setState({ results, working: false })
-    if (ghTreeSha) console.log(this.state)
+    if (isWebhookScan) console.log(this.state)
   }
 
   async _fetchLastTest(testResultSid) {

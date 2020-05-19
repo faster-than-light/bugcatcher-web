@@ -69,7 +69,7 @@ export default class Repositories extends Component {
     }
     if (token) {
       await githubApi.setToken(token)
-      githubUser = await this.fetchGithubUser(true)
+      githubUser = await this.fetchGithubUser()
     }
     if (!token && !githubUser && !code) this.props.setUser(null)
     else this.setState({
@@ -113,7 +113,7 @@ export default class Repositories extends Component {
   runApiFunctions = async () => {
     const { code, repos, token, githubUser, webhookSubscriptions } = this.state
     if (code && !token) await this.fetchToken()
-    if (!githubUser) await this.fetchGithubUser(true)
+    // if (!githubUser) await this.fetchGithubUser()
     if (!repos) await this.fetchRepos()
     if (!webhookSubscriptions) await this.fetchWebhookSubscriptions()
   }
@@ -181,14 +181,14 @@ export default class Repositories extends Component {
       this.setState({ working: false }) 
     }}>Fetch Access Token &laquo;</StlButton>
 
-  FetchUserProfile = (props) => <StlButton primary semantic
-    disabled={Boolean(!this.state.token || this.state.githubUser)}
-    style={props.style}
-    onClick={ async () => {
-      this.setState({ working: true })
-      await this.fetchGithubUser(true)
-      this.setState({ working: false })
-    }}>Fetch User Profile &raquo;</StlButton>
+  // FetchUserProfile = (props) => <StlButton primary semantic
+  //   disabled={Boolean(!this.state.token || this.state.githubUser)}
+  //   style={props.style}
+  //   onClick={ async () => {
+  //     this.setState({ working: true })
+  //     await this.fetchGithubUser()
+  //     this.setState({ working: false })
+  //   }}>Fetch User Profile &raquo;</StlButton>
 
   sortOptionChange = e => {
     const sortReposBy = e.target.value
@@ -354,7 +354,7 @@ export default class Repositories extends Component {
           r.repository,
           <Table.Row key={projectName}>
             <Table.Cell style={{ borderLeft: '6px solid #2185d0', width: '100%' }}>
-              <Icon name={'code branch'} style={{ color: 'red' }} />&nbsp;
+              <Icon name={'check'} style={{ color: '#2185d0' }} />&nbsp;
               <a onClick={() => {
                 this.setState({ redirect: `/project/${projectNameWithBranch}?webhook=${scanId}`})
               }}>{r.repository}</a>
