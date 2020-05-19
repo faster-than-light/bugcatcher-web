@@ -354,7 +354,7 @@ export default class Repositories extends Component {
           r.repository,
           <Table.Row key={projectName}>
             <Table.Cell style={{ borderLeft: '6px solid #2185d0', width: '100%' }}>
-              <Icon name={'check'} style={{ color: '#2185d0' }} />&nbsp;
+              <Icon name={'code branch'} style={{ color: '#2185d0' }} />&nbsp;
               <a onClick={() => {
                 this.setState({ redirect: `/project/${projectNameWithBranch}?webhook=${scanId}`})
               }}>{r.repository}</a>

@@ -739,7 +739,7 @@ export default class Project extends Component {
             ref: `refs/heads/${branchName}`,
             repository: `${owner}/${repo}`,
             sid: getCookie("session"),
-          })
+          }).catch(() => null)
 
           if (!webhookSubscription || webhookSubscription.testNeededOnTreeSha) {
             this.setState({
