@@ -15,8 +15,21 @@ export default function(ftlSID) {
     return get(`/results/${stlid}`)
   }
 
-  const putResults = (results) => {
-    return put('/results', results)
+  const putResults = async (data) => {
+    const {
+      channel = 'github',
+      environment = appEnvironment,
+      scan,
+      sid,
+    } = data
+    if (!data || !channel || !environment || !scan || !sid) return
+  
+    const subscription = await post(`/results/${channel}/${environment}`, {
+      scan,
+      sid,
+    })
+    console.log({subscription})
+    return subscription['data']
   }
 
   const getJobsQueue = async (user) => {

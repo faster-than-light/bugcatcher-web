@@ -52,7 +52,7 @@ export default class Repositories extends Component {
   }
 
   async componentWillMount() {
-    const { data } = await api.getProject().catch(() => null)
+    const { data } = await api.getProject().catch(() => ({}))
     const projects = data['response']
     this.setState({ projects, working: true })
     const code = queryString.parse(document.location.search)['code']
@@ -349,8 +349,9 @@ export default class Repositories extends Component {
         const branch = r.ref.replace('refs/heads/','')
         const projectName = encodeURIComponent(r.repository)
         const projectNameWithBranch = encodeURIComponent(r.repository + '/tree/' + branch)
+        const display = !repoList.find(repo => repo[0] === r.repository)
 
-        repoList.push([
+        if (display) repoList.push([
           r.repository,
           <Table.Row key={projectName}>
             <Table.Cell style={{ borderLeft: '6px solid #2185d0', width: '100%' }}>
@@ -408,6 +409,7 @@ export default class Repositories extends Component {
           const name = uriDecodeProjectName(r.full_name)
           return project.startsWith(name + '/tree/')
         })
+
         if (!isMyRepo && !isInList) {
           const clickFn = () => { this.setState({ redirect: `/project/${uriEncodeProjectName(project)}` }) }
           repoList.push([

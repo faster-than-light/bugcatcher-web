@@ -125,7 +125,6 @@ export default class Project extends Component {
       dirName: null,
       removeDirName: false,
     }
-    this._countUp = this._countUp.bind(this)
     this._restoreDirName = this._restoreDirName.bind(this)
     this._runTests = this._runTests.bind(this)
     this._getTree = githubApi.getTree.bind(this)
@@ -234,10 +233,24 @@ export default class Project extends Component {
   
   /** @dev Component methods */
   async _fetchResults(stlid) {
-    const { isWebhookScan } = this.state
+    const { ghTree, testNeededOnTreeSha } = this.state
     const { data: results } = await api.getTestResult({ stlid })
     this.setState({ results, working: false })
-    if (isWebhookScan) console.log(this.state)
+    if (ghTree && ghTreeSha && testNeededOnTreeSha) {
+      const webhookBody = await this._constructWebhookBody()
+      // save scan data to cqc server
+      const payload = {
+        scan: {
+          webhookBody,
+          testResults: results,
+          tree: ghTree['tree']
+        },
+        sid: getCookie("session"),
+      }
+      console.log(payload)
+      const savedTestResults = await cqcApi.putResults(payload)
+      console.log({savedTestResults})
+    }
   }
 
   async _fetchLastTest(testResultSid) {
@@ -265,7 +278,6 @@ export default class Project extends Component {
     }
     else if (!results.test_run_result && results.status_msg !== 'COMPUTING_PDF' && results.status_msg !== 'COMPLETE') {
       // resume GET /run_tests
-      startCounting = setInterval(this._countUp, 1000)
       this._initCheckTestStatus(testResultSid)
     }
     // else this.setState({ fetchingLastTest: false, results })
@@ -442,7 +454,6 @@ export default class Project extends Component {
       clearTimeout( statusCheck )
       clearInterval( startCounting )
       statusCheck = null
-      startCounting = setInterval(this._countUp, 1000)
       testTimeElapsed = 0
       successfulUploads = 0
       this.setState({
@@ -452,7 +463,7 @@ export default class Project extends Component {
         binaryFilesToUpload: [],
         results: null,
         testResultSid: null,
-        ghTree: {},
+        // ghTree: {},
         branchName: null,
         repo: null,
         owner: null,
@@ -579,7 +590,7 @@ export default class Project extends Component {
       }
       else if (this.state.statusMessage === 'SETUP') {
         this.setState({
-          statusMessage: response.status_msg
+          statusMessage: response ? response.status_msg : null
         })  
       }
 
@@ -636,18 +647,6 @@ export default class Project extends Component {
       }
       else reject()
     })
-  }
-
-  _countUp() {
-    const { statusMessage, step } = this.state
-    testTimeElapsed++
-    let testDuration = (testTimeElapsed % 60).toString() + ' second' + appendS(testTimeElapsed % 60)
-    if (Math.floor(testTimeElapsed / 60)) testDuration = Math.floor(testTimeElapsed / 60) + ' minute' + appendS(Math.floor(testTimeElapsed / 60)) + ', ' + testDuration
-    const button = document.getElementById('running_tests_button')
-    if (button) button.innerHTML = (
-      statusMessage === 'RUNNING' &&
-      step !== 6
-    ) ? `${strStatus[constStatus.RUNNING]} (${testDuration})` : `${strStatus[constStatus.SETUP]} (${testDuration})`
   }
 
   _updateCode = (row, status) => {
@@ -724,7 +723,8 @@ export default class Project extends Component {
       if (token) {
         githubApi.setToken(token)
         this.setState({ working: true })
-        const [ owner, repo, ref, branchName ] = projectName.split('/')
+        const [ owner, repo, branchName ] = destructureProjectName(projectName)
+        // const [ owner, repo, ref, branchName ] = projectName.split('/')
         const { tree } = await this._getTree(
           owner,
           repo,
@@ -749,6 +749,7 @@ export default class Project extends Component {
               repo,
               owner,
               step: 4,
+              testNeededOnTreeSha: branchName,
               working: false,
             })
             this._testGithubRepo() 
@@ -778,6 +779,39 @@ export default class Project extends Component {
         }
       }
     }    
+  }
+
+  _listGithubRepoCommits = () => {
+    const [ owner, repo, branch ] = destructureProjectName(projectName)
+    return githubApi.octokit.repos.listCommits({
+      owner,
+      repo,
+      sha: branch,
+      per_page: 2,
+    })
+  }
+
+  _constructWebhookBody = async () => {
+    // fetch last commits
+    const [ owner, repo, branch ] = destructureProjectName(projectName)
+    const { data: commits } = await this._listGithubRepoCommits()
+    if (commits.length > 1) {
+      const { data: repository } = await githubApi.octokit.repos.get({ owner, repo })
+      const after = commits[0]['sha']
+      const before = commits[1]['sha']
+      const sha1 = after.substring(0, 12)
+      const sha2 = before.substring(0, 12)
+      const compare = `https://github.com/${owner}/${repo}/compare/${sha2}...${sha1}`
+      return {
+        ref: `refs/heads/${branch}`,
+        before,
+        after,
+        repository,
+        compare,
+        head_commit: commits[0],
+      }
+    }
+    else return
   }
 
   _testGithubRepo = async () => {
