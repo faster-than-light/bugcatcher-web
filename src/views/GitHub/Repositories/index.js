@@ -345,7 +345,7 @@ export default class Repositories extends Component {
 
       // Add rows for webhook results
       webhookSubscriptions.forEach(r => {
-        const scanId = r['scan'] ? r['scan']['_id'] : ''
+        const scanId = r['scan'] && r['scan']['_id'] ? r['scan']['_id'] : ''
         const branch = r.ref.replace('refs/heads/','')
         const projectName = encodeURIComponent(r.repository)
         const projectNameWithBranch = encodeURIComponent(r.repository + '/tree/' + branch)
@@ -429,7 +429,7 @@ export default class Repositories extends Component {
         <h2 style={{ margin: 0, padding: 0 }}>Projects</h2>
         {
           !projects.length ? <p className="well">
-            You have no projects configured. Please add a GitHub project below, or upload a project using the &quot;Upload Project&quot; button.
+            You have no projects configured. Please add a GitHub project, or upload a project using the &quot;Upload Project&quot; button.
           </p> : null
         }
         <Table celled striped className={'data-table'}>
