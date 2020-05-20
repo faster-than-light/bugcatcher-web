@@ -28,7 +28,6 @@ export default function(ftlSID) {
       scan,
       sid,
     })
-    console.log({subscription})
     return subscription['data']
   }
 

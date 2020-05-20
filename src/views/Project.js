@@ -247,9 +247,7 @@ export default class Project extends Component {
         },
         sid: getCookie("session"),
       }
-      console.log(payload)
       const savedTestResults = await cqcApi.putResults(payload)
-      console.log({savedTestResults})
     }
   }
 
@@ -802,14 +800,19 @@ export default class Project extends Component {
       const sha1 = after.substring(0, 12)
       const sha2 = before.substring(0, 12)
       const compare = `https://github.com/${owner}/${repo}/compare/${sha2}...${sha1}`
-      return {
+      const response = {
         ref: `refs/heads/${branch}`,
         before,
         after,
         repository,
         compare,
-        head_commit: commits[0],
+        head_commit: {
+          ...commits[0],
+          tree_id: ghTreeSha,
+        },
       }
+      console.log({response})
+      return response
     }
     else return
   }
