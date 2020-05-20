@@ -983,6 +983,7 @@ export default class Project extends Component {
       codeOnServer,
       deletingFiles,
       droppingFiles,
+      isWebhookScan,
       numFilesDropped = 0,
       numFilesToDelete,
       owner,
@@ -1041,7 +1042,8 @@ export default class Project extends Component {
           <br /><Link to={'/'} style={{ margin: 18 }}>&laquo; back to Projects</Link>
 
           <h2 style={{ display: 'block', margin: '18px 18px 0 18px' }}>
-            <Icon name={projectName.match('/tree/') ? 'code branch' : 'code'} />&nbsp;
+            <Icon name={isWebhookScan ? config.projectIconNames['webhook'] : projectName.match('/tree/') ? config.projectIconNames['repo'] : config.projectIconNames['upload']}
+              title={isWebhookScan ? config.projectIconTitles['webhook'] : projectName.match('/tree/') ? config.projectIconTitles['repo'] : config.projectIconTitles['upload']} />&nbsp;
             {projectName.split('/tree/')[0]}
           </h2>
 

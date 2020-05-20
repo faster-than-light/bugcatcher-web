@@ -10,7 +10,7 @@ import StlButton from '../../../components/StlButton'
 
 // helpers
 import api from '../../../helpers/api'
-import { github } from '../../../config'
+import { github, projectIconNames, projectIconTitles } from '../../../config'
 import { getCookie, setCookie } from '../../../helpers/cookies'
 import { uriDecodeProjectName, uriEncodeProjectName } from '../../../helpers/strings'
 import githubApi from '../../../helpers/githubApi'
@@ -355,7 +355,9 @@ export default class Repositories extends Component {
           r.repository,
           <Table.Row key={projectName}>
             <Table.Cell style={{ borderLeft: '6px solid #2185d0', width: '100%' }}>
-              <Icon name={'code branch'} style={{ color: '#2185d0' }} />&nbsp;
+              <Icon name={projectIconNames['webhook']}
+                title={projectIconTitles['webhook']}
+                style={{ color: '#2185d0' }} />&nbsp;
               <a onClick={() => {
                 this.setState({ redirect: `/project/${projectNameWithBranch}?webhook=${scanId}`})
               }}>{r.repository}</a>
@@ -388,7 +390,9 @@ export default class Repositories extends Component {
                     float: 'right',
                     display: wasTested ? 'none' : 'inline-block'
                   }}><Icon name="add" />&nbsp;Add</StlButton>
-                <Icon name={'code branch'} style={{ color: wasTested ? '#2185d0' : 'inherit' }} />&nbsp;
+                <Icon name={projectIconNames['repo']}
+                  title={projectIconTitles['repo']}
+                  style={{ color: wasTested ? '#2185d0' : 'inherit' }} />&nbsp;
                 
                 {
                   wasTested ? <a onClick={clickFn}>{repo.full_name}</a> : repo.full_name
@@ -416,7 +420,9 @@ export default class Repositories extends Component {
             project,
             <Table.Row key={k}>
               <Table.Cell style={{ borderLeft: '6px solid #2185d0', width: '100%' }}>
-                <Icon name={!isRepo ? 'code' : 'code branch'} style={{ color: '#2185d0' }} />&nbsp;
+                <Icon name={isRepo ? projectIconNames['repo'] : projectIconNames['upload']}
+                  title={isRepo ? projectIconTitles['repo'] : projectIconTitles['upload']}
+                  style={{ color: '#2185d0' }} />&nbsp;
                 <a onClick={clickFn}>{repoName}</a>
               </Table.Cell>
             </Table.Row>

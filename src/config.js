@@ -41,6 +41,18 @@ module.exports = {
     python: 'Python',
   },
 
+  // project icons
+  projectIconNames: {
+    repo: 'code branch',
+    upload: 'code',
+    webhook: 'history',
+  },
+  projectIconTitles: {
+    repo: 'GitHub Repository',
+    upload: 'Uploaded Project',
+    webhook: 'GitHub Continuous Integration',
+  },
+
   // subscriptions
   /**@todo:deprecate*/ subscriptionProduct: 'BugCatcher Enterprise',
   /**@todo:deprecate*/ subscriptionPricingPlan: 'bug_catcher_one_month_free_199_499',
