@@ -274,6 +274,7 @@ export default class Repositories extends Component {
       verticalAlign: 'middle',
     }}>
       <Input id="custom_repo"
+        ref={r => this.customRepoInput = r}
         style={{
           verticalAlign: 'middle',
         }}
@@ -325,6 +326,9 @@ export default class Repositories extends Component {
         }}
         onClick={() => {
           this.setState({ fetchCustomRepo: true })
+          setTimeout(() => {
+            this.customRepoInput.focus()
+          }, 333)
         }}>
           <Icon name="add" />
           Add Public&nbsp;&nbsp;
