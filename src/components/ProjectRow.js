@@ -2,9 +2,6 @@ import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { Checkbox, Icon, Table } from 'semantic-ui-react'
 
-// helpers
-import { uriDecodeProjectName } from '../helpers/strings'
-
 export default class ProjectRow extends Component {
   state = { modalOpen: false }
 
@@ -38,7 +35,7 @@ export default class ProjectRow extends Component {
           <Link to={`/project/${name}`}
             style={{ color: icon === 'code' ? 'black' : 'red' }}>
             <Icon name={icon === 'code' ? 'folder open' : 'warning sign'}
-              style={{ fontSize: '1.23rem' }} /> {uriDecodeProjectName(name)}
+              style={{ fontSize: '1.23rem' }} /> {decodeURIComponent(name)}
           </Link>
         </Table.Cell>
       </Table.Row>

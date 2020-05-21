@@ -17,7 +17,7 @@ import { UserContext } from '../contexts/UserContext'
 import api from '../helpers/api'
 import CqcApi from '../helpers/cqcApi'
 import { getCookie } from '../helpers/cookies'
-import { base64ToBlob, testStatusToColor } from '../helpers/strings'
+import { base64ToBlob, decodedRepoName, testStatusToColor } from '../helpers/strings'
 import { groupedResultsJson } from '../helpers/data'
 import { helpEmail } from '../config'
 import { durationBreakdown } from '../helpers/moment'
@@ -35,9 +35,21 @@ export default class Results extends Component {
 
   /** @dev Lifecycle methods */
   async componentWillMount() {
+    const hook = queryString.parse(document.location.search)['hook']
+    const published = queryString.parse(document.location.search)['published']
+    const testId = queryString.parse(document.location.search)['test']
+    const treeSha = queryString.parse(document.location.search)['tree']
+    this.setState({
+      hook,
+      published,
+      testId,
+      treeSha,
+    })
+
     await api.setSid( getCookie("STL-SID") )
     await cqcApi.setSid( getCookie("STL-SID") )
     const fetchedUser = await this.context.actions.fetchUser()
+
     this.setState({
       theme: getCookie("theme"),
       fetchedUser,
@@ -90,9 +102,9 @@ export default class Results extends Component {
   }
 
   _fetchResults = async () => {
-    const published = queryString.parse(document.location.search)['published']
-    const webhook = queryString.parse(document.location.search)['webhook']
     this.setState({ failedToFetchError: null })
+    const { hook, published, testId } = this.state
+
     let results
     if (published) {
       const { data: publishedResults } = await cqcApi.getResults(
@@ -100,23 +112,23 @@ export default class Results extends Component {
       ).catch(this._failedToFetch)
       results = publishedResults
     }
-    else if (webhook) {
-      const webhookScan = await cqcApi.getWebhookScan().catch(this._failedToFetch)
-      console.log({webhookScan})
+    else if (hook) {
+      const webhookScan = await cqcApi.getWebhookScan(hook).catch(this._failedToFetch)
+      results = webhookScan['testResults']
     }
-    else {
+    else if (testId) {
       const { data: bugcatcherResults } = await api.getTestResult({
-        stlid: this.props.match.params.id,
+        stlid: testId,
       }).catch(this._failedToFetch)
       results = bugcatcherResults
     }
 
     let { test_run: testRun = {} } = results || {}
-    const { codes } = testRun
-    if (!codes || !codes.length) return this._failedToFetch()
+    const { codes, project ={} } = testRun
+    const { name } = project
+    const projectName = decodedRepoName(name)
 
-    const { project } = codes[0]
-    if (results && project) {
+    if (results && projectName) {
       // window.mixpanel.track('Fetched Results', {
       //   stlid: this.props.match.params.id,
       //   project,
@@ -124,8 +136,8 @@ export default class Results extends Component {
       // })
     }
     else this._failedToFetch()
-    
-    return({ project, results })
+
+    return({ project: projectName, results })
   }
 
   _failedToFetch = error => {
@@ -183,11 +195,12 @@ export default class Results extends Component {
       failedToFetchError,
       loading,
       pdfReady,
+      project,
+      published,
       results,
-      showFiles
+      showFiles,
+      treeSha,
     } = this.state
-    const published = queryString.parse(document.location.search)['published']
-    const ghTreeSha = queryString.parse(document.location.search)['gh']
 
     return <div>
       <section id="results">
@@ -206,10 +219,11 @@ export default class Results extends Component {
               const color = testStatusToColor(status)
               const startTest = moment(testRun.start)
               const endTest = moment(testRun.end)
-              const { filetype: fileType, project } = testRun.codes[0]
+              const { filetype: fileType, project: projectName } = testRun.codes[0] || {}
               let languagesUsed = fileType !== 'None' ? [fileType] : []
               let testToolsUsed = []
               if (!Array.isArray(testRunResult)) testRunResult = []
+              if (projectName && !project) project = projectName
 
               let [groupedResults, certified] = groupedResultsJson(testRunResult, project)
               const GroupedResults = () => {
@@ -359,7 +373,7 @@ export default class Results extends Component {
                             </Table.Cell>
                             <Table.Cell colSpan={2}>
                               <CopyResultsModal {...this.props}
-                                ghTreeSha={ghTreeSha}
+                                treeSha={treeSha}
                                 markdownPayload={markdownPayload}
                                 disabled={!pdfReady}
                                 certified={certified}

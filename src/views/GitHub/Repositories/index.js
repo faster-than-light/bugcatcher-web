@@ -12,7 +12,7 @@ import StlButton from '../../../components/StlButton'
 import api from '../../../helpers/api'
 import { github, projectIconNames, projectIconTitles } from '../../../config'
 import { getCookie, setCookie } from '../../../helpers/cookies'
-import { uriDecodeProjectName, uriEncodeProjectName } from '../../../helpers/strings'
+import { uriEncodeProjectName } from '../../../helpers/strings'
 import githubApi from '../../../helpers/githubApi'
 
 // images & styles
@@ -409,12 +409,12 @@ export default class Repositories extends Component {
 
       // Add rows for projects not found in repoList
       projects.forEach((project, k) => {
-        project = uriDecodeProjectName(project)
+        project = decodeURIComponent(project)
         const isInList = repoList.map(r => r[0]).includes(project)
         const isRepo = project.match('/tree/')
         const repoName = project.split('/tree/')[0]
         const isMyRepo = repos.find(r => {
-          const name = uriDecodeProjectName(r.full_name)
+          const name = decodeURIComponent(r.full_name)
           return project.startsWith(name + '/tree/')
         })
 

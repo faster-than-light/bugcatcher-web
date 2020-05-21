@@ -56,8 +56,6 @@ module.exports = {
   },
   cleanProjectName,
   destructureProjectName: (projectName) => {
-    // @todo: Destructuring is not working here
-    // const [ project, branch ] = projectName.split('/tree/')
     if (!projectName) return
     try {
       projectName = projectName.split('/tree/')
@@ -69,7 +67,22 @@ module.exports = {
     }
     catch(e) { return projectName.split('/') }
   },
+  decodedRepoName: (projectName) => {
+    if (!projectName) return
+    try {
+      if (projectName.split('/tree/').length === 1) return decodeURIComponent(projectName)
+      projectName = decodeURIComponent(projectName).split('/tree/')
+      const project = projectName[0]
+      const branch = projectName[1]
+      const owner = project.split('/')[0]
+      const repo = project.split('/')[1]
+
+      let decoded = `${owner}/${repo}`
+      if (branch) decoded += `/tree/${branch}`
+      return decoded    
+    }
+    catch(e) { return projectName }
+  },
   uriEncodeProjectName: (projectName) => encodeURIComponent(cleanProjectName(projectName)),
-  uriDecodeProjectName: (projectName) => projectName.replace(/%2F/g, '/'),
   noLeadingSlash: (s) => (s && s.substring(0, 1) === '/') ? s.substring(1) : s,
 }

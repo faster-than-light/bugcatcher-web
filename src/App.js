@@ -115,7 +115,7 @@ class App extends Component {
             <Route path="/project/:id" component={Project} exact />
             <Route path="/publish/:id" component={Publish} exact />
             <Route path="/github/repos" component={() => <Repositories {...props} />} exact />
-            <Route path="/results/:id" component={Results} exact />
+            <Route path="/results" component={Results} exact />
           </Switch>
           <CookiesAlert />
         </div>

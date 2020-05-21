@@ -10,7 +10,7 @@ import { UserContext } from '../contexts/UserContext'
 
 // helpers
 import api from '../helpers/api'
-import { appendS, uriEncodeProjectName, uriDecodeProjectName } from '../helpers/strings'
+import { appendS, uriEncodeProjectName } from '../helpers/strings'
 import { getCookie, setCookie } from '../helpers/cookies'
 import LocalStorage from '../helpers/LocalStorage'
 
@@ -67,7 +67,7 @@ export default class ProjectList extends Component {
         numProjectsToDelete--
       }
       this.state.selectedRows.forEach(p => {
-        api.deleteProject(uriEncodeProjectName(uriDecodeProjectName(p)))
+        api.deleteProject(uriEncodeProjectName(decodeURIComponent(p)))
         .then(res => {
           if (res) {
             numProjectsToDelete--

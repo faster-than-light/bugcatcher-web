@@ -44,7 +44,7 @@ import { UserContext } from '../contexts/UserContext'
 
 // helpers
 import api from '../helpers/api'
-import { appendS, cleanProjectName, uriEncodeProjectName, uriDecodeProjectName, testStatusToColor, noLeadingSlash } from '../helpers/strings'
+import { appendS, cleanProjectName, uriEncodeProjectName, testStatusToColor, noLeadingSlash } from '../helpers/strings'
 import { getCookie, setCookie } from '../helpers/cookies'
 import config from '../config'
 import LocalStorage from '../helpers/LocalStorage'
@@ -327,7 +327,7 @@ export default class Code extends Component {
   }
 
   _uploadFiles = async () => {
-    console.log(`begin uploading files: ${uriDecodeProjectName(projectName)}`)
+    console.log(`begin uploading files: ${decodeURIComponent(projectName)}`)
     const thisUploadQueue = currentUploadQueue = new Date().getTime()
     let {
       codeOnServer = [],

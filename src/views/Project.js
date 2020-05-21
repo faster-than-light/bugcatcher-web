@@ -49,7 +49,6 @@ import {
   cleanProjectName,
   destructureProjectName,
   uriEncodeProjectName,
-  uriDecodeProjectName,
   noLeadingSlash,
 } from '../helpers/strings'
 import { buildResultsMatrix, groupedResultsJson } from '../helpers/data'
@@ -248,6 +247,7 @@ export default class Project extends Component {
         sid: getCookie("session"),
       }
       const savedTestResults = await cqcApi.putResults(payload)
+      this.setState({isWebhookScan: savedTestResults})
     }
   }
 
@@ -325,7 +325,7 @@ export default class Project extends Component {
   }
   
   _uploadFiles = async () => {
-    console.log(`begin uploading files: ${uriDecodeProjectName(projectName)}`)
+    console.log(`begin uploading files: ${decodeURIComponent(projectName)}`)
     const thisUploadQueue = currentUploadQueue = new Date().getTime()
     let {
       codeOnServer = [],
@@ -811,7 +811,6 @@ export default class Project extends Component {
           tree_id: ghTreeSha,
         },
       }
-      console.log({response})
       return response
     }
     else return
@@ -1008,7 +1007,11 @@ export default class Project extends Component {
     } = this.state
     const treeSize = !ghTree.tree ? null : ghTree.tree.filter(t => t.type === 'blob').length
     const percentComplete = Math.floor((ghUploaded / ghFileCount) * 100)
-    // console.log({percentComplete, ghUploaded, ghFileCount})
+    let resultsUri = `/results?`
+    if (isWebhookScan) resultsUri += `hook=${isWebhookScan}&`
+    if (testResultSid) resultsUri += `test=${testResultSid}&`
+    if (ghTreeSha) resultsUri += `tree=${ghTreeSha}`
+
     results = results || { // inital state for the results table
       status_msg: 'SETUP',
       codes: [],
@@ -1207,7 +1210,7 @@ export default class Project extends Component {
                     See Issues
                   </a>
                   &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                  <Link to={`/results/${testResultSid}/?gh=${ghTreeSha}`} target="_blank">
+                  <Link to={resultsUri} target="_blank">
                     View Full Report
                   </Link>
                 </div>
