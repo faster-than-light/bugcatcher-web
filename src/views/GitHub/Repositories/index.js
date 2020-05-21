@@ -12,7 +12,7 @@ import StlButton from '../../../components/StlButton'
 import api from '../../../helpers/api'
 import { github, projectIconNames, projectIconTitles } from '../../../config'
 import { getCookie, setCookie } from '../../../helpers/cookies'
-import { uriEncodeProjectName } from '../../../helpers/strings'
+import { destructureProjectName, uriEncodeProjectName } from '../../../helpers/strings'
 import githubApi from '../../../helpers/githubApi'
 
 // images & styles
@@ -408,6 +408,12 @@ export default class Repositories extends Component {
       })
 
       // Add rows for projects not found in repoList
+      const projectsAreReposWithoutHooks = projects.filter(p => {
+        const [ owner, repo, branch ] = destructureProjectName(p)
+        return !webhookSubscriptions.map(w => w.repository).includes(`${owner}/${repo}`)
+          && !webhookSubscriptions.map(w => w.ref).includes(`refs/heads/${branch}`)
+      }).map(p => decodeURIComponent(p))
+
       projects.forEach((project, k) => {
         project = decodeURIComponent(project)
         const isInList = repoList.map(r => r[0]).includes(project)
@@ -418,7 +424,10 @@ export default class Repositories extends Component {
           return project.startsWith(name + '/tree/')
         })
 
-        if (!isMyRepo && !isInList) {
+        if (
+          projectsAreReposWithoutHooks.includes(project) 
+          || (!isMyRepo && !isInList)
+        ) {
           const clickFn = () => { this.setState({ redirect: `/project/${uriEncodeProjectName(project)}` }) }
           repoList.push([
             project,

@@ -795,8 +795,10 @@ export default class Project extends Component {
     const [ owner, repo, branch ] = destructureProjectName(projectName)
     const { data: commits } = await this._listGithubRepoCommits()
     if (commits.length > 1) {
+      const thisCommit = commits[0]
+      console.log(thisCommit)
       const { data: repository } = await githubApi.octokit.repos.get({ owner, repo })
-      const after = commits[0]['sha']
+      const after = thisCommit['sha']
       const before = commits[1]['sha']
       const sha1 = after.substring(0, 12)
       const sha2 = before.substring(0, 12)
@@ -808,10 +810,14 @@ export default class Project extends Component {
         repository,
         compare,
         head_commit: {
-          ...commits[0],
+          ...thisCommit,
+          id: thisCommit['sha'],
+          message: thisCommit['commit']['message'],
+          timestamp: thisCommit['commit']['commiter']['date'],
           tree_id: ghTreeSha,
         },
       }
+      console.log(response)
       return response
     }
     else return
@@ -1010,7 +1016,6 @@ export default class Project extends Component {
     if (!owner || !repo || !branchName) [ owner, repo, branchName ] = destructureProjectName(projectName)
     const { head_commit: headCommit = {} } = webhookBody
     const { author = {}, id: commitId, message: commitMessage, timestamp } = headCommit
-    console.log({author: author['username'], commitMessage, timestamp})
     const treeSize = !ghTree.tree ? null : ghTree.tree.filter(t => t.type === 'blob').length
     const percentComplete = Math.floor((ghUploaded / ghFileCount) * 100)
     let resultsUri = `/results?`
@@ -1098,8 +1103,8 @@ export default class Project extends Component {
               {/** @todo Refactor to its own component */}
               <Segment secondary id="last_test" style={{
                   display: showResults && testResultSid && [5,6,7].includes(step) ? 'inline-block' : 'none',
-                  width: '100%',
-                  margin: 0,
+                  width: '96%',
+                  margin: '0 2%',
                 }}>
                   <span
                     style={{
@@ -1267,12 +1272,14 @@ export default class Project extends Component {
               </div>
 
               const Overview = () => <div>
-                <p style={{float: 'right'}}>
-                  <a href={`https://github.com/${author.username}`} target="_blank">{author.username}</a>
-                  &nbsp;pushed&nbsp;
-                  &quot;<a href={`https://github.com/${owner}/${repo}/commit/${commitId}`} target="_blank">{commitMessage}</a>&quot;
-                  &nbsp;{timestamp ? moment(timestamp).fromNow() : ''} 
-                </p>
+                {
+                  !timestamp ? null : <p style={{float: 'right'}}>
+                    <a href={`https://github.com/${author.username}`} target="_blank">{author.username}</a>
+                    &nbsp;pushed&nbsp;
+                    &quot;<a href={`https://github.com/${owner}/${repo}/commit/${commitId}`} target="_blank">{commitMessage}</a>&quot;
+                    &nbsp;{timestamp ? moment(timestamp).fromNow() : ''} 
+                  </p>
+                }
                 {
                   !selectedBranch ? null : <div style={{ paddingBottom: 18 }}>
                     Branch&nbsp;
