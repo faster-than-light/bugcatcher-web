@@ -291,6 +291,7 @@ export default class Project extends Component {
         status: 'code'
       })),
       results: githubScan['testResults'],
+      webhookBody: githubScan['webhookBody'],
       working: false,
     })
   }
@@ -1003,8 +1004,13 @@ export default class Project extends Component {
       ghUploaded = 0,
       ghFileCount = 0,
       uploadErrors = [],
+      webhookBody = {},
       working,
     } = this.state
+    if (!owner || !repo || !branchName) [ owner, repo, branchName ] = destructureProjectName(projectName)
+    const { head_commit: headCommit = {} } = webhookBody
+    const { author = {}, id: commitId, message: commitMessage, timestamp } = headCommit
+    console.log({author: author['username'], commitMessage, timestamp})
     const treeSize = !ghTree.tree ? null : ghTree.tree.filter(t => t.type === 'blob').length
     const percentComplete = Math.floor((ghUploaded / ghFileCount) * 100)
     let resultsUri = `/results?`
@@ -1252,19 +1258,6 @@ export default class Project extends Component {
                   </Segment>
                 </div>
 
-                {/* <Segment color="blue" style={{
-                  display: Boolean(results && results.test_run) ? 'block' : 'none'
-                }} className="overview-segment">
-                  <h3>Files</h3>
-                  <div style={{
-                    textAlign: 'center',
-                    fontSize: '150%',
-                    paddingTop: 30,
-                  }}>
-                    {codeOnServer ? codeOnServer.length : ''} files
-                  </div>
-                </Segment> */}
-
                 <div style={{clear: 'left'}} />
 
               </div> : <div style={{ display: step !== 6 ? 'block' : 'none'}}>
@@ -1274,6 +1267,12 @@ export default class Project extends Component {
               </div>
 
               const Overview = () => <div>
+                <p style={{float: 'right'}}>
+                  <a href={`https://github.com/${author.username}`} target="_blank">{author.username}</a>
+                  &nbsp;pushed&nbsp;
+                  &quot;<a href={`https://github.com/${owner}/${repo}/commit/${commitId}`} target="_blank">{commitMessage}</a>&quot;
+                  &nbsp;{timestamp ? moment(timestamp).fromNow() : ''} 
+                </p>
                 {
                   !selectedBranch ? null : <div style={{ paddingBottom: 18 }}>
                     Branch&nbsp;
@@ -1337,8 +1336,8 @@ export default class Project extends Component {
 
               const Issues = () => {
                 if (results && results.test_run_result) {
-                  const testId = ((results && results['stlid']) || testResultSid) ?
-                  testResultSid || results['stlid'] : null
+                  // const testId = ((results && results['stlid']) || testResultSid) ?
+                  // testResultSid || results['stlid'] : null
 
                   // parse out some data we want to display
                   let { test_run: testRun, test_run_result: testRunResult } = results
@@ -1356,7 +1355,7 @@ export default class Project extends Component {
 
                   return <React.Fragment>
                     <GroupedResults />
-                    <Link to={`/results/${testId}/?gh=${ghTreeSha}`} target="_blank">
+                    <Link to={resultsUri} target="_blank">
                       View Full Report
                     </Link>
                   </React.Fragment>
