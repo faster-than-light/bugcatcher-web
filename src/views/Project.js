@@ -796,7 +796,10 @@ export default class Project extends Component {
     const { data: commits } = await this._listGithubRepoCommits()
     if (commits.length > 1) {
       const thisCommit = commits[0]
-      console.log(thisCommit)
+      const { commit = {} } = thisCommit
+      const { author, committer = {}, message } = commit
+      const { date: timestamp } = committer
+      console.log({message, timestamp})
       const { data: repository } = await githubApi.octokit.repos.get({ owner, repo })
       const after = thisCommit['sha']
       const before = commits[1]['sha']
@@ -811,9 +814,10 @@ export default class Project extends Component {
         compare,
         head_commit: {
           ...thisCommit,
+          author,
           id: thisCommit['sha'],
-          message: thisCommit['commit']['message'],
-          timestamp: thisCommit['commit']['commiter']['date'],
+          message,
+          timestamp,
           tree_id: ghTreeSha,
         },
       }
@@ -1376,7 +1380,8 @@ export default class Project extends Component {
                   render: () => <Tab.Pane attached={false}><Overview /></Tab.Pane>,
                 },
                 {
-                  menuItem: tabTitles[1],
+                  menuItem: `${tabTitles[1]}${testResults.length ? ' (' + testResults.length + ')' : ''}`,
+                  // menuItem: tabTitles[1],
                   render: () => <Tab.Pane attached={false}><Issues /></Tab.Pane>,
                 },
                 {
