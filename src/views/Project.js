@@ -1381,7 +1381,6 @@ export default class Project extends Component {
                 },
                 {
                   menuItem: `${tabTitles[1]}${testResults.length ? ' (' + testResults.length + ')' : ''}`,
-                  // menuItem: tabTitles[1],
                   render: () => <Tab.Pane attached={false}><Issues /></Tab.Pane>,
                 },
                 {

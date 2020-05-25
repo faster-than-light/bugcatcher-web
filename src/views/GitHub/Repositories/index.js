@@ -352,18 +352,19 @@ export default class Repositories extends Component {
         const scanId = r['scan'] && r['scan']['_id'] ? r['scan']['_id'] : ''
         const branch = r.ref.replace('refs/heads/','')
         const projectName = encodeURIComponent(r.repository)
-        const projectNameWithBranch = encodeURIComponent(r.repository + '/tree/' + branch)
+        const projectNameWithBranch = r.repository + '/tree/' + branch
         const display = !repoList.find(repo => repo[0] === r.repository)
 
+        if (display) console.log(`hook: ${projectNameWithBranch}`)
         if (display) repoList.push([
-          r.repository,
+          projectNameWithBranch,
           <Table.Row key={projectName}>
             <Table.Cell style={{ borderLeft: '6px solid #2185d0', width: '100%' }}>
               <Icon name={projectIconNames['webhook']}
                 title={projectIconTitles['webhook']}
                 style={{ color: '#2185d0' }} />&nbsp;
               <a onClick={() => {
-                this.setState({ redirect: `/project/${projectNameWithBranch}?webhook=${scanId}`})
+                this.setState({ redirect: `/project/${encodeURIComponent(projectNameWithBranch)}?webhook=${scanId}`})
               }}>{r.repository}</a>
             </Table.Cell>
           </Table.Row>
@@ -409,7 +410,7 @@ export default class Repositories extends Component {
 
       // Add rows for projects not found in repoList
       const projectsAreReposWithoutHooks = projects.filter(p => {
-        const [ owner, repo, branch ] = destructureProjectName(p)
+        const [ owner, repo, branch ] = destructureProjectName(decodeURIComponent(p))
         return !webhookSubscriptions.map(w => w.repository).includes(`${owner}/${repo}`)
           && !webhookSubscriptions.map(w => w.ref).includes(`refs/heads/${branch}`)
       }).map(p => decodeURIComponent(p))
