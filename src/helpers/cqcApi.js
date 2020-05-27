@@ -3,6 +3,10 @@ import { appEnvironment, cqcApiUrl } from '../config'
 
 export default function(ftlSID) {
 
+  const getToken = (sid) => {
+    return get(`/jwt/${sid}`)
+  }
+
   const getSid = () => {
     return ftlSID
   }
@@ -104,10 +108,11 @@ export default function(ftlSID) {
     if (options && options.headers) headers = options.headers
     return axios.get(cqcApiUrl + endpoint, {
       ...options,
+      // withCredentials: true,
       headers: {
         'FTL-SID': getSid(),
-        ...headers
-      }
+        ...headers,
+      },
     })
   }
   async function post(endpoint, data) {
@@ -141,6 +146,7 @@ export default function(ftlSID) {
     deleteWebhookSubscription,
     getJobsQueue,
     getResults,
+    getToken,
     getWebhookScan,
     getWebhookSubscriptions,
     putJobsQueue,

@@ -146,19 +146,22 @@ export default class Project extends Component {
           projectName.split('/')[0],
           projectName.split('/')[1]
         )
-        branchesOptions = branches.map(b => {
-          let newProjectPath = `${projectName.split('/')[0]}/${projectName.split('/')[1]}/tree/${b.name}`
-          newProjectPath = '/project/' + newProjectPath.replace(/\//g,'%2F')
-      
-          return {
-            key: b.commit.sha,
-            onClick: () => {
-              window.location.href = newProjectPath
-            },
-            text: b.name,
-            value: b.name,
-          }
-        })
+        if (!branches) this.context.actions.logOut()
+        else {
+          branchesOptions = branches.map(b => {
+            let newProjectPath = `${projectName.split('/')[0]}/${projectName.split('/')[1]}/tree/${b.name}`
+            newProjectPath = '/project/' + newProjectPath.replace(/\//g,'%2F')
+        
+            return {
+              key: b.commit.sha,
+              onClick: () => {
+                window.location.href = newProjectPath
+              },
+              text: b.name,
+              value: b.name,
+            }
+          })
+        }
       }
     }
     this.setState({
@@ -796,10 +799,10 @@ export default class Project extends Component {
     const { data: commits } = await this._listGithubRepoCommits()
     if (commits.length > 1) {
       const thisCommit = commits[0]
-      const { commit = {} } = thisCommit
-      const { author, committer = {}, message } = commit
+      const { author: commitAuthor, commit = {} } = thisCommit
+      const { author: commitCommitAuthor, committer = {}, message } = commit
       const { date: timestamp } = committer
-      console.log({message, timestamp})
+      console.log({commitAuthor, commitCommitAuthor, message, timestamp})
       const { data: repository } = await githubApi.octokit.repos.get({ owner, repo })
       const after = thisCommit['sha']
       const before = commits[1]['sha']
@@ -814,7 +817,7 @@ export default class Project extends Component {
         compare,
         head_commit: {
           ...thisCommit,
-          author,
+          author: commitAuthor || commitCommitAuthor,
           id: thisCommit['sha'],
           message,
           timestamp,
@@ -1019,7 +1022,12 @@ export default class Project extends Component {
     } = this.state
     if (!owner || !repo || !branchName) [ owner, repo, branchName ] = destructureProjectName(projectName)
     const { head_commit: headCommit = {} } = webhookBody
-    const { author = {}, id: commitId, message: commitMessage, timestamp } = headCommit
+    const {
+      author = {},
+      id: commitId,
+      message: commitMessage,
+      timestamp,
+    } = headCommit
     const treeSize = !ghTree.tree ? null : ghTree.tree.filter(t => t.type === 'blob').length
     const percentComplete = Math.floor((ghUploaded / ghFileCount) * 100)
     let resultsUri = `/results?`
@@ -1278,7 +1286,7 @@ export default class Project extends Component {
               const Overview = () => <div>
                 {
                   !timestamp ? null : <p style={{float: 'right'}}>
-                    <a href={`https://github.com/${author.username}`} target="_blank">{author.username}</a>
+                    <a href={`https://github.com/${author.username || author.login}`} target="_blank">{author.username || author.login}</a>
                     &nbsp;pushed&nbsp;
                     &quot;<a href={`https://github.com/${owner}/${repo}/commit/${commitId}`} target="_blank">{commitMessage}</a>&quot;
                     &nbsp;{timestamp ? moment(timestamp).fromNow() : ''} 

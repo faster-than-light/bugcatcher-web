@@ -54,11 +54,12 @@ async function getBlob(owner, repo, file_sha) {
 }
 
 async function getBranches(owner, repo) {
-  const { data } = await octokit.repos.listBranches({
+  const listBranches = await octokit.repos.listBranches({
     owner,
     repo
-  })
-  return data
+  }).catch(() => null)
+  if (!listBranches) return
+  else return listBranches['data']
 }
 
 const createBlob = (options) => { return octokit.git.createBlob(options) }

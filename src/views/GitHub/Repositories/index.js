@@ -355,7 +355,6 @@ export default class Repositories extends Component {
         const projectNameWithBranch = r.repository + '/tree/' + branch
         const display = !repoList.find(repo => repo[0] === r.repository)
 
-        if (display) console.log(`hook: ${projectNameWithBranch}`)
         if (display) repoList.push([
           projectNameWithBranch,
           <Table.Row key={projectName}>
