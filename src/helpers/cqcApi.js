@@ -1,19 +1,26 @@
 import axios from 'axios'
+
+// helpers
 import { appEnvironment, cqcApiUrl } from '../config'
 
 export default function(ftlSID) {
 
-  const getToken = (sid) => {
-    return get(`/jwt/${sid}`)
-  }
+  const getJwt = async (sid) => {
+    if (global.fetchingAccessToken) return
 
-  const getSid = () => {
-    return ftlSID
-  }
-
-  const setSid = (sid) => {
+    global.fetchingAccessToken = true
     ftlSID = sid
+    const { data } = await get(`/jwt/${sid}`)
+    console.log({data})
+    global.fetchingAccessToken = false
   }
+
+  const removeJwt = async () => {
+    const { data } = await del(`/jwt`)
+    console.log({data})
+  }
+
+  // if (ftlSID && !global.fetchingAccessToken) getJwt(ftlSID)
 
   const getResults = (stlid) => {
     return get(`/results/${stlid}`)
@@ -106,27 +113,27 @@ export default function(ftlSID) {
   async function get(endpoint, options) {
     let headers
     if (options && options.headers) headers = options.headers
-    return axios.get(cqcApiUrl + endpoint, {
+    return axios.get(`${cqcApiUrl}${endpoint}`, {
       ...options,
-      // withCredentials: true,
+      withCredentials: true,
       headers: {
-        'FTL-SID': getSid(),
+        "Content-Type": "application/json",
         ...headers,
       },
     })
   }
   async function post(endpoint, data) {
     return axios.post(cqcApiUrl + endpoint, data, {
+      withCredentials: true,
       headers: {
-        'FTL-SID': ftlSID,
         'Content-Type': 'application/json',
       }
     })
   }
   async function put(endpoint, data) {
     return axios.put(cqcApiUrl + endpoint, data, {
+      withCredentials: true,
       headers: {
-        'FTL-SID': ftlSID,
         'Content-Type': 'application/json',
       }
     })
@@ -134,8 +141,8 @@ export default function(ftlSID) {
   async function del(endpoint, data) {
     return axios.delete(cqcApiUrl + endpoint, {
       data,
+      withCredentials: true,
       headers: {
-        'FTL-SID': ftlSID,
         'Content-Type': 'application/json',
       }
     })
@@ -145,15 +152,15 @@ export default function(ftlSID) {
     deleteJobsQueueItems,
     deleteWebhookSubscription,
     getJobsQueue,
+    getJwt,
     getResults,
-    getToken,
     getWebhookScan,
     getWebhookSubscriptions,
     putJobsQueue,
     postPullRequestUrl,
     putResults,
     putWebhookSubscription,
-    setSid,
+    removeJwt,
   }
 
 }

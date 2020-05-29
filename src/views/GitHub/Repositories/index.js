@@ -8,6 +8,9 @@ import FtlLoader from '../../../components/Loader'
 import Menu from '../../../components/Menu'
 import StlButton from '../../../components/StlButton'
 
+// context
+import { UserContext } from '../../../contexts/UserContext'
+
 // helpers
 import api from '../../../helpers/api'
 import { github, projectIconNames, projectIconTitles } from '../../../config'
@@ -42,6 +45,8 @@ const initialState = {
 const { automateCookieName, tokenCookieName } = github
 
 export default class Repositories extends Component {
+  static contextType = UserContext
+
   constructor(props) {
     super(props)
 
@@ -161,13 +166,23 @@ export default class Repositories extends Component {
   }
 
   fetchWebhookSubscriptions = async alertError => {
-    let webhookSubscriptions
-    try {
-      webhookSubscriptions = await cqcApi.getWebhookSubscriptions(
-        this.props.user
-      )
+    let retries = 0, webhookSubscriptions
+    const q = cqcApi.getWebhookSubscriptions(
+      this.props.user
+    )
+    const catchFn = async () => {
+      webhookSubscriptions = await q.catch(fetchWebhooks)
+      return webhookSubscriptions
     }
-    catch(e) { console.error(e) }
+    const fetchWebhooks = () => {
+      // if (retries > 2) this.context.actions.logOut()
+      retries++
+      setTimeout(() => {
+        return catchFn()
+      }, 999)
+    }
+    webhookSubscriptions = await q.catch(fetchWebhooks)
+    
     if (!webhookSubscriptions && alertError) alert("There was a problem fetching your Repository List. Please start over and try again.")
     else this.setState({ webhookSubscriptions })
     return webhookSubscriptions

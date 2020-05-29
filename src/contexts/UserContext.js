@@ -4,9 +4,11 @@ import React, { Component } from 'react'
 import { github, usePaywall } from '../config'
 import { getCookie, setCookie } from '../helpers/cookies'
 import api from '../helpers/api'
-import { version } from '../../package.json'
 import LocalStorage from '../helpers/LocalStorage';
 import { isSubscriber } from '../helpers/data'
+import CqcApi from '../helpers/cqcApi';
+
+const cqcApi = CqcApi(getCookie('session'))
 
 // context
 export const UserContext = React.createContext()
@@ -61,7 +63,15 @@ export class UserProvider extends Component {
       this.setState({ userDataLoaded: false })
       const session = getCookie('session')
       const tokenId = getCookie('tokenId')
+      const jwtExpires = getCookie('jwtExpires')
       const envSid = process.env.REACT_APP_STL_INTERNAL_SID
+      // if (session && !jwtExpires || (
+      //   new Date() > new Date(jwtExpires)
+      // )) {
+      //   const { accessToken, expires: accessTokenExpires } = await cqcApi.getToken(session)
+      //   setCookie('jwtExpires', accessTokenExpires)
+      // }
+    
       
       let user
       if (clearStorage) LocalStorage.User.setUser()
@@ -109,6 +119,7 @@ export class UserProvider extends Component {
     setUser: this.setUser,
     logOut: () => {
       this.setUser(null)
+      cqcApi.removeJwt()
       setTimeout(
         () => window.location.reload(),
         999

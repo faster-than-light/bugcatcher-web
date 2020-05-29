@@ -4,14 +4,22 @@ import queryString from 'query-string'
 // components
 import Loader from '../components/Loader'
 
+// context
+import { UserContext } from '../contexts/UserContext'
+
 // helpers
 import api from '../helpers/api'
+import CqcApi from '../helpers/cqcApi'
 import { appUrl, github } from '../config'
-import { setCookie } from '../helpers/cookies'
+import { getCookie, setCookie } from '../helpers/cookies'
+
+const cqcApi = CqcApi(getCookie("session"))
 
 var isFetchingToken
 
 class GitHubOAuth extends Component {
+  static contextType = UserContext
+
   /** @dev Constructor and Lifecycle *******************************/
   async componentDidMount() {
     const code = queryString.parse(document.location.search)['code']
@@ -23,8 +31,11 @@ class GitHubOAuth extends Component {
       }  
       else {
         await this.props.setUser(user)
-        document.location.href = '/'
+
+        /** Get a jwt from the proxy server */
+        await cqcApi.getJwt( user['sid'] )
       }
+      document.location.href = '/'
     }
   }
 
@@ -52,4 +63,4 @@ class GitHubOAuth extends Component {
   }
 }
 
-export default React.memo(GitHubOAuth)
+export default GitHubOAuth
