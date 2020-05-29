@@ -79,7 +79,7 @@ export default class Menu extends Component {
             <UserContext.Consumer>
               {(context) => {
                 const { user } = context.state
-                const { setUser } = context.actions
+                const { logOut } = context.actions
                 if (user) return <React.Fragment>
                   <Avatar className={'avatar'} src={user.picture_link} />
                   <Welcome to={'/account'} user={user} />
@@ -87,15 +87,7 @@ export default class Menu extends Component {
                     marginLeft: 9,
                   }}
                   className="link"
-                  onClick={() =>{
-                    // window.mixpanel.track('Log Out', { version })
-                    setUser(null)
-                    // this.logoutButton.signOut()
-                    setTimeout(
-                      () => window.location.reload(),
-                      999
-                    )
-                  }}>log out</button>
+                  onClick={logOut}>log out</button>
                   {/* <GoogleLogout
                     buttonText="log out"
                     className={'link'}

@@ -117,9 +117,9 @@ export class UserProvider extends Component {
       }
     },
     setUser: this.setUser,
-    logOut: () => {
+    logOut: async () => {
       this.setUser(null)
-      cqcApi.removeJwt()
+      await cqcApi.removeJwt()
       setTimeout(
         () => window.location.reload(),
         999

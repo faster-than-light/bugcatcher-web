@@ -20,8 +20,6 @@ export default function(ftlSID) {
     console.log({data})
   }
 
-  // if (ftlSID && !global.fetchingAccessToken) getJwt(ftlSID)
-
   const getResults = (stlid) => {
     return get(`/results/${stlid}`)
   }

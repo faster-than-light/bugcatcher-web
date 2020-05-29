@@ -57,7 +57,7 @@ export default class Repositories extends Component {
   }
 
   async componentWillMount() {
-    const { data } = await api.getProject().catch(() => ({}))
+    const { data = {} } = await api.getProject().catch(() => ({}))
     const projects = data['response']
     this.setState({ projects, working: true })
     const code = queryString.parse(document.location.search)['code']
