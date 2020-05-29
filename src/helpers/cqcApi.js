@@ -79,14 +79,12 @@ export default function(ftlSID) {
       environment = 'production',
       ref,
       repository,
-      sid,
     } = data
-    if (!data || !channel || !environment || !ref || !repository || !sid) return
+    if (!data || !channel || !environment || !ref || !repository) return
   
     const { data: subscription } = await post(`/webhook/subscription/${channel}/${environment}`, {
       ref,
       repository,
-      sid,
     })
     return subscription
   }
@@ -97,14 +95,12 @@ export default function(ftlSID) {
       environment = 'production',
       ref,
       repository,
-      sid,
     } = data
-    if (!data || !channel || !environment || !ref || !repository || !sid) return
+    if (!data || !channel || !environment || !ref || !repository) return
   
     const { data: deletedSubscription } = await del(`/webhook/subscription/${channel}/${environment}`, {
       ref,
       repository,
-      sid,
     })
     return deletedSubscription
   }
