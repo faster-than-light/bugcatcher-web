@@ -175,7 +175,7 @@ export default class Repositories extends Component {
       return webhookSubscriptions
     }
     const fetchWebhooks = () => {
-      // if (retries > 2) this.context.actions.logOut()
+      if (retries > 4) this.context.actions.logOut()
       retries++
       setTimeout(() => {
         return catchFn()
