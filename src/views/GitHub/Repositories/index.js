@@ -57,14 +57,13 @@ export default class Repositories extends Component {
   }
 
   async componentWillMount() {
-    const { data = {} } = await api.getProject().catch(() => ({}))
-    const projects = data['response']
+    const { data: { response: projects } } = await api.getProject().catch(() => ({}))
     this.setState({ projects, working: true })
     const code = queryString.parse(document.location.search)['code']
     let token = getCookie(tokenCookieName)
     token = token.length ? token : null
 
-    let { githubUser } = this.state
+    let { githubUser, webhookSubscriptions } = this.state
     if (!token && code) {
       token = await this.fetchToken()
       if (window.history.pushState) {
@@ -75,13 +74,15 @@ export default class Repositories extends Component {
     if (token) {
       await githubApi.setToken(token)
       githubUser = await this.fetchGithubUser()
+      webhookSubscriptions = await this.fetchWebhookSubscriptions()
     }
     if (!token && !githubUser && !code) this.props.setUser(null)
     else this.setState({
-      addingProjects: projects && !projects.length,
+      addingProjects: projects && !projects.length && webhookSubscriptions && !webhookSubscriptions.length,
       code: !githubUser && code ? code : null,
       token,
       githubUser,
+      webhookSubscriptions,
       working: false,
     })
 
@@ -120,7 +121,7 @@ export default class Repositories extends Component {
     if (code && !token) await this.fetchToken()
     // if (!githubUser) await this.fetchGithubUser()
     if (!repos) await this.fetchRepos()
-    if (!webhookSubscriptions) await this.fetchWebhookSubscriptions()
+    // if (!webhookSubscriptions) await this.fetchWebhookSubscriptions()
   }
   
   fetchToken = async alertError => {
@@ -195,15 +196,6 @@ export default class Repositories extends Component {
       await this.fetchToken(true)
       this.setState({ working: false }) 
     }}>Fetch Access Token &laquo;</StlButton>
-
-  // FetchUserProfile = (props) => <StlButton primary semantic
-  //   disabled={Boolean(!this.state.token || this.state.githubUser)}
-  //   style={props.style}
-  //   onClick={ async () => {
-  //     this.setState({ working: true })
-  //     await this.fetchGithubUser()
-  //     this.setState({ working: false })
-  //   }}>Fetch User Profile &raquo;</StlButton>
 
   sortOptionChange = e => {
     const sortReposBy = e.target.value
@@ -359,7 +351,6 @@ export default class Repositories extends Component {
     let { addingProjects, branches, projects, repos, webhookSubscriptions } = this.state
 
     if (webhookSubscriptions && projects && repos && !branches) {
-
       let repoList = new Array()
 
       // Add rows for webhook results
@@ -462,7 +453,7 @@ export default class Repositories extends Component {
         <this.AddProjects />
         <h2 style={{ margin: 0, padding: 0 }}>Projects</h2>
         {
-          !projects.length ? <p className="well">
+          !projects.length && !webhookSubscriptions.length ? <p className="well">
             You have no projects configured. Please add a GitHub project, or upload a project using the &quot;Upload Project&quot; button.
           </p> : null
         }
@@ -533,7 +524,10 @@ export default class Repositories extends Component {
             clear: 'both',
             float: 'right',
             marginBottom: 12,
-            display: addingProjects && projects && projects.length && !branches ? 'inline-block' : 'none'
+            display: addingProjects && (
+              (projects && projects.length) ||
+              (webhookSubscriptions && webhookSubscriptions.length)
+            ) && !branches ? 'inline-block' : 'none'
           }}
           semantic
           className="small"
