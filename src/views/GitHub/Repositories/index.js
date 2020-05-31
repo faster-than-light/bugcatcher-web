@@ -460,11 +460,9 @@ export default class Repositories extends Component {
         <Table celled striped className={'data-table'}>
           <Table.Body>
             { repoList.map(r => r[1]) }
-            {/* { RepoRows }
-            { ProjectsRows } */}
           </Table.Body>
         </Table>
-        <p>
+        <p style={{ display: addingProjects ? 'block' : 'none' }}>
           Not seeing all your projects? Please make sure all your organizations are authorized to use BugCatcher by <a href={`https://github.com/settings/connections/applications/${github.clientId}`} target="_blank">clicking here</a>.
         </p>
       </div>

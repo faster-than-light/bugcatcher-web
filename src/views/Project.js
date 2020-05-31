@@ -1229,13 +1229,15 @@ export default class Project extends Component {
                       </Table.Body>
                     </Table>
                   </Segment>
-                  <a onClick={() => { this.setState({ activeTabIndex: 1 }) }}>
-                    See Issues
-                  </a>
-                  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                  <Link to={resultsUri} target="_blank">
-                    View Full Report
-                  </Link>
+                  <div style={{ paddingBottom: 30 }}>
+                    <a onClick={() => { this.setState({ activeTabIndex: 1 }) }}>
+                      See Issues
+                    </a>
+                    &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+                    <Link to={resultsUri} target="_blank">
+                      View Full Report
+                    </Link>
+                  </div>
                 </div>
 
                 <div className="overview-segment" style={{
