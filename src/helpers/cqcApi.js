@@ -5,6 +5,10 @@ import { appEnvironment, cqcApiUrl } from '../config'
 
 export default function(ftlSID) {
 
+  const setSid = (sid) => {
+    ftlSID = sid
+  }
+
   const getJwt = async (sid) => {
     if (global.fetchingAccessToken) return
 
@@ -155,6 +159,7 @@ export default function(ftlSID) {
     putResults,
     putWebhookSubscription,
     removeJwt,
+    setSid,
   }
 
 }
