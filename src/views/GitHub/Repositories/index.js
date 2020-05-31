@@ -464,6 +464,9 @@ export default class Repositories extends Component {
             { ProjectsRows } */}
           </Table.Body>
         </Table>
+        <p>
+          Not seeing all your projects? Please make sure all your organizations are authorized to use BugCatcher by <a href={`https://github.com/settings/connections/applications/${github.clientId}`} target="_blank">clicking here</a>.
+        </p>
       </div>
     
     }
