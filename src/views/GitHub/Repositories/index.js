@@ -270,6 +270,11 @@ export default class Repositories extends Component {
 
   }
 
+  webhookProjectNameWithBranch = (scan) => {
+    const branch = scan.ref.replace('refs/heads/','')
+    return scan.repository + '/tree/' + branch
+  }
+  
   AddProjects = () => {
     let { addingProjects, fetchCustomRepo, fetchCustomRepoError } = this.state
 
@@ -356,9 +361,8 @@ export default class Repositories extends Component {
       // Add rows for webhook results
       webhookSubscriptions.forEach(r => {
         const scanId = r['scan'] && r['scan']['_id'] ? r['scan']['_id'] : ''
-        const branch = r.ref.replace('refs/heads/','')
         const projectName = encodeURIComponent(r.repository)
-        const projectNameWithBranch = r.repository + '/tree/' + branch
+        const projectNameWithBranch = this.webhookProjectNameWithBranch(r)
         const display = !repoList.find(repo => repo[0] === r.repository)
 
         if (display) repoList.push([
@@ -380,9 +384,14 @@ export default class Repositories extends Component {
       repos.forEach(repo => {
         const projectName = encodeURIComponent(repo.full_name)
         const isInList = repoList.map(r => r[0]).includes(repo.full_name)
-        const wasTested = projects.find(p => 
+        const foundHook = webhookSubscriptions.find(h => {
+          const projectNameWithBranch = this.webhookProjectNameWithBranch(h)
+          return projectNameWithBranch.startsWith(repo.full_name + '/tree/')
+        })
+        const foundProject = projects.find(p => 
           p.startsWith(repo.full_name.replace(/\//g, '%2F') + '%2Ftree%2F')
-        ) || isInList
+        )
+        const wasTested = foundHook || foundProject || isInList
         const clickFn = !wasTested ? () => { this.getBranches(repo) } : () => { this.setState({ redirect: `/project/${encodeURIComponent(wasTested)}`}) }
         const display = !wasTested && addingProjects
 
