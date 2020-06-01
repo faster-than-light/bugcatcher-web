@@ -765,6 +765,7 @@ export default class Project extends Component {
               })) : null,
               results: webhookSubscription['lastScan']['testResults'] ? webhookSubscription['lastScan']['testResults'] : null,
               working: false,
+              isWebhookScan: webhookSubscription['lastScan']['_id'],
             })
           }
           else {
