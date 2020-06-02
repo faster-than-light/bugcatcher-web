@@ -117,10 +117,10 @@ export default class Repositories extends Component {
   }
 
   runApiFunctions = async () => {
-    const { code, repos, token, githubUser, webhookSubscriptions } = this.state
+    const { code, repos, token } = this.state
     if (code && !token) await this.fetchToken()
     // if (!githubUser) await this.fetchGithubUser()
-    if (!repos) await this.fetchRepos()
+    if (!code && token && !repos) await this.fetchRepos()
     // if (!webhookSubscriptions) await this.fetchWebhookSubscriptions()
   }
   
