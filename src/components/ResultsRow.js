@@ -69,7 +69,7 @@ export default class ResultsRow extends Component {
         <Instances />
         <Table.Row>
           <Table.Cell style={{ verticalAlign: 'top' }} className="grey-color light-grey-bg-color right-border">Resources</Table.Cell>
-          <Table.Cell className="light-grey-bg-color dont-break-out">{moreInfo}</Table.Cell>
+          <Table.Cell className="dont-break-out">{moreInfo}</Table.Cell>
         </Table.Row>
       </Table.Body>
     </Table>    

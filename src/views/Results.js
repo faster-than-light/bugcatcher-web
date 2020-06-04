@@ -19,7 +19,7 @@ import CqcApi from '../helpers/cqcApi'
 import { getCookie } from '../helpers/cookies'
 import { base64ToBlob, decodedRepoName, testStatusToColor } from '../helpers/strings'
 import { groupedResultsJson } from '../helpers/data'
-import { helpEmail } from '../config'
+import { appUrl, helpEmail } from '../config'
 import { durationBreakdown } from '../helpers/moment'
 
 // images and styles
@@ -153,38 +153,13 @@ export default class Results extends Component {
   }
 
   _fetchPDF = async (e) => {
-    const published = queryString.parse(document.location.search)['published']
-    this.setState({ loading: true })
-    const fail = () => { alert("Error fetching results") }
-    let blob, response
-    if (published) {
-      response = await cqcApi.getPDF(this.props.match.params.id).catch(fail)
-      blob = base64ToBlob(response.data)
-    }
-    else {
-      response = await api.getTestResult({
-        stlid: this.props.match.params.id,
-        format: 'pdf',
-        options: {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/pdf'
-          },
-          responseType: "blob"
-        }
-      }).catch(fail)
-      if (response && response.data && response.data.size > 5) {
-        blob = new Blob([response.data], { type: 'application/pdf' })
-      }
-      else fail()
-    }
+    const { hook: scan, testId: test } = this.state
+    const qs = scan ? `scan=${scan}` : `test=${test}`
+    const url = `${appUrl}/results/pdf?${qs}`
+    window.open(url, "_blank")
+  }
 
-    this.setState({ loading: false })
-    const objectUrl = window.URL.createObjectURL(blob)
-    window.open(objectUrl, "_self")
-}
-
-  _fetchJSON = () => {
+_fetchJSON = () => {
     const blob = new Blob([JSON.stringify(this.state.results)], { type: 'application/json' })
     const objectUrl = window.URL.createObjectURL(blob)
     window.open(objectUrl, "_self")
@@ -193,12 +168,14 @@ export default class Results extends Component {
   render() {
     const {
       failedToFetchError,
+      hook,
       loading,
       pdfReady,
       project,
       published,
       results,
       showFiles,
+      testId,
       treeSha,
     } = this.state
 
@@ -312,7 +289,7 @@ export default class Results extends Component {
                     <Table.Body>
                       <Table.Row>
                         <Table.Cell className="grey-color light-grey-bg-color">Test ID</Table.Cell>
-                        <Table.Cell colSpan={2}><code>{this.props.match.params.id}</code></Table.Cell>
+                        <Table.Cell colSpan={2}><code>{testId || hook}</code></Table.Cell>
                       </Table.Row>
                       <Table.Row>
                         <Table.Cell className="grey-color light-grey-bg-color">Test initiated</Table.Cell>
@@ -338,16 +315,16 @@ export default class Results extends Component {
                           </a>
                         </Table.Cell>
                       </Table.Row>
-                      {/* <Table.Row>
+                      <Table.Row>
                         <Table.Cell className="grey-color light-grey-bg-color">Download Results</Table.Cell>
                         <Table.Cell colSpan={2}>
                           <StlButton semantic primary
-                            disabled={!pdfReady}
+                            // disabled={!pdfReady}
                             onClick={this._fetchPDF}>PDF</StlButton>
                           &nbsp;&nbsp;
                           <StlButton semantic onClick={this._fetchJSON}>JSON</StlButton>
                        </Table.Cell>
-                      </Table.Row> */}
+                      </Table.Row>
                     </Table.Body>
                   </Table>
 
