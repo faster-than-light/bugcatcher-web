@@ -35,12 +35,12 @@ export default class Results extends Component {
 
   /** @dev Lifecycle methods */
   async componentWillMount() {
-    const hook = queryString.parse(document.location.search)['hook']
+    const scan = queryString.parse(document.location.search)['scan']
     const published = queryString.parse(document.location.search)['published']
     const testId = queryString.parse(document.location.search)['test']
     const treeSha = queryString.parse(document.location.search)['tree']
     this.setState({
-      hook,
+      scan,
       published,
       testId,
       treeSha,
@@ -103,7 +103,7 @@ export default class Results extends Component {
 
   _fetchResults = async () => {
     this.setState({ failedToFetchError: null })
-    const { hook, published, testId } = this.state
+    const { scan, published, testId } = this.state
 
     let results
     if (published) {
@@ -112,8 +112,8 @@ export default class Results extends Component {
       ).catch(this._failedToFetch)
       results = publishedResults
     }
-    else if (hook) {
-      const webhookScan = await cqcApi.getWebhookScan(hook).catch(this._failedToFetch)
+    else if (scan) {
+      const webhookScan = await cqcApi.getWebhookScan(scan).catch(this._failedToFetch)
       results = webhookScan['testResults']
     }
     else if (testId) {
@@ -153,7 +153,7 @@ export default class Results extends Component {
   }
 
   _fetchPDF = async (e) => {
-    const { hook: scan, testId: test } = this.state
+    const { scan, testId: test } = this.state
     const qs = scan ? `scan=${scan}` : `test=${test}`
     const url = `${appUrl}/results/pdf?${qs}`
     window.open(url, "_blank")
@@ -168,7 +168,7 @@ _fetchJSON = () => {
   render() {
     const {
       failedToFetchError,
-      hook,
+      scan,
       loading,
       pdfReady,
       project,
@@ -261,7 +261,7 @@ _fetchJSON = () => {
                         }} />
                     </Link>
                   </header>
-                  <Link to={`/project/${encodeURIComponent(project)}`}
+                  <Link to={`/project/${encodeURIComponent(project)}${scan ? `?scan=${scan}` : ''}`}
                      style={{
                        display: published ? 'none' : 'inline-block',
                        fontSize: '120%',
@@ -289,7 +289,7 @@ _fetchJSON = () => {
                     <Table.Body>
                       <Table.Row>
                         <Table.Cell className="grey-color light-grey-bg-color">Test ID</Table.Cell>
-                        <Table.Cell colSpan={2}><code>{testId || hook}</code></Table.Cell>
+                        <Table.Cell colSpan={2}><code>{testId || scan}</code></Table.Cell>
                       </Table.Row>
                       <Table.Row>
                         <Table.Cell className="grey-color light-grey-bg-color">Test initiated</Table.Cell>

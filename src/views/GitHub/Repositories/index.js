@@ -373,7 +373,7 @@ export default class Repositories extends Component {
                 title={projectIconTitles['webhook']}
                 style={{ color: '#2185d0' }} />&nbsp;
               <a onClick={() => {
-                this.setState({ redirect: `/project/${encodeURIComponent(projectNameWithBranch)}?webhook=${scanId}`})
+                this.setState({ redirect: `/project/${encodeURIComponent(projectNameWithBranch)}?scan=${scanId}`})
               }}>{r.repository}</a>
             </Table.Cell>
           </Table.Row>

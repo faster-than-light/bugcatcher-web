@@ -131,7 +131,7 @@ export default class Project extends Component {
 
   /** @dev Lifecycle methods */
   async componentWillMount() {
-    const isWebhookScan = queryString.parse(document.location.search)['webhook']
+    const isWebhookScan = queryString.parse(document.location.search)['scan']
 
     projectName = this.props.match ? decodeURIComponent(this.props.match.params.id) : null
 
@@ -1032,7 +1032,7 @@ export default class Project extends Component {
     const treeSize = !ghTree.tree ? null : ghTree.tree.filter(t => t.type === 'blob').length
     const percentComplete = Math.floor((ghUploaded / ghFileCount) * 100)
     let resultsUri = `/results?`
-    if (isWebhookScan) resultsUri += `hook=${isWebhookScan}&`
+    if (isWebhookScan) resultsUri += `scan=${isWebhookScan}&`
     if (testResultSid) resultsUri += `test=${testResultSid}&`
     if (ghTreeSha) resultsUri += `tree=${ghTreeSha}`
 
@@ -1235,7 +1235,7 @@ export default class Project extends Component {
                       See Issues
                     </a>
                     &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                    <Link to={resultsUri} target="_blank">
+                    <Link to={resultsUri}>
                       View Full Report
                     </Link>
                   </div>
@@ -1377,7 +1377,7 @@ export default class Project extends Component {
 
                   return <React.Fragment>
                     <GroupedResults />
-                    <Link to={resultsUri} target="_blank">
+                    <Link to={resultsUri}>
                       View Full Report
                     </Link>
                   </React.Fragment>
