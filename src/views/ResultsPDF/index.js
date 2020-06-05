@@ -208,7 +208,7 @@ export default class ResultsPDF extends Component {
 
             <View style={[styles.row, styles.padded, { fontSize: 18, marginBottom: 0 }]} key={'viewB3'}>
               <Text style={{ flexShrink: 3 }} key={'text1d'}>Project: </Text>
-              <Link src={`${appUrl}/project/${encodeURIComponent(project)}`} style={[styles.projectTitle, { flexGrow: 3 }]} key={'text2d'}>{project}</Link>
+              <Link src={`${appUrl}/project/${encodeURIComponent(project)}${scan ? `?webhook=${scan}` : ''}`} style={[styles.projectTitle, { flexGrow: 3 }]} key={'text2d'}>{project}</Link>
             </View>
             
             <View style={[styles.padded, { paddingTop: 0 }]} key={'viewB4'}>
@@ -236,7 +236,7 @@ export default class ResultsPDF extends Component {
                 <View style={[styles.row]} key={'viewD5'}>
                   <Text style={[styles.cell, styles.labelCell]} key={'text5a'}>Files Tested</Text>
                   <View style={[styles.cell, styles.wideCell, { padding: '6px 0 0 6px' }]} key={'text5b'}>
-                  <Link src={`${appUrl}/project/${encodeURIComponent(project)}#Files`} key={'text3d'}
+                  <Link src={`${appUrl}/project/${encodeURIComponent(project)}${scan ? `?webhook=${scan}` : ''}#Files`} key={'text3d'}
                     style={{
                       color: colors.lightBlue,
                     }}>show {results.test_run.codes.length} files</Link>
