@@ -107,12 +107,12 @@ export const groupedResultsJson = (testRunResult, project) => {
               `${f.code.name} (lines ${f.start_line} - ${f.end_line})`,
               f.commentary
             ])),
-            resources: d[1].map(h =>
-              typeof h.test_suite_test.more_information_uris === 'object' ?
+            resources: d[1].map(h => {
+              return typeof h.test_suite_test.more_information_uris === 'string' ?
               JSON.parse(
                 h.test_suite_test.more_information_uris.replace(/'/g, '"')
               ) : []
-            )[0],
+            })[0],
           }
         })
         rows.push(hits)

@@ -17,6 +17,7 @@ import Projects from './views/Projects'
 import Publish from './views/Publish'
 import Repositories from './views/GitHub/Repositories'
 import Results from './views/Results'
+import ResultsPDF from './views/ResultsPDF'
 import ThankYou from './views/ThankYou'
 import Tour from './views/Tour'
 
@@ -116,6 +117,7 @@ class App extends Component {
             <Route path="/publish/:id" component={Publish} exact />
             <Route path="/github/repos" component={() => <Repositories {...props} />} exact />
             <Route path="/results" component={Results} exact />
+            <Route path="/results/pdf" component={ResultsPDF} exact />
           </Switch>
           <CookiesAlert />
         </div>
