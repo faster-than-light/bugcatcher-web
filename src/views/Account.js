@@ -178,10 +178,7 @@ export default class Account extends Component {
                       software errors and improve user experience in accordance 
                       with our <a href="https://fasterthanlight.dev/privacy" target="_blank">Privacy Policy</a> and the <a href="https://fasterthanlight.dev/terms" target="_blank">Terms of Use</a>. 
                   </p>
-                  <a href="#" onClick={() => {
-                     setCookie("cookies-permitted", null, -1)
-                     this.context.actions.logOut()
-                  }}
+                  <a href="#" onClick={this.context.actions.logOut}
                     style={{ float: 'right' }}>I revoke my consent</a>
                 </Table.Cell>
               </Table.Row>

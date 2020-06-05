@@ -120,13 +120,8 @@ export class UserProvider extends Component {
     logOut: async () => {
       this.setUser(null)
       await cqcApi.removeJwt()
-      // setTimeout(
-      //   () => {
-          window.location.href = '/'
-          // window.location.reload()
-      //   },
-      //   333
-      // )
+      setCookie("cookies-permitted", null, -1)
+      window.location.href = '/'
     }
   }
 

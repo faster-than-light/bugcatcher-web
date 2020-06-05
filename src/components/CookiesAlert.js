@@ -7,7 +7,6 @@ import FtlButton from './FtlButton'
 // helpers
 import { showCookiesAlert } from '../config'
 import { getCookie, setCookie } from '../helpers/cookies'
-import { showWidget } from '../helpers/intercom'
 
 // images and styles
 import '../assets/css/components/CookiesAlert.css'
@@ -23,11 +22,15 @@ export default class CookiesAlert extends Component {
   }
 
   componentDidMount() {
-    if (!this.state.cookiesPermitted) document.body.classList.add("hide-intercom")
+    if (!this.state.cookiesPermitted) this.hideIntercom()
   }
 
   componentWillUnmount() {
     this.showIntercom()
+  }
+
+  hideIntercom() {
+    document.body.classList.add("hide-intercom")
   }
 
   showIntercom() {
@@ -37,7 +40,7 @@ export default class CookiesAlert extends Component {
   agree = () => {
     setCookie(cookieName, true, 90)
     this.setState({ cookiesPermitted: true })
-    showWidget()
+    this.showIntercom()
   }
 
   render() {
