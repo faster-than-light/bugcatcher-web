@@ -57,37 +57,40 @@ export default class Repositories extends Component {
   }
 
   async componentWillMount() {
-    const { data: { response: projects } } = await api.getProject().catch(() => ({}))
-    this.setState({ projects, working: true })
-    const code = queryString.parse(document.location.search)['code']
-    let token = getCookie(tokenCookieName)
-    token = token.length ? token : null
+    const { data, status } = await api.getProject().catch(() => new Object())
+    if (status === 200 && data) {
+      const { response: projects } = data
+      this.setState({ projects, working: true })
+      const code = queryString.parse(document.location.search)['code']
+      let token = getCookie(tokenCookieName)
+      token = token.length ? token : null
 
-    let { githubUser, webhookSubscriptions } = this.state
-    if (!token && code) {
-      token = await this.fetchToken()
-      if (window.history.pushState) {
-        const newurl = `${window.location.protocol}//${window.location.host}/github/repos`
-        window.history.pushState({path: newurl}, '', newurl)
+      let { githubUser, webhookSubscriptions } = this.state
+      if (!token && code) {
+        token = await this.fetchToken()
+        if (window.history.pushState) {
+          const newurl = `${window.location.protocol}//${window.location.host}/github/repos`
+          window.history.pushState({path: newurl}, '', newurl)
+        }
       }
-    }
-    if (token) {
-      await githubApi.setToken(token)
-      githubUser = await this.fetchGithubUser()
-      webhookSubscriptions = await this.fetchWebhookSubscriptions()
-    }
-    if (!token && !githubUser && !code) this.props.setUser(null)
-    else this.setState({
-      addingProjects: projects && !projects.length && webhookSubscriptions && !webhookSubscriptions.length,
-      code: !githubUser && code ? code : null,
-      token,
-      githubUser,
-      webhookSubscriptions,
-      working: false,
-    })
+      if (token) {
+        await githubApi.setToken(token)
+        githubUser = await this.fetchGithubUser()
+        webhookSubscriptions = await this.fetchWebhookSubscriptions()
+      }
+      if (!token && !githubUser && !code) this.props.setUser(null)
+      else this.setState({
+        addingProjects: projects && !projects.length && webhookSubscriptions && !webhookSubscriptions.length,
+        code: !githubUser && code ? code : null,
+        token,
+        githubUser,
+        webhookSubscriptions,
+        working: false,
+      })
 
-    this.runApiFunctions()
+      this.runApiFunctions()
 
+    }
   }
 
   componentDidMount() {

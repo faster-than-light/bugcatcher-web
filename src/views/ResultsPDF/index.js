@@ -39,12 +39,12 @@ export default class ResultsPDF extends Component {
   state = {}
 
   async componentWillMount() {
-    document.body.classList.add("pdf-results")
+    document.body.classList.add("hide-intercom")
     await this.fetchAndSaveResults()
   }
 
-  async componentWillUnmount() {
-    document.body.classList.remove("pdf-results")
+  componentWillUnmount() {
+    document.body.classList.remove("hide-intercom")
   }
 
   async fetchAndSaveResults() {

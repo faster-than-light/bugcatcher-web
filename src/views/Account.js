@@ -6,7 +6,10 @@ import moment from 'moment'
 // components
 import Menu from '../components/Menu'
 import Loader from '../components/Loader'
-import StlButton from '../components/StlButton'
+// import StlButton from '../components/StlButton'
+
+// context
+import { UserContext } from '../contexts/UserContext'
 
 // helpers
 import api from '../helpers/api'
@@ -15,11 +18,13 @@ import { getCookie, setCookie } from '../helpers/cookies'
 import { fetchEntitlement } from '../helpers/data'
 
 export default class Account extends Component {
+  static contextType = UserContext
   state = {
-    cookiesAccepted: getCookie("cookies-accepted")
+    cookiesAccepted: getCookie("cookies-permitted")
   }
 
   componentWillMount() {
+    console.log(this.props)
     this.setState({ user: this.props.user })
   }
 
@@ -56,22 +61,29 @@ export default class Account extends Component {
   toggleShowAddCard = () => { this.setState({ showAddCard: false }) }
 
   render() {
-    const { userDataLoaded } = this.props
-    const { updatingSubscription = false, user } = this.state
-    const { subscriptions = [] } = user
-    const activeSubscription = subscriptions.find(s => s.status === 'active')
-    const subscription = activeSubscription || subscriptions[0]
-    const { payment_method: paymentMethod } = subscription || {}
-    const autoRenew = Boolean(user && activeSubscription)
-    const entitlement = fetchEntitlement(user, config.subscriberEntitlementName)
-    const cardDisplayName = paymentMethod ?
-      `${config.monthlyProductPrice} billed monthly to ${paymentMethod.display_name} exp ${paymentMethod.expiration_month}/${paymentMethod.expiration_year}` : ''
-    const subscriptionCycle = entitlement && entitlement.end ?
-      `Subscription ${autoRenew ? 'renews' : 'ends'} on ${moment(entitlement.end).format("dddd, MMMM Do YYYY")}` : ''
+    const { userDataLoaded, user } = this.props
+    // const { updatingSubscription = false } = this.state
 
-    if (!user) return <Redirect to={'/'} />
-    else return <div id="pay">
-      <Loader show={updatingSubscription || !userDataLoaded} text="updating" />
+    // const { subscriptions = [] } = user
+    // const activeSubscription = subscriptions.find(s => s.status === 'active')
+    // const subscription = activeSubscription || subscriptions[0]
+    // const { payment_method: paymentMethod } = subscription || {}
+    // const autoRenew = Boolean(user && activeSubscription)
+    // const entitlement = fetchEntitlement(user, config.subscriberEntitlementName)
+    // const cardDisplayName = paymentMethod ?
+    //   `${config.monthlyProductPrice} billed monthly to ${paymentMethod.display_name} exp ${paymentMethod.expiration_month}/${paymentMethod.expiration_year}` : ''
+    // const subscriptionCycle = entitlement && entitlement.end ?
+    //   `Subscription ${autoRenew ? 'renews' : 'ends'} on ${moment(entitlement.end).format("dddd, MMMM Do YYYY")}` : ''
+
+    if (!user && userDataLoaded) document.location.href = '/'
+    if (!user) return null
+    
+    
+    return <div id="pay">
+      <Loader show={
+        // updatingSubscription ||
+        !userDataLoaded
+      } text="updating" />
       <Menu />
       <div className="contents" style={{
         maxWidth: 720,
@@ -166,9 +178,9 @@ export default class Account extends Component {
                       software errors and improve user experience in accordance 
                       with our <a href="https://fasterthanlight.dev/privacy" target="_blank">Privacy Policy</a> and the <a href="https://fasterthanlight.dev/terms" target="_blank">Terms of Use</a>. 
                   </p>
-                  <a href="" onClick={() => {
-                    setCookie("cookies-accepted", '')
-                    document.location.reload()
+                  <a href="#" onClick={() => {
+                     setCookie("cookies-permitted", null, -1)
+                     this.context.actions.logOut()
                   }}
                     style={{ float: 'right' }}>I revoke my consent</a>
                 </Table.Cell>

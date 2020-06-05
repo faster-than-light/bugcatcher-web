@@ -9,10 +9,22 @@ class htmlButton extends Component {
 
 export default class FtlButton extends Component {
   render() {
-    let { className, disabled, grey, style, semantic } = this.props
+    let {
+      big,
+      className,
+      disabled,
+      grey,
+      style,
+      semantic,
+      small,
+      tiny,
+    } = this.props
     const B = semantic ? Button : htmlButton
     semantic = Boolean(semantic).toString()
+    if (big) className = ('big ' + className).trim()
     if (grey) className = ('grey ' + className).trim()
+    if (small) className = ('small ' + className).trim()
+    if (tiny) className = ('tiny ' + className).trim()
     return <B {...this.props}
       semantic={semantic}
       className={

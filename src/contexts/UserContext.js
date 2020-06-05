@@ -51,9 +51,9 @@ export class UserProvider extends Component {
       api.setSid(user.sid)
     }
     else {
-      setCookie('session', '')
-      setCookie('tokenId', '')
-      setCookie(github.tokenCookieName, '')
+      setCookie('session', null, -1)
+      setCookie('tokenId', null, -1)
+      setCookie(github.tokenCookieName, null, -1)
       api.setSid(null)
     }
   }
@@ -120,10 +120,13 @@ export class UserProvider extends Component {
     logOut: async () => {
       this.setUser(null)
       await cqcApi.removeJwt()
-      setTimeout(
-        () => window.location.reload(),
-        999
-      )
+      // setTimeout(
+      //   () => {
+          window.location.href = '/'
+          // window.location.reload()
+      //   },
+      //   333
+      // )
     }
   }
 

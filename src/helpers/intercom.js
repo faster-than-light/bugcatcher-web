@@ -37,7 +37,7 @@ export const init = (user) => {
   }
   
   // Hide widget if cookies agreement is not true
-  if (getCookie("cookies-accepted")) setTimeout( showWidget, 3000 )
+  if (getCookie("cookies-permitted")) setTimeout( showWidget, 3000 )
 }
 
 export const hideWidget = () => {

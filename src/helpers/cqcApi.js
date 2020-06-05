@@ -20,8 +20,7 @@ export default function(ftlSID) {
   }
 
   const removeJwt = async () => {
-    const { data } = await del(`/jwt`)
-    console.log({data})
+    del(`/jwt`)
   }
 
   const getResults = (stlid) => {

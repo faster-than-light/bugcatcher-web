@@ -177,4 +177,4 @@ div.stl-hr.accented.secondary-bg-color {
 
 /** Intercom */
 #intercom-container { display: none; }
-.pdf-results .intercom-lightweight-app { display: none; }
+.hide-intercom .intercom-lightweight-app { display: none; }
