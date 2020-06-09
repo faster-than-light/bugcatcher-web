@@ -17,8 +17,8 @@ import { UserContext } from '../contexts/UserContext'
 import api from '../helpers/api'
 import CqcApi from '../helpers/cqcApi'
 import { getCookie } from '../helpers/cookies'
-import { base64ToBlob, decodedRepoName, testStatusToColor } from '../helpers/strings'
-import { groupedResultsJson } from '../helpers/data'
+import { decodedRepoName, testStatusToColor } from '../helpers/strings'
+import { buildResultsMatrix, groupedResultsJson } from '../helpers/data'
 import { appUrl, helpEmail } from '../config'
 import { durationBreakdown } from '../helpers/moment'
 
@@ -229,14 +229,21 @@ _fetchJSON = () => {
                 {t}
               </span>)
 
-              const markdownPayload = {
-                groupedResults,
-                languagesUsed,
-                project,
-                results,
-                testId: this.props.match.params.id,
-                testToolsUsed
-              }
+              // const markdownPayload = {
+              //   groupedResults,
+              //   languagesUsed,
+              //   project,
+              //   results,
+              //   testId: this.props.match.params.id,
+              //   testToolsUsed
+              // }
+
+              const matrix = buildResultsMatrix(results)
+              let matrixArray = new Array()
+              if (matrix['high']) matrixArray.push(`${matrix['high']} high impact`)
+              if (matrix['medium']) matrixArray.push(`${matrix['medium']} medium impact`)
+              if (matrix['low']) matrixArray.push(`${matrix['low']} low impact`)
+              const resultsBreakdown = matrixArray.join(', ')
 
               const fileCount = results.test_run.codes.length
               const filesTested = () => results.test_run.codes.map(c => <span>{c.name}<br /></span>)
@@ -292,20 +299,20 @@ _fetchJSON = () => {
                         <Table.Cell colSpan={2}><code>{testId || scan}</code></Table.Cell>
                       </Table.Row>
                       <Table.Row>
-                        <Table.Cell className="grey-color light-grey-bg-color">Test initiated</Table.Cell>
+                        <Table.Cell className="grey-color light-grey-bg-color">Test Initiated</Table.Cell>
                         <Table.Cell>{startTest.format('llll')}</Table.Cell>
                         <Table.Cell>(completed in {durationBreakdown(startTest, endTest)})</Table.Cell>
                       </Table.Row>
                       <Table.Row>
-                        <Table.Cell className="grey-color light-grey-bg-color">Languages found</Table.Cell>
+                        <Table.Cell className="grey-color light-grey-bg-color">Languages Found</Table.Cell>
                         <Table.Cell colSpan={2}>{languagesUsedBadges}</Table.Cell>
                       </Table.Row>
                       <Table.Row style={{ display: testToolsUsed.length ? 'table-row' : 'none' }}>
-                        <Table.Cell className="grey-color light-grey-bg-color">Tools used</Table.Cell>
+                        <Table.Cell className="grey-color light-grey-bg-color">Tools Used</Table.Cell>
                         <Table.Cell colSpan={2}>{testToolsUsedBadges}</Table.Cell>
                       </Table.Row>
                       <Table.Row>
-                        <Table.Cell className="grey-color light-grey-bg-color">Files tested</Table.Cell>
+                        <Table.Cell className="grey-color light-grey-bg-color">Files Tested</Table.Cell>
                         <Table.Cell colSpan={2}>
                           <a onClick={() => {this.setState({showFiles: false})}}
                             style={{display: showFiles ? 'block' : 'none'}}>(hide files)</a>
@@ -313,6 +320,12 @@ _fetchJSON = () => {
                           <a onClick={() => {this.setState({showFiles: !showFiles})}}>
                             {showFiles ? '(hide files)' : `show ${fileCount} files`}
                           </a>
+                        </Table.Cell>
+                      </Table.Row>
+                      <Table.Row>
+                        <Table.Cell className="grey-color light-grey-bg-color">Results Breakdown</Table.Cell>
+                        <Table.Cell colSpan={2}>
+                          { resultsBreakdown }
                         </Table.Cell>
                       </Table.Row>
                       <Table.Row>
