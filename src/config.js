@@ -16,7 +16,7 @@ module.exports = {
   // app url
   appUrl: ({
     production: 'https://bugcatcher.fasterthanlight.dev',
-    development: 'https://staging.tiger.sohotokenlabs.com',
+    development: 'https://staging-sat.firebaseapps.com',
     devbat: 'http://localhost:3000',
     local: 'http://localhost:3000',
   })[process.env.REACT_APP_FTL_ENV],

@@ -120,7 +120,7 @@ export default class Landing extends Component {
 
                 </div>
                 <p className="lead product-description" style={{color: '#ddd', marginBottom: 18}}>
-                  BugCatcher is a fast, easy static analysis tool for your Python and Java code.
+                  BugCatcher is a fast, easy static analysis tool for your Python code.
                 </p>
                 <p>
                   <Link to="/about" className="primary-color"
