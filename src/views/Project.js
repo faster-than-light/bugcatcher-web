@@ -437,9 +437,15 @@ export default class Project extends Component {
   }
 
   _runTests = async (fetchFiles) => {
-    console.log(`begin testing repo: ${projectName}`)
-    if (fetchFiles) {
-      const [ owner, repo, branch ] = destructureProjectName(projectName)
+    const [ owner, repo, branch ] = destructureProjectName(projectName)
+    const isRepo = owner && repo && branch
+
+    if (isRepo && fetchFiles) {
+      console.log(`begin testing repo: ${projectName}`, {
+        projectName,
+        projectNameEncoded: uriEncodeProjectName(projectName),
+        owner, repo, branch,
+      })
       const { tree } = await githubApi.getTree(
         ...destructureProjectName(projectName)
       )
@@ -471,9 +477,7 @@ export default class Project extends Component {
         owner: null,
         uploadErrors: [],
       })
-      await this._fetchProductCode()
-
-      // scrollTo('bottom', true)
+      if (isRepo) await this._fetchProductCode()
 
       // tell the server to run tests
       const runTestsError = (err) => {
